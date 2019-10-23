@@ -64,6 +64,14 @@ F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
 
 i = 0
 j = 1
-#
-K_xx =  C_22*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
+#Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
 
+K_xx =  C_22*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
+K_xy =  C_23*(W_Cs*np.sum(Lag_poly[tau]*F_s_x*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(F_tau_x*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_der[j]*J_Length))
+K_xz =  C_12*(W_Cs*np.sum(F_tau_z*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length))     
+K_yx =  C_44*(W_Cs*np.sum(Lag_poly[tau]*F_s_x*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_23*(W_Cs*np.sum(F_tau_x*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_der[j]*J_Length))
+K_yy =  C_55*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_33*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length)) 
+K_yz =  C_55*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_13*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_der[j]*J_Length))
+K_zx =  C_12*(W_Cs*np.sum(F_tau_x*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) 
+K_zy =  C_13*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_der[j]*J_Length))  
+K_zz =  C_11*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
