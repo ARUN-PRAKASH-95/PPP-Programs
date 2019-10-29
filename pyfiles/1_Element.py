@@ -30,12 +30,13 @@ X4 = -0.1
 Z4 =  0.1
 
 #Along the beam axis(Y)
-n  = 1                  # No  of elements
-Epsilon = np.array([0.57735,-0.57735])    #Gauss points
+n_elem = 1                                  # No of elements
+n  = 2                                      # No of nodes per element
+Epsilon = np.array([0.57735,-0.57735])      # Gauss points
 Shape_func = np.array([1/2*(1-Epsilon),1/2*(1+Epsilon)])
-N_Der      = np.array([-1/2,1/2])       #Derivative of the shape function
-J_Length   =  1                         #Jacobian for the length of the beam
-W_Length   =  1                         #Weight for the gauss quadrature
+N_Der      = np.array([-1/2,1/2])           #Derivative of the shape function
+J_Length   =  1                             #Jacobian for the length of the beam
+W_Length   =  1                             #Weight for the gauss quadrature
 
 #Along the Beam cross section (X,Z)
 #Lagrange polynomials
@@ -58,38 +59,39 @@ J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)   #Determinant of Jacobian matrix of th
 
 
 
+Elemental_stiffness_matrix = np.zeros((n*L_poly*3,n*L_poly*3))
+sep = int((n*L_poly*3)/n)        #Seperation point for stacking element stiffness matrix                  
 
+for i in range(n):
+    for j in range(n):
+        #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
+        Nodal_stiffness_matrix = np.zeros((L_poly*3,L_poly*3))
+        for tau_en,tau in enumerate(range(L_poly)):
+            for s_en,s in enumerate(range(L_poly)):
+                
+                #Fundamental nucleus of the stiffness matrix
+                #Derivative of F wrt to x and z for tau
+                F_tau_x = 1/J_Cs*((Z_beta*alpha_der[tau])-(Z_alpha*beta_der[tau]))
+                F_tau_z = 1/J_Cs*((-X_alpha*alpha_der[tau])+(X_beta*beta_der[tau]))
 
-i = 0
-j = 1
-#Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
-Nodal_stiffness_matrix = np.zeros((L_poly*3,L_poly*3))
-for tau_en,tau in enumerate(range(L_poly)):
-    for s_en,s in enumerate(range(L_poly)):
-        
-        #Fundamental nucleus of the stiffness matrix
-        #Derivative of F wrt to x and z for tau
-        F_tau_x = 1/J_Cs*((Z_beta*alpha_der[tau])-(Z_alpha*beta_der[tau]))
-        F_tau_z = 1/J_Cs*((-X_alpha*alpha_der[tau])+(X_beta*beta_der[tau]))
-
-        #Derivative of F wrt to x and z for s
-        F_s_x = 1/J_Cs*((Z_beta*alpha_der[s])-(Z_alpha*beta_der[s]))
-        F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
-        
-        
-        K_xx =  C_22*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
-        K_xy =  C_23*(W_Cs*np.sum(Lag_poly[tau]*F_s_x*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(F_tau_x*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
-        K_xz =  C_12*(W_Cs*np.sum(F_tau_z*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length))     
-        K_yx =  C_44*(W_Cs*np.sum(Lag_poly[tau]*F_s_x*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_23*(W_Cs*np.sum(F_tau_x*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
-        K_yy =  C_55*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_33*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length)) 
-        K_yz =  C_55*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_13*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
-        K_zx =  C_12*(W_Cs*np.sum(F_tau_x*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) 
-        K_zy =  C_13*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))  
-        K_zz =  C_11*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
-        F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-      
-        Nodal_stiffness_matrix[3*s_en:3*(s_en+1) , tau_en*3:3*(tau_en+1)]  = F_Nu
-        
-print(Nodal_stiffness_matrix)
-print(Nodal_stiffness_matrix.shape)
-        
+                #Derivative of F wrt to x and z for s
+                F_s_x = 1/J_Cs*((Z_beta*alpha_der[s])-(Z_alpha*beta_der[s]))
+                F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
+                
+                
+                K_xx =  C_22*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
+                K_xy =  C_23*(W_Cs*np.sum(Lag_poly[tau]*F_s_x*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(F_tau_x*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
+                K_xz =  C_12*(W_Cs*np.sum(F_tau_z*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length))     
+                K_yx =  C_44*(W_Cs*np.sum(Lag_poly[tau]*F_s_x*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_23*(W_Cs*np.sum(F_tau_x*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
+                K_yy =  C_55*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_33*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length)) 
+                K_yz =  C_55*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_13*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
+                K_zx =  C_12*(W_Cs*np.sum(F_tau_x*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) 
+                K_zy =  C_13*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))  
+                K_zz =  C_11*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
+                F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
+            
+                Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
+                
+        Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
+print(Elemental_stiffness_matrix)   
+print(Elemental_stiffness_matrix.shape)                
