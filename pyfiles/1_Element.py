@@ -3,8 +3,8 @@ import matplotlib.pyplot as pyplot
 
 #PARAMETERS
 a = 0.2            #[m] Square cross section
-L = 2              #[m] Length of the beam
-E = 75e9           #[Pa] Young's Modulus
+L = 2             #[m] Length of the beam
+E = 75e8           #[Pa] Young's Modulus
 v = 0.33           # Poissons Ratio
 G = E/(2*(1+v))
 First  = (E*(1-v))/((1+v)*(1-2*v))
@@ -89,9 +89,20 @@ for i in range(n):
                 K_zy =  C_13*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))  
                 K_zz =  C_11*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-            
+                if (i==j==0) and (tau == s):
+                    np.fill_diagonal(F_Nu,30e12)
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                 
+        #print(Nodal_stiffness_matrix)
+                
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
-print(Elemental_stiffness_matrix)   
-print(Elemental_stiffness_matrix.shape)                
+#print(Elemental_stiffness_matrix)   
+#print(Elemental_stiffness_matrix.shape)                
+
+Load_vector = np.zeros((n*L_poly*3,1))
+Load_vector[14] = -50
+Load_vector[17] = -50
+Load_vector[20] = -50
+Load_vector[23] = -50
+A = np.linalg.solve(Elemental_stiffness_matrix,Load_vector)
+print(A)
