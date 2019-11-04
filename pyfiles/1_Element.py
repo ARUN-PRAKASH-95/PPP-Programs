@@ -3,8 +3,8 @@ import matplotlib.pyplot as pyplot
 
 #PARAMETERS
 a = 0.2            #[m] Square cross section
-L = 2             #[m] Length of the beam
-E = 75e8           #[Pa] Young's Modulus
+L = 2              #[m] Length of the beam
+E = 75e9           #[Pa] Young's Modulus
 v = 0.33           # Poissons Ratio
 G = E/(2*(1+v))
 First  = (E*(1-v))/((1+v)*(1-2*v))
@@ -31,7 +31,7 @@ Z4 =  0.1
 
 #Along the beam axis(Y)
 n_elem = 1                                  # No of elements
-n  = 2                                      # No of nodes per element
+n  = 2                                      # No of nodes 
 Epsilon = np.array([0.57735,-0.57735])      # Gauss points
 Shape_func = np.array([1/2*(1-Epsilon),1/2*(1+Epsilon)])
 N_Der      = np.array([-1/2,1/2])           #Derivative of the shape function
@@ -42,7 +42,7 @@ W_Length   =  1                             #Weight for the gauss quadrature
 #Lagrange polynomials
 alpha = np.array([-0.57735,0.57735,0.57735,-0.57735])     # Gauss points 
 beta  = np.array([-0.57735,-0.57735,0.57735,0.57735])
-W_Cs  = 1
+W_Cs  = 1                                                 #weight for gauss quadrature in the cross section
 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
 L_poly = 4
 
@@ -55,8 +55,8 @@ X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
 Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
 Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
-J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)   #Determinant of Jacobian matrix of the cross section
 
+J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)   #Determinant of Jacobian matrix of the cross section
 
 
 Elemental_stiffness_matrix = np.zeros((n*L_poly*3,n*L_poly*3))
@@ -100,9 +100,10 @@ for i in range(n):
 #print(Elemental_stiffness_matrix.shape)                
 
 Load_vector = np.zeros((n*L_poly*3,1))
-Load_vector[14] = -50
-Load_vector[17] = -50
-Load_vector[20] = -50
-Load_vector[23] = -50
+Load_vector[14] = -12.5
+Load_vector[17] = -12.5
+Load_vector[20] = -12.5
+Load_vector[23] = -12.5
+print(Load_vector)
 A = np.linalg.solve(Elemental_stiffness_matrix,Load_vector)
 print(A)
