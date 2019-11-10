@@ -106,26 +106,35 @@ for l in range(n_elem):
                     K_zy =  C_13*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))  
                     K_zz =  C_11*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
                     F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-                    if (i==j==0) and (tau == s):
-                        np.fill_diagonal(F_Nu,30e12)
+                    # if (i==j==0) and (tau == s)and (l==0):
+                    #     np.fill_diagonal(F_Nu,30e12)
                     Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                     
             #print(Nodal_stiffness_matrix)
                     
             Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
-    print(Elemental_stiffness_matrix[15,3])
-    print("Stiffness matrix ----------------------------------------")
-    print(Elemental_stiffness_matrix)                
+        
+    # print(Elemental_stiffness_matrix[15,3])
+    # print("Stiffness matrix ----------------------------------------")
+    # print(Elemental_stiffness_matrix) 
+    
+    Ae = np.zeros((n*L_poly*DOF,n_cross_nodes*L_poly*DOF))
+    np.fill_diagonal( Ae[sep*0:sep*1 , sep*l:sep*(l+1)] , 1 )
+    np.fill_diagonal( Ae[sep*1:sep*2 , sep*(l+1):sep*(l+2)] , 1 )
+    AeT = np.transpose(Ae)
+
+    K = AeT@Elemental_stiffness_matrix@Ae
+    Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
+print(Global_stiffness_matrix.shape)    
+               
 
 Load_vector = np.zeros((n_cross_nodes*L_poly*DOF,1))
-Load_vector[14] = -12.5
-Load_vector[17] = -12.5
-Load_vector[20] = -12.5
-Load_vector[23] = -12.5
+Load_vector[38] = -12.5
+Load_vector[41] = -12.5
+Load_vector[44] = -12.5
+Load_vector[47] = -12.5
 print("Load vector ----------------------------------------------")
-print(Load_vector)
+print(Load_vector.shape)
 
-A = np.linalg.inv(Elemental_stiffness_matrix[12:,12:])
-C= A@Load_vector[12:]
-print("Displacement----------------------------------------------")
-print(C)
+D = np.linalg.solve(Global_stiffness_matrix[36:,36:],Load_vector[36:])
+print(D)
