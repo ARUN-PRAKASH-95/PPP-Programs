@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as pyplot
+import scipy as sp 
+from scipy import linalg
 
 #PARAMETERS
 a = 0.2            #[m] Square cross section
@@ -7,7 +9,7 @@ L = 2              #[m] Length of the beam
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))
-First  = (E*(1-v))/((1+v)*(1-2*v))
+First  = E*(1-v)/((1+v)*(1-2*v))
 Second = v*E/((1+v)*(1-2*v))
 C_11 = First
 C_22 = First
@@ -18,7 +20,7 @@ C_23 = Second
 C_44 = G
 C_55 = G
 C_66 = G
-#print(C_22,C_66,C_44)
+print(C_22,C_66,C_44)
 #Coordinates of the cross section
 X1 = -0.1
 Z1 = -0.1
@@ -92,6 +94,11 @@ for i in range(n):
                 if (i==j==0) and (tau == s):
                     np.fill_diagonal(F_Nu,30e12)
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
+                if tau==s==1 and i==0 and j==1:
+                    print(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length))
+                    print(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length))
+                    print(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
+                   
                 
         #print(Nodal_stiffness_matrix)
                 
@@ -99,16 +106,14 @@ for i in range(n):
 print(Elemental_stiffness_matrix[15,3])
 print("Stiffness matrix ----------------------------------------")
 print(Elemental_stiffness_matrix)                
-
 Load_vector = np.zeros((n*L_poly*3,1))
-Load_vector[14] = -12.5
-Load_vector[17] = -12.5
-Load_vector[20] = -12.5
-Load_vector[23] = -12.5
+Load_vector[12] = -12.5
+Load_vector[15] = -12.5
+Load_vector[18] = -12.5
+Load_vector[21] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
-A = np.linalg.inv(Elemental_stiffness_matrix[12:,12:])
-C= A@Load_vector[12:]
+C = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
 print("Displacement----------------------------------------------")
 print(C)

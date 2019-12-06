@@ -129,10 +129,10 @@ print(Global_stiffness_matrix.shape)
                
 
 Load_vector = np.zeros((n_cross_nodes*L_poly*DOF,1))
-Load_vector[38] = -12.5
-Load_vector[41] = -12.5
-Load_vector[44] = -12.5
-Load_vector[47] = -12.5
+Load_vector[38] = -12.5e3
+Load_vector[41] = -12.5e3
+Load_vector[44] = -12.5e3
+Load_vector[47] = -12.5e3
 print("Load vector ----------------------------------------------")
 print(Load_vector.shape)
 
