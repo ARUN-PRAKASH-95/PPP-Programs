@@ -92,8 +92,8 @@ for i in range(n):
                 K_zy =  C_13*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))  
                 K_zz =  C_11*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-                if (i==j==0) and (tau == s):
-                    np.fill_diagonal(F_Nu,30e12)
+                # if (i==j==0) and (tau == s):
+                #     np.fill_diagonal(F_Nu,30e12)
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                 #if tau==s==1 and i==0 and j==1:
                 # print(i,j,tau,s,'---------------------------------------------------') 
@@ -116,6 +116,6 @@ Load_vector[23] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
-C = np.linalg.solve(Elemental_stiffness_matrix,Load_vector)
+C = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
 print("Displacement----------------------------------------------")
 print(C)
