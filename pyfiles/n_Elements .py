@@ -41,7 +41,7 @@ coordinate = np.linspace(Fixed_point,Free_point,n_cross_nodes)
 #Along the beam axis(Y)
 Epsilon = np.array([0.57735,-0.57735])                      # Gauss points
 Shape_func = np.array([1/2*(1-Epsilon),1/2*(1+Epsilon)])    # Shape functions of a linear element
-N_Der      = np.array([-1/2,1/2])                           # Derivative of the shape function
+N_Der      = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])                        #Derivative of the shape function
 W_Length   =  1                                             # Weight for the gauss quadrature
 n          =  2                                             # No of cross sectional nodes per element  
 
@@ -129,10 +129,10 @@ print(Global_stiffness_matrix.shape)
                
 
 Load_vector = np.zeros((n_cross_nodes*L_poly*DOF,1))
-Load_vector[38] = -12.5e3
-Load_vector[41] = -12.5e3
-Load_vector[44] = -12.5e3
-Load_vector[47] = -12.5e3
+Load_vector[38] = -12.5
+Load_vector[41] = -12.5
+Load_vector[44] = -12.5
+Load_vector[47] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector.shape)
 

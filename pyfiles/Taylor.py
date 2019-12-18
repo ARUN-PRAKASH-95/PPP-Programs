@@ -36,10 +36,11 @@ Z4 =  0.1
 #Along the beam axis(Y)
 n_elem = 1                                  # No of elements
 n  = 2                                      # No of nodes 
+X_coor = np.array([0,L])
 Epsilon = np.array([0.57735,-0.57735])      # Gauss points
 Shape_func = np.array([1/2*(1-Epsilon),1/2*(1+Epsilon)])
 N_Der      = np.array([-1/2,1/2])           #Derivative of the shape function
-J_Length   =  1                             #Jacobian for the length of the beam
+J_Length   = N_Der@X_coor                              #Jacobian for the length of the beam
 W_Length   =  1                             #Weight for the gauss quadrature
 
 #Along the Beam cross section (X,Z)
@@ -72,11 +73,11 @@ for i in range(n):
                 # if (i==j==0) and (tau == s):
                 #     np.fill_diagonal(F_Nu,30e12)
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
-                if tau==s==0 and i==0 and j==0:
+                if tau==s==1 and i==0 and j==1:
                 
-                  print(F_Nu)
+                  print(integrate(X_der[tau]*X_der[s],(x,-0.1, 0.1),(z,-0.1,0.1))*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length))
                
-        print(Nodal_stiffness_matrix)         
+        #print(Nodal_stiffness_matrix)         
                 
         
                 
