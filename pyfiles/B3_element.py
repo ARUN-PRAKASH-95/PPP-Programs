@@ -32,17 +32,16 @@ X4 = -0.1
 Z4 =  0.1
 
 #Along the beam axis(Y)
-n_elem = 1                                               # No of elements
-n  = n_elem + 1                                          # No of nodes 
-xi =   np.array([0,0.774597,-0.774597])                  # Gauss points
-Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])
-N_Der_xi = np.array([-1/2,1/2])
-
-
-X_coor = np.array([0,L])
-J_Length   = N_Der_xi@np.transpose(X_coor)                              #Jacobian for the length of the beam
-N_Der      = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])     #Derivative of the shape function
+n_elem = 1                                                        # No of elements
+n  = n_elem + 1                                                  # No of nodes 
+X_coor = np.array([0,1,L]) 
+xi =   np.array([0,0.774597,-0.774597])                          # Gauss points
+Shape_func = np.array([1/2*(xi**2 - xi),1-xi**2,1/2*(xi**2+xi)])
+N_Der_xi = np.array([(xi-1/2),-2*xi,(xi+1/2)])
+J_Length   = N_Der_xi@(X_coor.T)                               #Jacobian for the length of the beam
+print(Shape_func.shape)
 print(J_Length)
+N_Der      = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])     #Derivative of the shape function
 W_Length   = np.array([0.888889,0.555556,0.555556])                                               #Weight for the gauss quadrature
 
 #Along the Beam cross section (X,Z)

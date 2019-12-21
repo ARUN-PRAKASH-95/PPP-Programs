@@ -1,3 +1,5 @@
+
+# DO not forget the Jacobian inverse you dip shit
 import numpy as np
 import matplotlib.pyplot as pyplot
 
@@ -31,31 +33,29 @@ Z4 =  0.1
 
 
 n_elem = int(input("Enter the number of elements: "))     # No of elements
-n_cross_nodes  = n_elem + 1                               # No of cross-sectional nodes 
+n_nodes  = n_elem + 1                                     # Total number of nodes 
 Fixed_point = 0                                           # Coordinates of the beam
 Free_point  = 2
 
 #Mesh generation
-coordinate = np.linspace(Fixed_point,Free_point,n_cross_nodes)
+coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
 
 #Along the beam axis(Y)
-Epsilon = np.array([0.57735,-0.57735])                      # Gauss points
+Epsilon = np.array([0,0.774597,-0.774597])                      # Gauss points
 Shape_func = np.array([1/2*(1-Epsilon),1/2*(1+Epsilon)])    # Shape functions of a linear element
-N_Der      = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])                        #Derivative of the shape function
-W_Length   =  1                                             # Weight for the gauss quadrature
-n          =  2                                             # No of cross sectional nodes per element  
-
+N_Der_xi      = np.array([-1/2,1/2])                           #Derivative of the shape function  
+W_Length   =  np.array([0.888889,0.555556,0.555556])                                              # Weight for the gauss quadrature
 
 
 #Along the Beam cross section (X,Z)
 #Lagrange polynomials
-alpha = np.array([-0.57735,0.57735,0.57735,-0.57735])       # Gauss points 
-beta  = np.array([-0.57735,-0.57735,0.57735,0.57735])
-W_Cs  = 1                                                   # weight for gauss quadrature in the cross section
+alpha = np.array([0,0,0,0.774597,0.774597,0.774597,-0.774597,-0.774597,-0.774597])#np.array([-0.57735,0.57735,0.57735,-0.57735])       # Gauss points 
+beta  = np.array([0,0.774597,-0.774597,0,0.774597,-0.774597,0,0.774597,-0.774597])#np.array([-0.57735,-0.57735,0.57735,0.57735])
+W_Cs  = np.array([0.790123,0.493827,0.493827,0.493827,0.308641,0.308641,0.493827,0.308641,0.308641])                                                   # weight for gauss quadrature in the cross section
 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
 L_poly = 4
-n_nodes = n*L_poly                                          # No of nodes per lagrange element
-DOF = 3                                                     # Degree of freedom of each nodal points
+n_cross_nodes = L_poly                                             # No of lagrange nodes per node
+DOF = 3                                                           # Degree of freedom of each lagrange node
 
 #Lagrange Derivatives
 alpha_der = np.array([-1/4*(1-beta),1/4*(1-beta),1/4*(1+beta),-1/4*(1+beta)])         # Derivatives of the lagrange polynomials
@@ -69,18 +69,20 @@ Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
 J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                    # Determinant of Jacobian matrix of the cross section
 
-Global_stiffness_matrix = np.zeros((n_cross_nodes*L_poly*DOF,n_cross_nodes*L_poly*DOF))
+
+ #Size of the global stiffness matrix computed using no of nodes and no of cross nodes on each node and DOF
+Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
 for l in range(n_elem):
-    J_Length = N_Der@np.array([[coordinate[l]],
+    J_Length = N_Der_xi@np.array([[coordinate[l]],            #Jacobian of each element
                                [coordinate[l+1]]])
 
+    # Derivative of the shape functions with respect to physical coordinates (N,y)
+    N_Der = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])    
+    Elemental_stiffness_matrix = np.zeros((n_cross_nodes*len(Shape_func)*DOF,n_cross_nodes*len(Shape_func)*DOF))
+    sep = int((n_cross_nodes*len(Shape_func)*DOF)/2)                             # Seperation point for stacking element stiffness matrix                  
 
-
-    Elemental_stiffness_matrix = np.zeros((n_nodes*DOF,n_nodes*DOF))
-    sep = int((n_nodes*DOF)/2)                             # Seperation point for stacking element stiffness matrix                  
-
-    for i in range(n):
-        for j in range(n):
+    for i in range(len(Shape_func)):
+        for j in range(len(Shape_func)):
             #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
             Nodal_stiffness_matrix = np.zeros((L_poly*3,L_poly*3))
             for tau_en,tau in enumerate(range(L_poly)):
@@ -96,18 +98,17 @@ for l in range(n_elem):
                     F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
                     
                     
-                    K_xx =  C_22*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
-                    K_xy =  C_23*(W_Cs*np.sum(Lag_poly[tau]*F_s_x*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(F_tau_x*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
-                    K_xz =  C_12*(W_Cs*np.sum(F_tau_z*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length))     
-                    K_yx =  C_44*(W_Cs*np.sum(Lag_poly[tau]*F_s_x*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_23*(W_Cs*np.sum(F_tau_x*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
-                    K_yy =  C_55*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_44*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_33*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length)) 
-                    K_yz =  C_55*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_13*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))
-                    K_zx =  C_12*(W_Cs*np.sum(F_tau_x*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_z*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) 
-                    K_zy =  C_13*(W_Cs*np.sum(Lag_poly[tau]*F_s_z*J_Cs)*W_Length*np.sum(N_Der[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(F_tau_z*Lag_poly[s]*J_Cs)*W_Length*np.sum(Shape_func[i]*N_Der[j]*J_Length))  
-                    K_zz =  C_11*(W_Cs*np.sum(F_tau_z*F_s_z*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_66*(W_Cs*np.sum(F_tau_x*F_s_x*J_Cs)*W_Length*np.sum(Shape_func[i]*Shape_func[j]*J_Length)) + C_55*(W_Cs*np.sum(Lag_poly[tau]*Lag_poly[s]*J_Cs)*W_Length*np.sum(N_Der[i]*N_Der[j]*J_Length))
+                    K_xx =  C_22*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
+                    K_xy =  C_23*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
+                    K_xz =  C_12*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length)     
+                    K_yx =  C_44*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_23*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
+                    K_yy =  C_55*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_33*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length) 
+                    K_yz =  C_55*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_13*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
+                    K_zx =  C_12*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) 
+                    K_zy =  C_13*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
+                    K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                     F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-                    # if (i==j==0) and (tau == s)and (l==0):
-                    #     np.fill_diagonal(F_Nu,30e12)
+                  
                     Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                     
             #print(Nodal_stiffness_matrix)
@@ -118,7 +119,7 @@ for l in range(n_elem):
     # print("Stiffness matrix ----------------------------------------")
     # print(Elemental_stiffness_matrix) 
     
-    Ae = np.zeros((n*L_poly*DOF,n_cross_nodes*L_poly*DOF))
+    Ae = np.zeros((len(Shape_func)*L_poly*DOF,n_nodes*n_cross_nodes*DOF))
     np.fill_diagonal( Ae[sep*0:sep*1 , sep*l:sep*(l+1)] , 1 )
     np.fill_diagonal( Ae[sep*1:sep*2 , sep*(l+1):sep*(l+2)] , 1 )
     AeT = np.transpose(Ae)
@@ -128,13 +129,14 @@ for l in range(n_elem):
 print(Global_stiffness_matrix.shape)    
                
 
-Load_vector = np.zeros((n_cross_nodes*L_poly*DOF,1))
-Load_vector[38] = -12.5
-Load_vector[41] = -12.5
-Load_vector[44] = -12.5
-Load_vector[47] = -12.5
+Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector.shape)
 
-D = np.linalg.solve(Global_stiffness_matrix[36:,36:],Load_vector[36:])
+D = np.linalg.solve(Global_stiffness_matrix[(n_nodes*n_cross_nodes*DOF-12):,(n_nodes*n_cross_nodes*DOF-12):],Load_vector[(n_nodes*n_cross_nodes*DOF-12):])
 print(D)
+print(n_nodes*n_cross_nodes*DOF)
