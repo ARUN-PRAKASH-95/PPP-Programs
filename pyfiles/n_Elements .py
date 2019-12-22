@@ -38,12 +38,13 @@ Free_point  = 2
 
 #Mesh generation
 coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
+print(coordinate)
 
 #Along the beam axis(Y)
-Epsilon = np.array([0,0.774597,-0.774597])                     # Gauss points
-Shape_func = np.array([1/2*(1-Epsilon),1/2*(1+Epsilon)])       # Shape functions of a linear element
-N_Der_xi      = np.array([-1/2,1/2])                           # Derivative of the shape function (N,xi)  
-W_Length   =  np.array([0.888889,0.555556,0.555556])           # Weight for the gauss quadrature
+Epsilon = 0#np.array([0,0.774597,-0.774597])                     # Gauss points
+Shape_func = np.array([1/2*(1-Epsilon),1/2*(1+Epsilon)])         # Shape functions of a linear element
+N_Der_xi      = np.array([-1/2,1/2])                            # Derivative of the shape function (N,xi)  
+W_Length   =  2#np.array([0.888889,0.555556,0.555556])           # Weight for the gauss quadrature
 
 
 #Along the Beam cross section (X,Z)
@@ -75,7 +76,7 @@ Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_no
 for l in range(n_elem):
     J_Length = N_Der_xi@np.array([[coordinate[l]],            # Jacobian of each element along beam axis
                                [coordinate[l+1]]])
-
+    print(J_Length)
     # Derivative of the shape functions with respect to physical coordinates (N,y)
     N_Der = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])  
     
@@ -137,5 +138,5 @@ Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector.shape)
 
-Displacement = np.linalg.solve(Global_stiffness_matrix[(n_nodes*n_cross_nodes*DOF-12):,(n_nodes*n_cross_nodes*DOF-12):],Load_vector[(n_nodes*n_cross_nodes*DOF-12):])
+Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:])
 print(Displacement)

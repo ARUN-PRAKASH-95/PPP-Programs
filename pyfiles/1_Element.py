@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as pyplot
-import scipy as sp 
-from scipy import linalg
+
 
 #PARAMETERS
 a = 0.2            # [m] Square cross section
@@ -45,7 +44,7 @@ N_Der_xi = np.array([-1/2,1/2])                          # Derivative of the sha
 X_coor     = np.array([0,L])
 J_Length   = N_Der_xi@np.transpose(X_coor)                              #Jacobian for the length of the beam
 N_Der      = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])             #Derivative of the shape function wrt to physical coordinates(N,y)
-print(J_Length)
+
 
 #Along the Beam cross section (X,Z)
 #Lagrange polynomials
@@ -102,9 +101,8 @@ for i in range(len(Shape_func)):
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
                 
                 
-                # if (i==j==1) and (tau == 2) and (s == 1):
-                #     print(F_Nu)
-                #     np.fill_diagonal(F_Nu,30e12)
+                if (i==j==0) and (tau == s):
+                    np.fill_diagonal(F_Nu,30e13)
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                
                  
@@ -112,7 +110,7 @@ for i in range(len(Shape_func)):
         
                 
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
-print(Elemental_stiffness_matrix[15,3])
+print(Elemental_stiffness_matrix[15,15])
 print("Stiffness matrix ----------------------------------------")
 print(Elemental_stiffness_matrix)
 print(Elemental_stiffness_matrix.shape)                
@@ -124,7 +122,7 @@ Load_vector[23] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
-Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
+Displacement = np.linalg.solve(Elemental_stiffness_matrix,Load_vector)
 print("Displacement----------------------------------------------")
 print(Displacement)
-
+#print(np.amax(Elemental_stiffness_matrix))

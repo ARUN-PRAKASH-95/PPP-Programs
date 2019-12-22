@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as pyplot
-import scipy as sp 
-from scipy import linalg
+import sympy as sp 
+
 
 #PARAMETERS
 a = 0.2            # [m] Square cross section
@@ -32,18 +32,20 @@ X4 = -0.1
 Z4 =  0.1
 
 #Along the beam axis(Y)
-n_elem = 1                                                               # No of elements
-per_elem = 3                                                             # Type of the element
-n_nodes  = (per_elem-1)*n_elem  + 1                                      # No of nodes 
-xi =   np.array([0,0.774597,-0.774597])                                  # Gauss points
-W_Length   = np.array([0.888889,0.555556,0.555556])                      # Weight for gauss quadrature
-Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])           # Shape functions
-N_Der_xi = np.array([(xi-1/2),-2*xi,(xi+1/2)])                           # Derivative of the shape function (N,xi)
+n_elem = 1                                                                           # No of elements
+per_elem = 3                                                                         # Type of the element
+n_nodes  = (per_elem-1)*n_elem  + 1                                                  # No of nodes 
+xi =   np.array([0,0.774597,-0.774597])                                              # Gauss points
+W_Length   = np.array([0.888889,0.555556,0.555556])                                  # Weight for gauss quadrature
+Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
+N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function (N,xi)
 
 
 #Things that change by changing number of elements
-X_coor = np.array([0,L])
-J_Length   = 1                                                           # Jacobian for the length of the beam
+X_coor = np.array([[0], 
+                   [L/2],
+                   [L]])
+J_Length   = N_Der_xi@X_coor                                             # Jacobian for the length of the beam
 N_Der      = np.array([(xi-1/2),-2*xi,(xi+1/2)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
 
 
@@ -124,8 +126,9 @@ Load_vector[35] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
-Displacement = np.linalg.solve(Elemental_stiffness_matrix[24:,24:],Load_vector[24:])
+Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
 print("Displacement----------------------------------------------")
 print(Displacement)
+print(Displacement.shape)
 
 #Check the solving you have done and convert this program compatible for B3 element
