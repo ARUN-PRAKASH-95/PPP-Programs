@@ -22,20 +22,13 @@ C_23 = Second
 C_44 = G
 C_55 = G
 C_66 = G
-#print(C_22,C_66,C_44)
-#Coordinates of the cross section
-X1 = -0.1
-Z1 = -0.1
-X2 =  0.1
-Z2 = -0.1
-X3 =  0.1
-Z3 =  0.1
-X4 = -0.1
-Z4 =  0.1
+print(C_22,C_66,C_44)
+
 
 #Along the beam axis(Y)
-n_elem = 1                                             # No of elements
-n  = 2                                                 # No of nodes 
+n_elem = 1                                               # No of elements
+per_elem = 2                                             # Type of the element
+n_nodes  = (per_elem-1)*n_elem  + 1                      # Total no of nodes 
 xi = np.array([0.57735,-0.57735])                      # Gauss points
 Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])
 N_Der_xi      = np.array([-1/2,1/2])                   # Derivative of the shape function (N,xi)
@@ -55,11 +48,11 @@ Taylor_poly = np.array([1,x,z])
 X_der = np.array([0,1,0])
 Z_der = np.array([0,0,1])
 
-Elemental_stiffness_matrix = np.zeros((n*T_poly*3,n*T_poly*3))
-sep = int((n*T_poly*3)/n)        #Seperation point for stacking element stiffness matrix 
+Elemental_stiffness_matrix = np.zeros((per_elem*T_poly*3,per_elem*T_poly*3))
+sep = int((per_elem*T_poly*3)/per_elem)        #Seperation point for stacking element stiffness matrix 
 
-for i in range(n):
-    for j in range(n):
+for i in range(per_elem):
+    for j in range(per_elem):
         #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
         Nodal_stiffness_matrix = np.zeros((T_poly*3,T_poly*3))
         for tau_en,tau in enumerate(range(T_poly)):
@@ -88,12 +81,16 @@ for i in range(n):
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
 print(Elemental_stiffness_matrix.shape)
 print("Stiffness matrix ----------------------------------------")
-print(Elemental_stiffness_matrix[3,14])                
-Load_vector = np.zeros((n*T_poly*3,1))
+print(Elemental_stiffness_matrix) 
+print(Elemental_stiffness_matrix[12,3])               
+Load_vector = np.zeros((n_nodes*T_poly*3,1))
 Load_vector[11] = -50
+Load_vector[14] = -50
+Load_vector[17] = -50
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
 C = np.linalg.solve(Elemental_stiffness_matrix[9:,9:],Load_vector[9:])
 print("Displacement----------------------------------------------")
 print(C)
+np.savetxt('Taylor_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')

@@ -101,8 +101,8 @@ for i in range(len(Shape_func)):
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
                 
                 
-                if (i==j==0) and (tau == s):
-                    np.fill_diagonal(F_Nu,30e13)
+                # if (i==j==0) and (tau == s):
+                #     np.fill_diagonal(F_Nu,3e13)
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                
                  
@@ -122,7 +122,8 @@ Load_vector[23] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
-Displacement = np.linalg.solve(Elemental_stiffness_matrix,Load_vector)
+Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
 print("Displacement----------------------------------------------")
 print(Displacement)
-#print(np.amax(Elemental_stiffness_matrix))
+print(np.amax(Elemental_stiffness_matrix))
+np.savetxt('Stiffness_matrix.txt',Elemental_stiffness_matrix,delimiter=',')
