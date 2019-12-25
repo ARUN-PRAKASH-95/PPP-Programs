@@ -46,8 +46,8 @@ X_coor = np.array([[0],
                    [L/2],
                    [L]])
 J_Length   = N_Der_xi@X_coor                                             # Jacobian for the length of the beam
-N_Der      = np.array([(xi-1/2),-2*xi,(xi+1/2)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
-
+N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
+print(X_coor)
 
 #Along the Beam cross section (X,Z)
 #Lagrange polynomials
@@ -132,4 +132,3 @@ print("Displacement----------------------------------------------")
 print(Displacement)
 print(Displacement.shape)
 
-#Check the solving you have done and convert this program compatible for B3 element

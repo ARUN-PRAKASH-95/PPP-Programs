@@ -70,7 +70,7 @@ J_Cs = np.unique(J_Cs)
 
 
 Elemental_stiffness_matrix = np.zeros((per_elem*n_cross_nodes*DOF,per_elem*n_cross_nodes*DOF))
-sep = int((n_nodes*n_cross_nodes*DOF)/n_nodes)      # Seperation point for stacking element stiffness matrix                  
+sep = int((per_elem*n_cross_nodes*DOF)/per_elem)      # Seperation point for stacking element stiffness matrix                  
 
 for i in range(len(Shape_func)):
     for j in range(len(Shape_func)):

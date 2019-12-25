@@ -42,7 +42,7 @@ X_coor     = np.array([[0],
                       [L/2],
                       [L]])
 J_Length   = N_Der_xi@X_coor                                                  # Jacobian for the length of the beam
-N_Der      = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])                   # Derivative of the shape function (N,y)
+N_Der      = np.array([(xi-1/2),-2*xi,(xi+1/2)]) #np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])                   # Derivative of the shape function (N,y)
 print(J_Length)
 
 
@@ -60,8 +60,9 @@ sep = int((per_elem*n_cross_nodes*DOF)/per_elem)                             # S
 
 
 for i in range(per_elem):
+    print(i)
     for j in range(per_elem):
-        #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
+            #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
         Nodal_stiffness_matrix = np.zeros((n_cross_nodes*DOF,n_cross_nodes*DOF))
         for tau_en,tau in enumerate(range(n_cross_nodes)):
             for s_en,s in enumerate(range(n_cross_nodes)):
@@ -76,7 +77,7 @@ for i in range(per_elem):
                 K_zy =  C_13*integrate(Taylor_poly[tau]*Z_der[s],(x,low, a),(z,low,a))*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*integrate(Z_der[tau]*Taylor_poly[s],(x,low, a),(z,low,a))*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
                 K_zz =  C_11*integrate(Z_der[tau]*Z_der[s],(x,low, a),(z,low,a))*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*integrate(X_der[tau]*X_der[s],(x,low, a),(z,low,a))*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*integrate(Taylor_poly[tau]*Taylor_poly[s],(x,low, a),(z,low,a))*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-                # print(F_Nu)
+                # print(tau,F_Nu)
                 # if (i==j==0) and (tau == s):
                 #     np.fill_diagonal(F_Nu,30e12)
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
