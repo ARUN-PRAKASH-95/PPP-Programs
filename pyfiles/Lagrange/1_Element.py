@@ -52,7 +52,8 @@ alpha = np.array([0,0,0,0.774597,0.774597,0.774597,-0.774597,-0.774597,-0.774597
 beta  = np.array([0,0.774597,-0.774597,0,0.774597,-0.774597,0,0.774597,-0.774597])
 W_Cs  = np.array([0.790123,0.493827,0.493827,0.493827,0.308641,0.308641,0.493827,0.308641,0.308641])   # Weights                                                 #weight for gauss quadrature in the cross section
 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
-L_poly = 4
+n_cross_nodes = len(Lag_poly)
+DOF = 3
 
 #Lagrange Derivatives
 alpha_der = np.array([-1/4*(1-beta),1/4*(1-beta),1/4*(1+beta),-1/4*(1+beta)])         # Derivatives of the lagrange polynomials
@@ -68,15 +69,15 @@ J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)   # Determinant of Jacobian matrix of t
 J_Cs = np.unique(J_Cs)
 
 
-Elemental_stiffness_matrix = np.zeros((per_elem*L_poly*3,per_elem*L_poly*3))
-sep = int((n_nodes*L_poly*3)/n_nodes)      # Seperation point for stacking element stiffness matrix                  
+Elemental_stiffness_matrix = np.zeros((per_elem*n_cross_nodes*DOF,per_elem*n_cross_nodes*DOF))
+sep = int((n_nodes*n_cross_nodes*DOF)/n_nodes)      # Seperation point for stacking element stiffness matrix                  
 
 for i in range(len(Shape_func)):
     for j in range(len(Shape_func)):
         #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
-        Nodal_stiffness_matrix = np.zeros((L_poly*3,L_poly*3))
-        for tau_en,tau in enumerate(range(L_poly)):
-            for s_en,s in enumerate(range(L_poly)):
+        Nodal_stiffness_matrix = np.zeros((n_cross_nodes*DOF,n_cross_nodes*DOF))
+        for tau_en,tau in enumerate(range(n_cross_nodes)):
+            for s_en,s in enumerate(range(n_cross_nodes)):
                 
                 #Fundamental nucleus of the stiffness matrix
                 #Derivative of F wrt to x and z for tau
@@ -114,11 +115,11 @@ print(Elemental_stiffness_matrix[15,15])
 print("Stiffness matrix ----------------------------------------")
 print(Elemental_stiffness_matrix)
 print(Elemental_stiffness_matrix.shape)                
-Load_vector = np.zeros((n_nodes*L_poly*3,1))
-Load_vector[14] = -12.5
-Load_vector[17] = -12.5
-Load_vector[20] = -12.5
-Load_vector[23] = -12.5
+Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 

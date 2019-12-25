@@ -38,7 +38,7 @@ Free_point  = 2
 
 #Mesh generation
 coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
-print(coordinate)
+
 
 #Along the beam axis(Y)
 Epsilon = 0#np.array([0,0.774597,-0.774597])                     # Gauss points
@@ -53,8 +53,7 @@ alpha = np.array([0,0,0,0.774597,0.774597,0.774597,-0.774597,-0.774597,-0.774597
 beta  = np.array([0,0.774597,-0.774597,0,0.774597,-0.774597,0,0.774597,-0.774597])
 W_Cs  = np.array([0.790123,0.493827,0.493827,0.493827,0.308641,0.308641,0.493827,0.308641,0.308641])   #  Weights for gauss quadrtaure                                                   # weight for gauss quadrature in the cross section
 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
-L_poly = 4
-n_cross_nodes = L_poly                                             # No of lagrange nodes per node
+n_cross_nodes = len(Lag_poly)                                             # No of lagrange nodes per node
 DOF = 3                                                            # Degree of freedom of each lagrange node
 
 #Lagrange Derivatives
@@ -76,7 +75,7 @@ Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_no
 for l in range(n_elem):
     J_Length = N_Der_xi@np.array([[coordinate[l]],            # Jacobian of each element along beam axis
                                [coordinate[l+1]]])
-    print(J_Length)
+    # print(J_Length)
     # Derivative of the shape functions with respect to physical coordinates (N,y)
     N_Der = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)])  
     
@@ -88,9 +87,9 @@ for l in range(n_elem):
     for i in range(len(Shape_func)):
         for j in range(len(Shape_func)):
             #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
-            Nodal_stiffness_matrix = np.zeros((L_poly*3,L_poly*3))
-            for tau_en,tau in enumerate(range(L_poly)):
-                for s_en,s in enumerate(range(L_poly)):
+            Nodal_stiffness_matrix = np.zeros((n_cross_nodes*3,n_cross_nodes*3))
+            for tau_en,tau in enumerate(range(n_cross_nodes)):
+                for s_en,s in enumerate(range(n_cross_nodes)):
                     
                     #Fundamental nucleus of the stiffness matrix
                     #Derivative of F wrt to x and z for tau
@@ -120,7 +119,7 @@ for l in range(n_elem):
             Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
         
     #Assignment matix for arranging global stiffness matrix
-    Ae = np.zeros((len(Shape_func)*L_poly*DOF,n_nodes*n_cross_nodes*DOF))       
+    Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
     np.fill_diagonal( Ae[sep*0:sep*1 , sep*l:sep*(l+1)] , 1 )
     np.fill_diagonal( Ae[sep*1:sep*2 , sep*(l+1):sep*(l+2)] , 1 )
     AeT = np.transpose(Ae)
