@@ -38,21 +38,21 @@ Free_point  = 2
 
 #Mesh generation
 coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
-print(coordinate)
+# print(coordinate)
 
 
 #Along the beam axis(Y)
-Epsilon = np.array([0,0.774597,-0.774597])                     # Gauss points
-Shape_func = np.array([1/2*(1-Epsilon),1/2*(1+Epsilon)])         # Shape functions of a linear element
-N_Der_xi   = np.array([-1/2,1/2])                            # Derivative of the shape function (N,xi)  
-W_Length   =  np.array([0.888889,0.555556,0.555556])           # Weight for the gauss quadrature
+xi = np.array([0.57735,-0.57735])                              # Gauss points
+W_Length   = 1 
+Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])                 # Shape functions of a linear element
+N_Der_xi   = np.array([-1/2,1/2])                              # Derivative of the shape function (N,xi)  
 
 
 #Along the Beam cross section (X,Z)
 #Lagrange polynomials
-alpha = np.array([0,0,0,0.774597,0.774597,0.774597,-0.774597,-0.774597,-0.774597])                     # Gauss points 
-beta  = np.array([0,0.774597,-0.774597,0,0.774597,-0.774597,0,0.774597,-0.774597])
-W_Cs  = np.array([0.790123,0.493827,0.493827,0.493827,0.308641,0.308641,0.493827,0.308641,0.308641])   #  Weights for gauss quadrtaure                                                   # weight for gauss quadrature in the cross section
+alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])           # Gauss points 
+beta  = np.array([0.57735,-0.57735,0.57735,-0.57735]) 
+W_Cs  = 1                                                       # weight for gauss quadrature in the cross section
 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
 n_cross_nodes = len(Lag_poly)                                             # No of lagrange nodes per node
 DOF = 3                                                            # Degree of freedom of each lagrange node
@@ -123,13 +123,13 @@ for l in range(n_elem):
     #Assignment matix for arranging global stiffness matrix
     A_fac = 12
     Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
-    np.fill_diagonal( Ae[A_fac*0:A_fac*1 , A_fac*l:A_fac*(l+1)] , 1 )
-    np.fill_diagonal( Ae[A_fac*1:A_fac*2 , A_fac*(l+1):A_fac*(l+2)] , 1 )
+    np.fill_diagonal( Ae[A_fac*0:A_fac*2 , A_fac*l:A_fac*(l+2)] , 1 )
+    # np.fill_diagonal( Ae[A_fac*1:A_fac*2 , A_fac*(l+1):A_fac*(l+2)] , 1 )
     AeT = np.transpose(Ae)
-    print(Elemental_stiffness_matrix)
+    # print(Elemental_stiffness_matrix)
     K = AeT@Elemental_stiffness_matrix@Ae
     Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
-print(Global_stiffness_matrix)    
+# print(Global_stiffness_matrix)    
                
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
@@ -138,7 +138,7 @@ Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print("Load vector ----------------------------------------------")
-print(Load_vector.shape)
+# print(Load_vector.shape)
 
 Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:])
 print(Displacement)

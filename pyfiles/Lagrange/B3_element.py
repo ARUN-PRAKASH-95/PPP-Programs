@@ -35,8 +35,8 @@ Z4 =  0.1
 n_elem = 1                                                                           # No of elements
 per_elem = 3                                                                         # Type of the element
 n_nodes  = (per_elem-1)*n_elem  + 1                                                  # No of nodes 
-xi =   np.array([0,0.774597,-0.774597])                                              # Gauss points
-W_Length   = np.array([0.888889,0.555556,0.555556])                                  # Weight for gauss quadrature
+xi = np.array([0.57735,-0.57735])  #np.array([0,0.774597,-0.774597])                                              # Gauss points
+W_Length   = 1 #np.array([0.888889,0.555556,0.555556])                                  # Weight for gauss quadrature
 Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
 N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function (N,xi)
 
@@ -51,9 +51,9 @@ print(X_coor)
 
 #Along the Beam cross section (X,Z)
 #Lagrange polynomials
-alpha = np.array([0,0,0,0.774597,0.774597,0.774597,-0.774597,-0.774597,-0.774597])                     # Gauss points 
-beta  = np.array([0,0.774597,-0.774597,0,0.774597,-0.774597,0,0.774597,-0.774597])
-W_Cs  = np.array([0.790123,0.493827,0.493827,0.493827,0.308641,0.308641,0.493827,0.308641,0.308641])   # Weights                                                 #weight for gauss quadrature in the cross section
+alpha =  np.array([0.57735,0.57735,-0.57735,-0.57735])                      # Gauss points 
+beta  =  np.array([0.57735,-0.57735,0.57735,-0.57735])
+W_Cs  = 1                                                                   # Weight for gauss quadrature in the cross section
 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
 n_cross_nodes = len(Lag_poly)
 DOF = 3
