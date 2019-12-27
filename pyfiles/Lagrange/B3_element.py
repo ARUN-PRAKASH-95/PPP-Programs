@@ -35,8 +35,8 @@ Z4 =  0.1
 n_elem = 1                                                                           # No of elements
 per_elem = 3                                                                         # Type of the element
 n_nodes  = (per_elem-1)*n_elem  + 1                                                  # No of nodes 
-xi = np.array([0.57735,-0.57735])                                                    # Gauss points
-W_Length   = 1                                                                       # Weight for gauss quadrature
+xi = np.array([0.339981,-0.339981,0.861136,0.861136])                                # Gauss points
+W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])                                                                      # Weight for gauss quadrature
 Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
 N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function (N,xi)
 
@@ -119,6 +119,9 @@ print(Elemental_stiffness_matrix[15,3])
 print("Stiffness matrix ----------------------------------------")
 print(Elemental_stiffness_matrix)
 print(Elemental_stiffness_matrix.shape)                
+
+
+
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
 Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
@@ -127,8 +130,11 @@ Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
+
+
 Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
 print("Displacement----------------------------------------------")
 print(Displacement)
 print(Displacement.shape)
+print(np.linalg.norm(Elemental_stiffness_matrix))
 

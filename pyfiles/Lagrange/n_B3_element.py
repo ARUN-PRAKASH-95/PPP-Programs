@@ -39,12 +39,30 @@ Fixed_point = 0                                           # Coordinates of the b
 Free_point  = L
 
 #Mesh generation
-coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+# coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+
+    
+meshrefinementfactor = 5
+q=meshrefinementfactor**(1/(n_elem-1))
+
+l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+rnode=Free_point
+c=np.array([Free_point])
+    
+
+for i in range(n_elem):
+    rnode=rnode+l
+    c=np.append(c,rnode)
+    l=l*q
+
+coordinate = np.flip(c)
+# print(coordinate)
+
 
 
 #Along the beam axis(Y)
-xi = np.array([0.57735,-0.57735])                                                    # Gauss points
-W_Length   = 1 
+xi = np.array([0.339981,-0.339981,0.861136,0.861136])                                                   # Gauss points
+W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])  
 Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
 N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
 N_Der_xi_m = np.array([-1/2,1/2])             # Taking just numerical values from shape function for easily computing jacobian
@@ -82,7 +100,7 @@ for l in range(n_elem):
                    
     # print(X_coor)               
     J_Length   = N_Der_xi_m@X_coor                                             # Jacobian for the length of the beam
-    print(J_Length)
+    # print(J_Length)
     N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
     
     

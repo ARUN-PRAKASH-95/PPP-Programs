@@ -5,7 +5,7 @@ import sympy as sp
 
 #PARAMETERS
 a = 0.2            # [m] Square cross section
-L = 20              # [m] Length of the beam
+L = 2              # [m] Length of the beam
 E = 75e9           # [Pa] Young's Modulus
 v = 0.33           # Poissons Ratio
 G = E/(2*(1+v))
@@ -35,8 +35,8 @@ Z4 =  0.1
 n_elem = 1                                                                           # No of elements
 per_elem = 4                                                                         # Type of the element
 n_nodes  = (per_elem-1)*n_elem  + 1                                                  # No of nodes 
-xi = np.array([0.57735,-0.57735])                                                    # Gauss points
-W_Length   = 1                                                                       # Weight for gauss quadrature
+xi = np.array([0,0.538469,-0.538469,0.90618,-0.90618])                                                    # Gauss points
+W_Length   = np.array([0.568889,0.478629,0.478629,0.236927,0.236927])                                                                       # Weight for gauss quadrature
 Shape_func = np.array([-9/16*(xi+1/3)*(xi-1/3)*(xi-1), 27/16*(xi+1)*(xi-1/3)*(xi-1),-27/16*(xi+1)*(xi+1/3)*(xi-1),9/16*(xi+1/3)*(xi-1/3)*(xi+1)])                       # Shape functions
 N_Der_xi = np.array([-1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') + 0.0625,5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') - 1.6875,-5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') + 1.6875,1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') - 0.0625])    # Derivative of the shape function (N,xi)
 
@@ -50,6 +50,8 @@ J_Length   = N_Der_xi@X_coor                                                    
 N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
 print(X_coor)
 print(J_Length)
+
+
 #Along the Beam cross section (X,Z)
 #Lagrange polynomials
 alpha =  np.array([0.57735,0.57735,-0.57735,-0.57735])                      # Gauss points 
@@ -116,22 +118,32 @@ for i in range(len(Shape_func)):
         
                 
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
-print(Elemental_stiffness_matrix[15,3])
+
+
+
 print("Stiffness matrix ----------------------------------------")
 print(Elemental_stiffness_matrix)
-print(Elemental_stiffness_matrix.shape)                
+print(Elemental_stiffness_matrix.shape)  
+np.savetxt('B4_Stiffness_matrix.txt',Elemental_stiffness_matrix,delimiter=',')              
+
+
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector.shape)
 
+
+
 Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
 print("Displacement----------------------------------------------")
 print(Displacement)
 print(Displacement.shape)
+np.savetxt('B4_Displacement.txt',Displacement,delimiter=',') 
+print(np.linalg.norm(Elemental_stiffness_matrix))
+
 
 
 Z_disp = np.array([])
