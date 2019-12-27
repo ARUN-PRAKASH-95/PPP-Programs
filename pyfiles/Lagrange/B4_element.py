@@ -133,6 +133,7 @@ print("Displacement----------------------------------------------")
 print(Displacement)
 print(Displacement.shape)
 
+
 Z_disp = np.array([])
 
 for k in range(n_nodes*n_cross_nodes-4):
