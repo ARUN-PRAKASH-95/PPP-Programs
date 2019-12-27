@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as pyplot
+import matplotlib.pyplot as plt  
 import sympy as sp 
 
 
@@ -36,7 +36,7 @@ n_elem = int(input("Enter the number of elements: "))     # No of elements
 per_elem = 3                                              # Type of the element
 n_nodes  = (per_elem-1)*n_elem  + 1                       # Total number of nodes 
 Fixed_point = 0                                           # Coordinates of the beam
-Free_point  = 2
+Free_point  = L
 
 #Mesh generation
 coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
@@ -75,7 +75,7 @@ J_Cs = np.unique(J_Cs)
 #Size of the global stiffness matrix computed using no of nodes and no of cross nodes on each node and DOF
 Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
 for l in range(n_elem):
-    print(l)
+    # print(l)
     X_coor = np.array([[coordinate[l]],
                        [coordinate[l+1]]])                          #[(coordinate[l]+coordinate[l+1])/2],                              
 
@@ -155,3 +155,18 @@ print(Load_vector.shape)
 Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:])
 print('Displacement-----------------------------------------------------')
 print(Displacement)
+np.savetxt('Displacement.txt',Displacement)
+
+Z_disp = np.array([])
+
+for k in range(n_nodes*n_cross_nodes-4):
+    Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+print(Z_disp.shape)
+
+
+
+x_axis=np.arange(0,len(Z_disp),1)
+
+fig,ax = plt.subplots()
+ax.plot(x_axis,Z_disp)
+plt.show()
