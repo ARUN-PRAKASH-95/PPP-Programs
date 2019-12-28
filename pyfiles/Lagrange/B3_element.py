@@ -5,7 +5,7 @@ import sympy as sp
 
 #PARAMETERS
 a = 0.2            # [m] Square cross section
-L = 2              # [m] Length of the beam
+L = 20              # [m] Length of the beam
 E = 75e9           # [Pa] Young's Modulus
 v = 0.33           # Poissons Ratio
 G = E/(2*(1+v))
@@ -45,7 +45,8 @@ N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2]
 X_coor = np.array([[0], 
                    [L/2],
                    [L]])
-J_Length   = N_Der_xi@X_coor                                             # Jacobian for the length of the beam
+J_Length   = round(np.asscalar(N_Der_xi@X_coor),2)                                             # Jacobian for the length of the beam
+print(J_Length)
 N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
 print(X_coor)
 
@@ -115,7 +116,7 @@ for i in range(len(Shape_func)):
         
                 
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
-print(Elemental_stiffness_matrix[15,3])
+# print(Elemental_stiffness_matrix[15,3])
 print("Stiffness matrix ----------------------------------------")
 print(Elemental_stiffness_matrix)
 print(Elemental_stiffness_matrix.shape)                
@@ -123,7 +124,7 @@ print(Elemental_stiffness_matrix.shape)
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
@@ -136,5 +137,5 @@ Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[1
 print("Displacement----------------------------------------------")
 print(Displacement)
 print(Displacement.shape)
-print(np.linalg.norm(Elemental_stiffness_matrix))
+# print(np.linalg.norm(Elemental_stiffness_matrix))
 

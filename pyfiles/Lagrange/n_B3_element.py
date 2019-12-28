@@ -5,7 +5,7 @@ import sympy as sp
 
 #PARAMETERS
 a = 0.2            #[m] Square cross section
-L = 2              #[m] Length of the beam
+L = 20              #[m] Length of the beam
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))
@@ -39,23 +39,23 @@ Fixed_point = 0                                           # Coordinates of the b
 Free_point  = L
 
 #Mesh generation
-# coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 
     
-meshrefinementfactor = 5
-q=meshrefinementfactor**(1/(n_elem-1))
+# meshrefinementfactor = 5
+# q=meshrefinementfactor**(1/(n_elem-1))
 
-l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-rnode=Free_point
-c=np.array([Free_point])
+# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+# rnode=Free_point
+# c=np.array([Free_point])
     
 
-for i in range(n_elem):
-    rnode=rnode+l
-    c=np.append(c,rnode)
-    l=l*q
+# for i in range(n_elem):
+#     rnode=rnode+l
+#     c=np.append(c,rnode)
+#     l=l*q
 
-coordinate = np.flip(c)
+# coordinate = np.flip(c)
 # print(coordinate)
 
 
@@ -99,8 +99,8 @@ for l in range(n_elem):
 
                    
     # print(X_coor)               
-    J_Length   = N_Der_xi_m@X_coor                                             # Jacobian for the length of the beam
-    # print(J_Length)
+    J_Length   = round(np.asscalar(N_Der_xi_m@X_coor),4)                                             # Jacobian for the length of the beam
+    print(J_Length)
     N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
     
     
@@ -154,8 +154,8 @@ for l in range(n_elem):
     Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
 print(Global_stiffness_matrix.shape)               
-np.savetxt('B3_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
-np.savetxt('B3_Stiffness_matrix_size.txt',Global_stiffness_matrix.shape,delimiter=',')
+# np.savetxt('B3_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
+# np.savetxt('B3_Stiffness_matrix_size.txt',Global_stiffness_matrix.shape,delimiter=',')
 
 
 
@@ -173,13 +173,13 @@ print(Load_vector.shape)
 Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:])
 print('Displacement-----------------------------------------------------')
 print(Displacement)
-np.savetxt('Displacement.txt',Displacement)
+np.savetxt('n_B3_Displacement.txt',Displacement)
 
 Z_disp = np.array([])
 
 for k in range(n_nodes*n_cross_nodes-4):
     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-print(Z_disp.shape)
+# print(Z_disp.shape)
 
 
 

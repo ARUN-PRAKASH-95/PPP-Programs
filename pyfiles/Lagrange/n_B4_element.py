@@ -39,30 +39,30 @@ Fixed_point = 0                                           # Coordinates of the b
 Free_point  = L
 
 #Mesh generation
-# coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 
     
-meshrefinementfactor = 5
-q=meshrefinementfactor**(1/(n_elem-1))
+# meshrefinementfactor = 8
+# q=meshrefinementfactor**(1/(n_elem-1))
 
-l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-rnode=Free_point
-c=np.array([Free_point])
+# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+# rnode=Free_point
+# c=np.array([Free_point])
     
 
-for i in range(n_elem):
-    rnode=rnode+l
-    c=np.append(c,rnode)
-    l=l*q
+# for i in range(n_elem):
+#     rnode=rnode+l
+#     c=np.append(c,rnode)
+#     l=l*q
 
-coordinate = np.flip(c)
+# coordinate = np.flip(c)
 # print(coordinate)
 
 
 
 #Along the beam axis(Y)
-xi = np.array([0.339981,-0.339981,0.861136,0.861136])#np.array([0,0.538469,-0.538469,0.90618,-0.90618]) #np.array([0.661209386466264,-0.661209386466264,0.238619186083197,-0.238619186083197,0.932469514203152,-0.932469514203152])          #np.array([0,0.538469,-0.538469,0.90618,-0.90618])                                                   # Gauss points
-W_Length   = np.array([0.652145,0.652145,0.347855,0.347855]) #np.array([0.568889,0.478629,0.478629,0.236927,0.236927]) #np.array([0.360761573048139,0.360761573048139,0.467913934572691,0.467913934572691,0.171324492379170,0.171324492379170])             #np.array([0.568889,0.478629,0.478629,0.236927,0.236927]) 
+xi = np.array([0,0.538469,-0.538469,0.90618,-0.90618]) #np.array([0.661209386466264,-0.661209386466264,0.238619186083197,-0.238619186083197,0.932469514203152,-0.932469514203152])                                                             # Gauss points
+W_Length   =np.array([0.568889,0.478629,0.478629,0.236927,0.236927]) #np.array([0.360761573048139,0.360761573048139,0.467913934572691,0.467913934572691,0.171324492379170,0.171324492379170])              
 Shape_func = np.array([-9/16*(xi+1/3)*(xi-1/3)*(xi-1), 27/16*(xi+1)*(xi-1/3)*(xi-1),-27/16*(xi+1)*(xi+1/3)*(xi-1),9/16*(xi+1/3)*(xi-1/3)*(xi+1)])                       # Shape functions
 N_Der_xi = N_Der_xi = np.array([-1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') + 0.0625,5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') - 1.6875,-5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') + 1.6875,1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') - 0.0625])    # Derivative of the shape function (N,xi)
 N_Der_xi_m = np.array([0.0625,- 1.6875,1.6875,-0.0625])   
@@ -104,8 +104,8 @@ for l in range(n_elem):
                       [coordinate[l+1]]])                                                      
 
                    
-    print(X_coor)               
-    J_Length   = N_Der_xi_m@X_coor                                             # Jacobian for the length of the beam
+    # print(X_coor)               
+    J_Length   = round(np.asscalar(N_Der_xi_m@X_coor),4)                                             # Jacobian for the length of the beam
     print('Jacobian',J_Length)
     N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
 
@@ -161,8 +161,8 @@ for l in range(n_elem):
     Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
 print(Global_stiffness_matrix.shape)               
-np.savetxt('B3_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
-np.savetxt('B3_Stiffness_matrix_size.txt',Global_stiffness_matrix.shape,delimiter=',')
+# np.savetxt('B3_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
+# np.savetxt('B3_Stiffness_matrix_size.txt',Global_stiffness_matrix.shape,delimiter=',')
 
 
 
@@ -181,7 +181,9 @@ Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:]
 print('Displacement-----------------------------------------------------')
 print(Displacement)
 print(Displacement.shape)
-np.savetxt('Displacement.txt',Displacement)
+np.savetxt('n_B4_Displacement.txt',Displacement)
+
+
 
 Z_disp = np.array([])
 

@@ -46,7 +46,7 @@ X_coor = np.array([[0],
                    [L/3], 
                    [2*L/3],
                    [L]])
-J_Length   = N_Der_xi@X_coor                                                                   # Jacobian for the length of the beam
+J_Length   = round(np.asscalar(N_Der_xi@X_coor),4)                                                                   # Jacobian for the length of the beam
 N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
 print(X_coor)
 print(J_Length)
@@ -142,7 +142,7 @@ print("Displacement----------------------------------------------")
 print(Displacement)
 print(Displacement.shape)
 np.savetxt('B4_Displacement.txt',Displacement,delimiter=',') 
-print(np.linalg.norm(Elemental_stiffness_matrix))
+# print(np.linalg.norm(Elemental_stiffness_matrix))
 
 
 
