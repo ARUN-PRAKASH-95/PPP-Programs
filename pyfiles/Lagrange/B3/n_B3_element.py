@@ -5,7 +5,7 @@ import sympy as sp
 
 #PARAMETERS
 a = 0.2            #[m] Square cross section
-L = 20              #[m] Length of the beam
+L = 2              #[m] Length of the beam
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))
@@ -39,23 +39,23 @@ Fixed_point = 0                                           # Coordinates of the b
 Free_point  = L
 
 #Mesh generation
-coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+# coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 
     
-# meshrefinementfactor = 5
-# q=meshrefinementfactor**(1/(n_elem-1))
+meshrefinementfactor = 4
+q=meshrefinementfactor**(1/(n_elem-1))
 
-# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-# rnode=Free_point
-# c=np.array([Free_point])
+l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+rnode=Free_point
+c=np.array([Free_point])
     
 
-# for i in range(n_elem):
-#     rnode=rnode+l
-#     c=np.append(c,rnode)
-#     l=l*q
+for i in range(n_elem):
+    rnode=rnode+l
+    c=np.append(c,rnode)
+    l=l*q
 
-# coordinate = np.flip(c)
+coordinate = np.flip(c)
 # print(coordinate)
 
 
@@ -72,7 +72,7 @@ N_Der_xi_m = np.array([-1/2,1/2])             # Taking just numerical values fro
 alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])                      # Gauss points 
 beta  = np.array([0.57735,-0.57735,0.57735,-0.57735]) 
 W_Cs  = 1                                                                  # weight for gauss quadrature in the cross section
-Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
+Lag_poly = np.array([1/4*((1-alpha)*(1-beta)),1/4*((1+alpha)*(1-beta)),1/4*((1+alpha)*(1+beta)),1/4*((1-alpha)*(1+beta))])
 n_cross_nodes = len(Lag_poly)                                              # No of lagrange nodes per node
 DOF = 3                                                                    # Degree of freedom of each lagrange node
 
@@ -100,7 +100,7 @@ for l in range(n_elem):
                    
     # print(X_coor)               
     J_Length   = round(np.asscalar(N_Der_xi_m@X_coor),4)                                             # Jacobian for the length of the beam
-    print(J_Length)
+    # print(J_Length)
     N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
     
     
