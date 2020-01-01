@@ -39,23 +39,19 @@ Fixed_point = 0                                           # Coordinates of the b
 Free_point  = L
 
 #Mesh generation
-# coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 
     
-meshrefinementfactor = 5
-q=meshrefinementfactor**(1/(n_elem-1))
-
-l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-rnode=Free_point
-c=np.array([Free_point])
-    
-
-for i in range(n_elem):
-    rnode=rnode+l
-    c=np.append(c,rnode)
-    l=l*q
-
-coordinate = np.flip(c)
+# meshrefinementfactor = 5
+# q=meshrefinementfactor**(1/(n_elem-1))
+# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+# rnode=Free_point
+# c=np.array([Free_point])
+#     for i in range(n_elem):
+#     rnode=rnode+l
+#     c=np.append(c,rnode)
+#     l=l*q
+# coordinate = np.flip(c)
 # print(coordinate)
 
 
@@ -81,7 +77,6 @@ DOF = 3                                                                    # Deg
 #Lagrange Derivatives
 alpha_der = np.array([-1/4*(1-beta),1/4*(1-beta),1/4*(1+beta),-1/4*(1+beta)])         # Derivatives of the lagrange polynomials
 beta_der  = np.array([-1/4*(1-alpha),-1/4*(1+alpha),1/4*(1+alpha),1/4*(1-alpha)])     # with respect to alpha and beta
-
 X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
 X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
 Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
@@ -189,12 +184,8 @@ Z_disp = np.array([])
 
 for k in range(n_nodes*n_cross_nodes-4):
     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-print(Z_disp.shape)
-
-
-
+# print(Z_disp.shape)
 x_axis=np.arange(0,len(Z_disp),1)
-
 fig,ax = plt.subplots()
 ax.plot(x_axis,Z_disp)
 plt.show()

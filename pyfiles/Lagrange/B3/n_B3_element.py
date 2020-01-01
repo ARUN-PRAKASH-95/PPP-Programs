@@ -40,21 +40,15 @@ Free_point  = L
 
 #Mesh generation
 # coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
-
-    
 meshrefinementfactor = 4
 q=meshrefinementfactor**(1/(n_elem-1))
-
 l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
 rnode=Free_point
 c=np.array([Free_point])
-    
-
-for i in range(n_elem):
+    for i in range(n_elem):
     rnode=rnode+l
     c=np.append(c,rnode)
     l=l*q
-
 coordinate = np.flip(c)
 # print(coordinate)
 
