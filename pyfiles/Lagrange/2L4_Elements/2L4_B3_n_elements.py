@@ -65,8 +65,8 @@ d = np.linspace(Z2,Z3,3)
 
 
 #Along the beam axis(Y)
-xi = np.array([0.339981,-0.339981,0.861136,0.861136])                                                   # Gauss points
-W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])  
+xi = np.array([0,0.538469,-0.538469,0.90618,-0.90618])     #np.array([0,0.774597,-0.774597]) #np.array([0.339981,-0.339981,0.861136,0.861136])                                                   # Gauss points
+W_Length   = np.array([0.568889,0.478629,0.478629,0.236927,0.236927])   #np.array([0.888889,0.555556,0.555556])  #np.array([0.652145,0.652145,0.347855,0.347855])  
 Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
 N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
 N_Der_xi_m = np.array([-1/2,1/2])             # Taking just numerical values from shape function for easily computing jacobian
@@ -75,13 +75,10 @@ N_Der_xi_m = np.array([-1/2,1/2])             # Taking just numerical values fro
 #Size of the global stiffness matrix computed using no of nodes and no of cross nodes on each node and DOF
 Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
 for l in range(n_elem):
-    # print(l)
+
     X_coor = np.array([[coordinate[l]],
                        [coordinate[l+1]]])                          #[(coordinate[l]+coordinate[l+1])/2],                              
-
-    # print(X_coor)               
     J_Length   = round(np.asscalar(N_Der_xi_m@X_coor),4)                                             # Jacobian for the length of the beam
-    # print(J_Length)
     N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
     
     # Element stiffness matrix created using no of nodes per element and cross node and DOF  
@@ -107,9 +104,8 @@ for l in range(n_elem):
                 #Lagrange polynomials
                 alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])           # Gauss points 
                 beta  = np.array([0.57735,-0.57735,0.57735,-0.57735]) 
-                W_Cs  = 1                                                       # weight for gauss quadrature in the cross section
+                W_Cs  =  1                                                       # weight for gauss quadrature in the cross section
                 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
-
 
                 #Lagrange Derivatives
                 alpha_der = np.array([-1/4*(1-beta),1/4*(1-beta),1/4*(1+beta),-1/4*(1+beta)])         # Derivatives of the lagrange polynomials
@@ -119,9 +115,9 @@ for l in range(n_elem):
                 Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
                 Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
-
                 J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                      # Determinant of Jacobian matrix of the cross section
                 J_Cs = np.unique(J_Cs)
+                
                 
                 Nodal_stiffness_matrix = np.zeros((4*3,4*3))
                 for tau_en,tau in enumerate(range(4)):
@@ -156,12 +152,11 @@ for l in range(n_elem):
                 A_c_e_T = np.transpose(A_c_e)
 
                 K_Nodal = A_c_e_T@Nodal_stiffness_matrix@A_c_e
-                # print(K_Nodal.shape)
                 Global_Nodal_stiffness_matrix = np.add(Global_Nodal_stiffness_matrix,K_Nodal)
-                # print(Global_Nodal_stiffness_matrix.shape)
 
+            
             Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Global_Nodal_stiffness_matrix
-            # print(Elemental_stiffness_matrix.shape)
+
 
     #Assignment matix for arranging global stiffness matrix
     A_fac = 18
@@ -175,19 +170,19 @@ for l in range(n_elem):
 # np.savetxt('2L4_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-16]= -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-13]= -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -50
-Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -50
+Load_vector[n_nodes*n_cross_nodes*DOF-16]= -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-13]= -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -37.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7] = -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-4] = -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -37.5
 print(Load_vector)
 
 
 Displacement = np.linalg.solve(Global_stiffness_matrix[18:,18:],Load_vector[18:])
 print(Displacement)
 print(Displacement.shape)
-
+print(np.linalg.norm(Global_stiffness_matrix))
 
 #For plotting z axis displacements
 # Z_disp = np.array([])
@@ -199,3 +194,4 @@ print(Displacement.shape)
 # fig,ax = plt.subplots()
 # ax.plot(x_axis,Z_disp)
 # plt.show()
+print(np.linalg.norm(Global_stiffness_matrix))

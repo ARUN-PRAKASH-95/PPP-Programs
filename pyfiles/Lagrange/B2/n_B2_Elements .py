@@ -39,22 +39,18 @@ Free_point  = 2
 
 # Mesh generation_________________________________________
 # 1. Mesh generation along the beam axis(Y axis) 
-# coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
+coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 # print(coordinate)
-meshrefinementfactor = 5
-q=meshrefinementfactor**(1/(n_elem-1))
-
-l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-rnode=Free_point
-c=np.array([Free_point])
-    
-
-for i in range(n_elem):
-    rnode=rnode+l
-    c=np.append(c,rnode)
-    l=l*q
-
-coordinate = np.flip(c)
+# meshrefinementfactor = 2
+# q=meshrefinementfactor**(1/(n_elem-1))
+# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+# rnode=Free_point
+# c=np.array([Free_point])
+# for i in range(n_elem):
+#     rnode=rnode+l
+#     c=np.append(c,rnode)
+#     l=l*q
+# coordinate = np.flip(c)
 
 
 #Along the beam axis(Y)
@@ -158,18 +154,14 @@ print("Load vector ----------------------------------------------")
 
 Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:])
 print(Displacement)
+print(np.linalg.norm(Global_stiffness_matrix))
 
+# Z_disp = np.array([])
 
-Z_disp = np.array([])
-
-for k in range(n_nodes*n_cross_nodes-4):
-    Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-print(Z_disp.shape)
-
-
-
-x_axis=np.arange(0,len(Z_disp),1)
-
-fig,ax = plt.subplots()
-ax.plot(x_axis,Z_disp)
-plt.show()
+# for k in range(n_nodes*n_cross_nodes-4):
+#     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+# # print(Z_disp.shape)
+# x_axis=np.arange(0,len(Z_disp),1)
+# fig,ax = plt.subplots()
+# ax.plot(x_axis,Z_disp)
+# plt.show()

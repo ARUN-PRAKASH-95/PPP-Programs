@@ -82,9 +82,7 @@ for l in range(n_elem):
                       [coordinate[l+1]]])                                                      
 
                    
-    # print(X_coor)               
     J_Length   = round(np.asscalar(N_Der_xi_m@X_coor),4)                                             # Jacobian for the length of the beam
-    # print('Jacobian',J_Length)
     N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
     
     # Element stiffness matrix created using no of nodes per element and cross node and DOF  
@@ -161,9 +159,7 @@ for l in range(n_elem):
 
                 
                 K_Nodal = A_c_e_T@Nodal_stiffness_matrix@A_c_e
-                # print(K_Nodal.shape)
                 Global_Nodal_stiffness_matrix = np.add(Global_Nodal_stiffness_matrix,K_Nodal)
-                # print(Global_Nodal_stiffness_matrix.shape)
 
             
             Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Global_Nodal_stiffness_matrix
@@ -181,15 +177,16 @@ for l in range(n_elem):
 # np.savetxt('2L4_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-16]= -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-13]= -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -50
-Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -50
+Load_vector[n_nodes*n_cross_nodes*DOF-16]= -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-13]= -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -37.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7] = -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-4] = -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -37.5
 print(Load_vector)
 
 
 Displacement = np.linalg.solve(Global_stiffness_matrix[18:,18:],Load_vector[18:])
 print(Displacement)
 print(Displacement.shape)
+print(np.linalg.norm(Global_stiffness_matrix))

@@ -39,17 +39,17 @@ Fixed_point = 0                                           # Coordinates of the b
 Free_point  = L
 
 #Mesh generation
-# coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
-meshrefinementfactor = 4
-q=meshrefinementfactor**(1/(n_elem-1))
-l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-rnode=Free_point
-c=np.array([Free_point])
-    for i in range(n_elem):
-    rnode=rnode+l
-    c=np.append(c,rnode)
-    l=l*q
-coordinate = np.flip(c)
+coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+# meshrefinementfactor = 4
+# q=meshrefinementfactor**(1/(n_elem-1))
+# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+# rnode=Free_point
+# c=np.array([Free_point])
+#     for i in range(n_elem):
+#     rnode=rnode+l
+#     c=np.append(c,rnode)
+#     l=l*q
+# coordinate = np.flip(c)
 # print(coordinate)
 
 
@@ -148,7 +148,7 @@ for l in range(n_elem):
     Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
 print(Global_stiffness_matrix.shape)               
-# np.savetxt('B3_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
+np.savetxt('B3_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
 # np.savetxt('B3_Stiffness_matrix_size.txt',Global_stiffness_matrix.shape,delimiter=',')
 
 
@@ -168,17 +168,18 @@ Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:]
 print('Displacement-----------------------------------------------------')
 print(Displacement)
 np.savetxt('n_B3_Displacement.txt',Displacement)
-
-Z_disp = np.array([])
-
-for k in range(n_nodes*n_cross_nodes-4):
-    Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-# print(Z_disp.shape)
+print(np.linalg.norm(Global_stiffness_matrix))
 
 
 
-x_axis=np.arange(0,len(Z_disp),1)
 
-fig,ax = plt.subplots()
-ax.plot(x_axis,Z_disp)
-plt.show()
+
+
+# Z_disp = np.array([])
+# for k in range(n_nodes*n_cross_nodes-4):
+#     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+# # print(Z_disp.shape)
+# x_axis=np.arange(0,len(Z_disp),1)
+# fig,ax = plt.subplots()
+# ax.plot(x_axis,Z_disp)
+# plt.show()
