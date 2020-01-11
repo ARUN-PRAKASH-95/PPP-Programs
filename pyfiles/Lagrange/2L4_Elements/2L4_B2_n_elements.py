@@ -47,18 +47,18 @@ DOF = 3
 
 # Mesh generation__________________________________________________________________________
 # 1. Mesh generation along the beam axis(Y axis)___________________________________________
-coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
+# coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
 # print(coordinate)
-# meshrefinementfactor = 2
-# q=meshrefinementfactor**(1/(n_elem-1))
-# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-# rnode=Free_point
-# c=np.array([Free_point])
-# for i in range(n_elem):
-#     rnode=rnode+l
-#     c=np.append(c,rnode)
-#     l=l*q
-# coordinate = np.flip(c)
+meshrefinementfactor = 5
+q=meshrefinementfactor**(1/(n_elem-1))
+l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+rnode=Free_point
+c=np.array([Free_point])
+for i in range(n_elem):
+    rnode=rnode+l
+    c=np.append(c,rnode)
+    l=l*q
+coordinate = np.flip(c)
 
 # 2. Mesh generation across the cross section (X,Z)______________________________________
 a = np.linspace(X1,X4,2)
@@ -68,8 +68,8 @@ d = np.linspace(Z2,Z3,3)
 
 
 #Along the beam axis(Y)__________________________________________________________________
-xi = 0#np.array([0.57735,-0.57735])                            # Gauss points
-W_Length   = 2 
+xi =   0             #np.array([0.57735,-0.57735])                            # Gauss points
+W_Length   =  2
 Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])                 # Shape functions of a linear element
 N_Der_xi   = np.array([-1/2,1/2])                              # Derivative of the shape function (N,xi)  
 
@@ -107,6 +107,7 @@ for l in range(n_elem):
                 Z2 = d[m]
                 Z3 = d[m+1]
                 Z4 = c[m+1]
+                # print(Z1,Z2,Z3,Z4)
 
                 #Lagrange polynomials
                 alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])           # Gauss points 
@@ -122,10 +123,12 @@ for l in range(n_elem):
                 X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
                 Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
                 Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
+                # print(X_alpha,X_beta,Z_alpha,Z_beta)
 
 
                 J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                      # Determinant of Jacobian matrix of the cross section
-                J_Cs = np.unique(J_Cs)
+                # J_Cs = np.unique(J_Cs)
+                # print(J_Cs)
                 
                 Nodal_stiffness_matrix = np.zeros((4*3,4*3))
                 Nodal_Load_Vector = np.zeros((4*3,1))
@@ -152,6 +155,7 @@ for l in range(n_elem):
                         K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                         F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
 
+                        
                         Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                         # if i == j == 1 and m==0:
                         #     Nodal_Load_Vector[2] = -6.25
@@ -167,12 +171,8 @@ for l in range(n_elem):
                         #     Nodal_Load_Vector[8] = -6.25
                         #     Nodal_Load_Vector[11]= -18.75
                         
-                        
-
-
-                            
+                                          
                     
-
                 A_c_e = np.zeros((12,18))             #Assignment matrix for assembling nodal stiffness matrix across the cross section
                 np.fill_diagonal(A_c_e[0:9 , 6*m:9+6*m],1)
                 np.fill_diagonal(A_c_e[9:12 , 15:18],1)
@@ -180,11 +180,8 @@ for l in range(n_elem):
 
                 K_Nodal = A_c_e_T@Nodal_stiffness_matrix@A_c_e
                 Global_Nodal_stiffness_matrix = np.add(Global_Nodal_stiffness_matrix,K_Nodal)
-                
-                
+                               
                 Nodal_Load = A_c_e_T@Nodal_Load_Vector
-                if m == 1:
-                    np.savetxt('Nodal_Load.txt',Nodal_Load,delimiter=',')
                 Global_Nodal_Load_Vector = np.add(Global_Nodal_Load_Vector,Nodal_Load)
             
             Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Global_Nodal_stiffness_matrix
@@ -209,25 +206,25 @@ for l in range(n_elem):
 # print(Load_vector)
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-16]= -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-13]= -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -37.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7] = -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-4] = -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -37.5
+Load_vector[n_nodes*n_cross_nodes*DOF-16]= 0
+Load_vector[n_nodes*n_cross_nodes*DOF-13]= 0
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -25
+Load_vector[n_nodes*n_cross_nodes*DOF-7] = 0
+Load_vector[n_nodes*n_cross_nodes*DOF-4] = 0
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -25
 # print(Load_vector)
 
 Displacement = np.linalg.solve(Global_stiffness_matrix[18:,18:],Load_vector[18:])
 print(Displacement)
 print(Displacement.shape)
-print(np.linalg.norm(Global_stiffness_matrix))
+print(np.trace(Global_stiffness_matrix))
 
 
 #For plotting z axis displacements
 # Z_disp = np.array([])
 # for k in range(n_nodes*n_cross_nodes-6):
 #     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-# print(Z_disp.shape)
+# print(Z_disp)
 # x_axis=np.arange(0,len(Z_disp),1)
 # fig,ax = plt.subplots()
 # ax.plot(x_axis,Z_disp)

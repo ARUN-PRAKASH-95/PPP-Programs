@@ -170,12 +170,12 @@ for l in range(n_elem):
 # np.savetxt('2L4_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-16]= 0
-Load_vector[n_nodes*n_cross_nodes*DOF-13]= 0
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -25
-Load_vector[n_nodes*n_cross_nodes*DOF-7] = 0
-Load_vector[n_nodes*n_cross_nodes*DOF-4] = 0
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -25
+Load_vector[n_nodes*n_cross_nodes*DOF-16]= -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-13]= -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -37.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7] = -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-4] = -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -37.5
 print(Load_vector)
 
 
