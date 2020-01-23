@@ -46,10 +46,10 @@ X_coor = np.array([[0],
                    [L/3], 
                    [2*L/3],
                    [L]])
-J_Length   = round(np.asscalar(N_Der_xi@X_coor),4)                                                                   # Jacobian for the length of the beam
+J_Length   = N_Der_xi@X_coor                                                                  # Jacobian for the length of the beam
 N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
-print(X_coor)
-print(J_Length)
+# print(X_coor)
+# print(J_Length)
 
 
 #Along the Beam cross section (X,Z)
@@ -108,9 +108,18 @@ for i in range(len(Shape_func)):
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
                 
                 
-                # if (i==j==1) and (tau == 2) and (s == 1):
-                #     print(F_Nu)
-                #     np.fill_diagonal(F_Nu,30e12)
+                if (i==j==0) and (tau == s):
+                    # print(F_Nu)
+                    np.fill_diagonal(F_Nu,30e12)
+                if (i==j==1) and (tau==s):
+                    F_Nu[0,0] = 30e12
+                    F_Nu[2,2] = 30e12
+                if (i==j==2) and (tau==s):
+                    F_Nu[0,0] = 30e12
+                    F_Nu[2,2] = 30e12
+                if (i==j==3) and (tau==s):
+                    F_Nu[0,0] = 30e12
+                    F_Nu[2,2] = 30e12
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                
                  
@@ -122,16 +131,16 @@ for i in range(len(Shape_func)):
 
 
 print("Stiffness matrix ----------------------------------------")
-print(Elemental_stiffness_matrix)
+# print(Elemental_stiffness_matrix)
 print(Elemental_stiffness_matrix.shape)  
 np.savetxt('B4_Stiffness_matrix.txt',Elemental_stiffness_matrix,delimiter=',')              
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector.shape)
 
@@ -146,16 +155,16 @@ np.savetxt('B4_Displacement.txt',Displacement,delimiter=',')
 
 
 
-Z_disp = np.array([])
+# Z_disp = np.array([])
 
-for k in range(n_nodes*n_cross_nodes-4):
-    Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-print(Z_disp.shape)
+# for k in range(n_nodes*n_cross_nodes-4):
+#     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+# print(Z_disp.shape)
 
 
 
-x_axis=np.arange(0,len(Z_disp),1)
+# x_axis=np.arange(0,len(Z_disp),1)
 
-fig,ax = plt.subplots()
-ax.plot(x_axis,Z_disp)
-plt.show()
+# fig,ax = plt.subplots()
+# ax.plot(x_axis,Z_disp)
+# plt.show()

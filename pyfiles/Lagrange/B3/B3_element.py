@@ -46,14 +46,14 @@ X_coor = np.array([[0],
                    [L/2],
                    [L]])
 J_Length   = round(np.asscalar(N_Der_xi@X_coor),2)                                             # Jacobian for the length of the beam
-print(J_Length)
+# print(J_Length)
 N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)])                         # Derivative of the shape function wrt to physical coordinates(N,y)
-print(X_coor)
+# print(X_coor)
 
 #Along the Beam cross section (X,Z)
 #Lagrange polynomials
-alpha =  np.array([0.57735,0.57735,-0.57735,-0.57735])                      # Gauss points 
-beta  =  np.array([0.57735,-0.57735,0.57735,-0.57735])
+alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])                      # Gauss points 
+beta  = np.array([0.57735,-0.57735,0.57735,-0.57735])
 W_Cs  = 1                                                                   # Weight for gauss quadrature in the cross section
 Lag_poly = np.array([1/4*((1-alpha)*(1-beta)),1/4*((1+alpha)*(1-beta)),1/4*((1+alpha)*(1+beta)),1/4*((1-alpha)*(1+beta))])
 n_cross_nodes = len(Lag_poly)
@@ -106,9 +106,15 @@ for i in range(len(Shape_func)):
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
                 
                 
-                # if (i==j==1) and (tau == 2) and (s == 1):
-                #     print(F_Nu)
-                #     np.fill_diagonal(F_Nu,30e12)
+                if (i==j==0) and (tau == s):
+                    # print(F_Nu)
+                    np.fill_diagonal(F_Nu,30e12)
+                if (i==j==1) and (tau==s):
+                    F_Nu[0,0] = 30e12
+                    # F_Nu[2,2] = 30e12
+                if (i==j==2) and (tau==s):
+                    F_Nu[0,0] = 30e12
+                    # F_Nu[2,2] = 30e12
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                
                  
@@ -118,22 +124,28 @@ for i in range(len(Shape_func)):
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
 # print(Elemental_stiffness_matrix[15,3])
 print("Stiffness matrix ----------------------------------------")
-print(Elemental_stiffness_matrix)
-print(Elemental_stiffness_matrix.shape)                
+# print(Elemental_stiffness_matrix)
+print(Elemental_stiffness_matrix.shape)   
+np.savetxt('Elemental_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')             
 
+print(np.allclose(Elemental_stiffness_matrix,Elemental_stiffness_matrix.T))
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
 print("Load vector ----------------------------------------------")
-print(Load_vector)
+# print(Load_vector)
 
 
 
-Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
+Displacement = np.linalg.solve(Elemental_stiffness_matrix,Load_vector)
 print("Displacement----------------------------------------------")
 print(Displacement)
 print(Displacement.shape)

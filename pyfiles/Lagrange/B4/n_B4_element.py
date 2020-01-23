@@ -6,7 +6,7 @@ import sympy as sp
 #PARAMETERS
 a = 0.2            #[m] Square cross section
 L = 2              #[m] Length of the beam
-E = 75e9           #[Pa] Young's Modulus
+E = 71.7e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))
 First  = (E*(1-v))/((1+v)*(1-2*v))
@@ -55,8 +55,8 @@ coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 
 
 #Along the beam axis(Y)
-xi = np.array([0,0.5384693101056831,-0.5384693101056831,0.9061798459386640,-0.9061798459386640])                                                                      # Gauss points
-W_Length   = np.array([0.5688888888888889,0.4786286704993665,0.4786286704993665,0.2369268850561891,0.2369268850561891])              
+xi = np.array([0,0.5384693101056831,-0.5384693101056831,0.9061798459386640,-0.9061798459386640])                                                                     # Gauss points
+W_Length   =   np.array([0.5688888888888889,0.4786286704993665,0.4786286704993665,0.2369268850561891,0.2369268850561891])           
 Shape_func = np.array([-9/16*(xi+1/3)*(xi-1/3)*(xi-1), 27/16*(xi+1)*(xi-1/3)*(xi-1),-27/16*(xi+1)*(xi+1/3)*(xi-1),9/16*(xi+1/3)*(xi-1/3)*(xi+1)])                       # Shape functions
 N_Der_xi = N_Der_xi = np.array([-1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') + 0.0625,5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') - 1.6875,-5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') + 1.6875,1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') - 0.0625])    # Derivative of the shape function (N,xi)
 N_Der_xi_m = np.array([0.0625,- 1.6875,1.6875,-0.0625])   
@@ -96,7 +96,7 @@ for l in range(n_elem):
                       [mid+(mid_length/3)],
                       [coordinate[l+1]]])                                                      
 
-    print(X_coor)               
+    # print(X_coor)               
     J_Length   = N_Der_xi_m@X_coor                                            # Jacobian for the length of the beam
     N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
 
@@ -184,3 +184,12 @@ print(np.linalg.norm(Global_stiffness_matrix))
 # fig,ax = plt.subplots()
 # ax.plot(x_axis,Z_disp)
 # plt.show()
+Z_disp = np.array([])
+
+for k in range(n_nodes-1):
+    Z_disp = np.append(Z_disp,np.unique(Displacement[12*(k+1)-1]))
+# print(np.unique(Z_disp))
+x_axis=np.arange(0,len(Z_disp),1)
+fig,ax = plt.subplots()
+ax.plot(x_axis,Z_disp)
+plt.show()

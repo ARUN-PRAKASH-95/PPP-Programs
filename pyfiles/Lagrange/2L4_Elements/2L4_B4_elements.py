@@ -43,7 +43,7 @@ DOF = 3
 
 # Mesh generation__________________________________________________________________________
 # 1. Mesh generation along the beam axis(Y axis)___________________________________________
-coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
+coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 # print(coordinate)
 # meshrefinementfactor = 2
 # q=meshrefinementfactor**(1/(n_elem-1))
@@ -179,14 +179,15 @@ for l in range(n_elem):
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
 Load_vector[n_nodes*n_cross_nodes*DOF-16]= -6.25
 Load_vector[n_nodes*n_cross_nodes*DOF-13]= -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -37.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-7] = -6.25
 Load_vector[n_nodes*n_cross_nodes*DOF-4] = -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -37.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print(Load_vector)
 
 
 Displacement = np.linalg.solve(Global_stiffness_matrix[18:,18:],Load_vector[18:])
 print(Displacement)
+np.savetxt('2L4_B4_displacement.txt',Displacement,delimiter=',')
 print(Displacement.shape)
 print(np.linalg.norm(Global_stiffness_matrix))
