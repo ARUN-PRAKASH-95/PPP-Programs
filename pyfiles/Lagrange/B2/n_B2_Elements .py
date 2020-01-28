@@ -175,16 +175,6 @@ Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
 print(Displacement)
 
 
-Z_disp = np.array([])
-
-# for k in range(n_nodes-1):
-#     Z_disp = np.append(Z_disp,np.unique(Displacement[12*(k+1)-1]))
-# # print(np.unique(Z_disp))
-# x_axis=np.arange(0,len(Z_disp),1)
-# fig,ax = plt.subplots()
-# ax.plot(x_axis,Z_disp)
-# plt.show()
-
 
 #To extract the displacement of our interest 
 
@@ -192,27 +182,27 @@ Z_disp = np.array([])
 X_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
+
 Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
+print("Req_X_disp",Req_X_disp)
 
 
 #Y displacements of all the lagrange nodes
 Y_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
-print(Y_disp)
-x_axis=np.arange(0,len(Y_disp),1)
+
 Req_Y_disp = Y_disp[-4::]
+print("Req_Y_disp",Req_Y_disp)
 
 
 #Z displacements of all the lagrange nodes
 Z_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-print(Z_disp)
+
 Req_Z_disp = Z_disp[-4::]
-
-
-
+print("Req_Z_disp",Req_Z_disp)
 
 
 
@@ -232,8 +222,8 @@ Z3 =  0.1
 X4 = -0.1
 Z4 =  0.1
 
-X = np.array([-0.1])
-Z = np.array([-0.1])
+X = np.array([0])
+Z = np.array([0])
 
 #Loop for finding the natural coordinates of the physical domain
 for i in range(len(X)):
@@ -252,9 +242,25 @@ Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_na
 
 #Axial strain
 Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-print(Epsilon_yy)
+print("Epsilon_yy",Epsilon_yy)
 
 
-fig,ax = plt.subplots()
-ax.plot(x_axis,Y_disp)
-plt.show()
+#Non-axial strains
+alpha_der = np.array([-1/4*(1-Y_nat),1/4*(1-Y_nat),1/4*(1+Y_nat),-1/4*(1+Y_nat)])         # Derivatives of the lagrange polynomials
+beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
+
+X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
+X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
+Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
+Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
+# print(X_alpha,X_beta,Z_alpha,Z_beta)
+
+
+Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
+print("Epsilon_xx",Epsilon_xx)
+
+
+Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
+print("Epsilon_zz",Epsilon_zz)
+
+
