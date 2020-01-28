@@ -1,5 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt  
+from sympy import *
+from sympy.solvers.solveset import linsolve
+
+
 
 #PARAMETERS
 a = 0.2            #[m] Square cross section
@@ -152,26 +156,26 @@ for l in range(n_elem):
                
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
 
 
-# Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
 print("Load vector ----------------------------------------------")
 # print(Load_vector)
 
-Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:])
+Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
 print(Displacement)
 
 
-# Z_disp = np.array([])
+Z_disp = np.array([])
 
 # for k in range(n_nodes-1):
 #     Z_disp = np.append(Z_disp,np.unique(Displacement[12*(k+1)-1]))
@@ -182,11 +186,75 @@ print(Displacement)
 # plt.show()
 
 
-# Z_disp = np.array([])
-# for k in range(n_nodes*n_cross_nodes-4):
-#     Z_disp = np.append(Z_disp,Displacement[2*(k+1)-1])
-# # print(Z_disp.shape)
-# x_axis=np.arange(0,len(Z_disp),1)
-# fig,ax = plt.subplots()
-# ax.plot(x_axis,Z_disp)
-# plt.show()
+#To extract the displacement of our interest 
+
+#X displacements of all the lagrange nodes
+X_disp = np.array([])
+for k in range(n_nodes*n_cross_nodes):
+    X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
+Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
+
+
+#Y displacements of all the lagrange nodes
+Y_disp = np.array([])
+for k in range(n_nodes*n_cross_nodes):
+    Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
+print(Y_disp)
+x_axis=np.arange(0,len(Y_disp),1)
+Req_Y_disp = Y_disp[-4::]
+
+
+#Z displacements of all the lagrange nodes
+Z_disp = np.array([])
+for k in range(n_nodes*n_cross_nodes):
+    Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+print(Z_disp)
+Req_Z_disp = Z_disp[-4::]
+
+
+
+
+
+
+#Post processing
+alpha,beta = symbols('alpha,beta')
+F1 = 1/4*(1-alpha)*(1-beta)
+F2 = 1/4*(1+alpha)*(1-beta)
+F3 = 1/4*(1+alpha)*(1+beta)
+F4 = 1/4*(1-alpha)*(1+beta)
+
+X1 = -0.1
+Z1 = -0.1
+X2 =  0.1
+Z2 = -0.1
+X3 =  0.1
+Z3 =  0.1
+X4 = -0.1
+Z4 =  0.1
+
+X = np.array([-0.1])
+Z = np.array([-0.1])
+
+#Loop for finding the natural coordinates of the physical domain
+for i in range(len(X)):
+    eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - X[i]
+    eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - Z[i]
+    a = solve([eq1, eq2], (alpha,beta))
+    print(a)
+
+
+#Natural coordinates of the points in the physical domain
+X_nat = a[alpha]
+Y_nat = a[beta]
+Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
+
+
+
+#Axial strain
+Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
+print(Epsilon_yy)
+
+
+fig,ax = plt.subplots()
+ax.plot(x_axis,Y_disp)
+plt.show()

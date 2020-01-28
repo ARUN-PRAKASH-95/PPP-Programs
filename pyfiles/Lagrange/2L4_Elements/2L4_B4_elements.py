@@ -148,7 +148,19 @@ for l in range(n_elem):
                         K_zy =  C_13*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
                         K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                         F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-
+                        
+                        if (i==j==0) and (tau == s):
+                            # print(F_Nu)
+                            np.fill_diagonal(F_Nu,30e12)
+                        if (i==j==1) and (tau==s):
+                            F_Nu[0,0] = 30e12
+                            F_Nu[2,2] = 30e12
+                        if (i==j==2) and (tau==s):
+                            F_Nu[0,0] = 30e12
+                            F_Nu[2,2] = 30e12
+                        if (i==j==3) and (tau==s):
+                            F_Nu[0,0] = 30e12
+                            F_Nu[2,2] = 30e12
                         Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
 
                 
@@ -177,12 +189,12 @@ for l in range(n_elem):
 # np.savetxt('2L4_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-16]= -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-13]= -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7] = -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-4] = -6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-17]= 6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-14]= 6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-11]= 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-8] = 6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-5] = 6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-2] = 12.5
 print(Load_vector)
 
 

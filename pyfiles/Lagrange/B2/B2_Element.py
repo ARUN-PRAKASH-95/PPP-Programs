@@ -34,8 +34,8 @@ Z4 =  0.1
 n_elem = 1                                               # No of elements
 per_elem = 2                                             # Type of the element
 n_nodes  = (per_elem-1)*n_elem  + 1                      # Total no of nodes 
-xi = 0#np.array([0.57735,-0.57735])                        # Gauss points
-W_Length   = 2                                          # Weight for gauss quadrature
+xi = 0                       # Gauss points
+W_Length   =  2                                        # Weight for gauss quadrature
 Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])           # Shape functions
 N_Der_xi = np.array([-1/2,1/2])                          # Derivative of the shape function (N,xi)
 
@@ -106,12 +106,9 @@ for i in range(len(Shape_func)):
                     np.fill_diagonal(F_Nu,30e12)            
                 if (i==j==1) and (tau==s):
                     F_Nu[0,0] = 30e12
-                    F_Nu[2,2] = 30e12
+                    # F_Nu[2,2] = 30e12
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
-                
-                 
-                
-        
+                                                        
                 
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
       
@@ -122,16 +119,18 @@ print(Elemental_stiffness_matrix[15,3])
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-# Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
-Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
-print(Load_vector[12:])
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+
+
+# Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
+# print(Load_vector[12:])
 
 
 
