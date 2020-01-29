@@ -136,7 +136,7 @@ for l in range(n_elem):
                         np.fill_diagonal(F_Nu,30e12)
                     if (i==j==1) and (tau==s):
                         F_Nu[0,0] = 30e12
-                        # F_Nu[2,2] = 30e12
+                    #     # F_Nu[2,2] = 30e12
                     Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                     
             
@@ -222,26 +222,37 @@ Z3 =  0.1
 X4 = -0.1
 Z4 =  0.1
 
-X = np.array([0])
-Z = np.array([0])
+X = np.array([-0.1,0.1,0.1,-0.1])
+Z = np.array([-0.1,-0.1,0.1,0.1])
 
+
+coor = np.array([])
 #Loop for finding the natural coordinates of the physical domain
 for i in range(len(X)):
     eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - X[i]
     eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - Z[i]
     a = solve([eq1, eq2], (alpha,beta))
-    print(a)
+    coor=np.append(coor,a)
+
+
 
 
 #Natural coordinates of the points in the physical domain
-X_nat = a[alpha]
-Y_nat = a[beta]
-Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
+X_nat = np.array([])
+Y_nat = np.array([])
 
+for i in range(len(coor)):
+    x_nat = coor[i][alpha]
+    y_nat = coor[i][beta]
+    X_nat = np.append(X_nat,x_nat)
+    Y_nat = np.append(Y_nat,y_nat)
+Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
+print(X_nat)
+print(Y_nat)
 
 
 #Axial strain
-Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
+Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
 print("Epsilon_yy",Epsilon_yy)
 
 
