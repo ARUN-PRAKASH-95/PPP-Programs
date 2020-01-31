@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt  
 import sympy as sp 
+from sympy import *
+from sympy.solvers.solveset import linsolve 
 
 
 #PARAMETERS
@@ -165,7 +167,7 @@ for l in range(n_elem):
                             np.fill_diagonal(F_Nu,30e12)
                         if (i==j==1) and (tau==s):
                             F_Nu[0,0] = 30e12
-                            F_Nu[2,2] = 30e12
+                        #     F_Nu[2,2] = 30e12
                         Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                         # if i == j == 1 and m==0:
                         #     Nodal_Load_Vector[2] = -6.25
@@ -222,27 +224,154 @@ for l in range(n_elem):
 # print(Load_vector)
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-17]= 6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-14]= 6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-11]= 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-8] = 6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-5] = 6.25
-Load_vector[n_nodes*n_cross_nodes*DOF-2] = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-17]= 6.25
+# Load_vector[n_nodes*n_cross_nodes*DOF-14]= 6.25
+# Load_vector[n_nodes*n_cross_nodes*DOF-11]= 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-8] = 6.25
+# Load_vector[n_nodes*n_cross_nodes*DOF-5] = 6.25
+# Load_vector[n_nodes*n_cross_nodes*DOF-2] = 12.5
+
+Load_vector[n_nodes*n_cross_nodes*DOF-16]= -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-13]= -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7] = -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-4] = -6.25
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print(Load_vector[18:])
 
-Displacement = np.linalg.solve(Global_stiffness_matrix[18:,18:],Load_vector[18:])
-print(Displacement)
+Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
+print(Displacement[18:])
 print(Displacement.shape)
 np.savetxt('2L4_B2_displacement.txt',Displacement,delimiter=',')
 # print(np.trace(Global_stiffness_matrix))
 
 
-#For plotting z axis displacements
-# Z_disp = np.array([])
-# for k in range(n_nodes*n_cross_nodes-6):
-#     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-# print(Z_disp)
-# x_axis=np.arange(0,len(Z_disp),1)
-# fig,ax = plt.subplots()
-# ax.plot(x_axis,Z_disp)
-# plt.show()
+
+#To extract the displacement of our interest (End cross section) 
+
+#X displacements of all the lagrange nodes
+X_disp = np.array([])
+for k in range(n_nodes*n_cross_nodes):
+    X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
+
+Req_X_disp = X_disp[-6::]                       #Displacement of the lagrange nodes at end cross section
+print("Req_X_disp",Req_X_disp)
+
+
+#Y displacements of all the lagrange nodes
+Y_disp = np.array([])
+for k in range(n_nodes*n_cross_nodes):
+    Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
+
+Req_Y_disp = Y_disp[-6::]
+print("Req_Y_disp",Req_Y_disp)
+
+
+#Z displacements of all the lagrange nodes
+Z_disp = np.array([])
+for k in range(n_nodes*n_cross_nodes):
+    Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+
+Req_Z_disp = Z_disp[-6::]
+print("Req_Z_disp",Req_Z_disp)
+
+
+
+#Post processing
+alpha,beta = symbols('alpha,beta')
+F1 = 1/4*(1-alpha)*(1-beta)
+F2 = 1/4*(1+alpha)*(1-beta)
+F3 = 1/4*(1+alpha)*(1+beta)
+F4 = 1/4*(1-alpha)*(1+beta)
+
+
+#Physical coordinates of the cross sectional elements
+#First element
+X_coor_1 = np.array([-0.1,0.1,0.1,-0.1])
+Z_coor_1 = np.array([-0.1,-0.1,0,0])
+
+#Second element
+X_coor_2 = np.array([-0.1,0.1,0.1,-0.1])
+Z_coor_2 = np.array([0,0,0.1,0.1])
+
+
+#Coordinates of our interest
+X = np.array([0])
+Z = np.array([0])
+
+
+
+#Array for storing the physical coordinates of the required element (element1 or element2)
+store_x = np.array([])
+store_z = np.array([])
+
+for i in Z:
+    if(i<0):
+        store_x = X_coor_1
+        store_z = Z_coor_1
+        Disp_x  = np.array([Req_X_disp[0],Req_X_disp[1],Req_X_disp[2],Req_X_disp[5]]) 
+        Disp_y  = np.array([Req_Y_disp[0],Req_Y_disp[1],Req_Y_disp[2],Req_Y_disp[5]])
+        Disp_Z  = np.array([Req_Z_disp[0],Req_Z_disp[1],Req_Z_disp[2],Req_Z_disp[5]])
+    else:
+        store_x = X_coor_2
+        store_z = Z_coor_2
+        Disp_x  = np.array([Req_X_disp[5],Req_X_disp[2],Req_X_disp[3],Req_X_disp[4]]) 
+        Disp_y  = np.array([Req_Y_disp[5],Req_Y_disp[2],Req_Y_disp[3],Req_Y_disp[4]])
+        Disp_z  = np.array([Req_Z_disp[5],Req_Z_disp[2],Req_Z_disp[3],Req_Z_disp[4]])
+
+
+print("1st_element_Z",Disp_z)
+
+
+coor = np.array([])
+#Loop for finding the natural coordinates of the physical domain
+for i in range(len(X)):
+    eq1 =  F1*store_x[0] + F2 * store_x[1] + F3 * store_x[2] + F4 * store_x[3] - X[i]
+    eq2 =  F1*store_z[0] + F2 * store_z[1] + F3 * store_z[2] + F4 * store_z[3]  - Z[i]
+    a = solve([eq1, eq2], (alpha,beta))
+    coor=np.append(coor,a)
+
+
+
+
+#Natural coordinates of the points in the physical domain
+X_nat = np.array([])
+Y_nat = np.array([])
+
+#Loop to seperate the coordinates from the dictionary
+for i in range(len(coor)):
+    x_nat = coor[i][alpha]
+    y_nat = coor[i][beta]
+    X_nat = np.append(X_nat,x_nat)
+    Y_nat = np.append(Y_nat,y_nat)
+
+Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
+print(X_nat)
+print(Y_nat)
+
+U_Z =  Lag_poly[0]*Disp_z[0] + Lag_poly[1]*Disp_z[1] + Lag_poly[2]*Disp_z[2] + Lag_poly[3]*Disp_z[3] 
+print("Displacement_z",U_Z)
+
+
+#Axial strain
+Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Disp_y[1] + Lag_poly[1]*1/2*(1/J_Length)*Disp_y[2] + Lag_poly[2]*1/2*(1/J_Length)*Disp_y[0] + Lag_poly[3]*1/2*(1/J_Length)*Disp_y[3] 
+print("Epsilon_yy",Epsilon_yy)
+
+
+#Non-axial strains
+alpha_der = np.array([-1/4*(1-Y_nat),1/4*(1-Y_nat),1/4*(1+Y_nat),-1/4*(1+Y_nat)])         # Derivatives of the lagrange polynomials
+beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
+
+X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
+X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
+Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
+Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
+# print(X_alpha,X_beta,Z_alpha,Z_beta)
+
+
+Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Disp_x[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Disp_x[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Disp_x[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Disp_x[3] 
+print("Epsilon_xx",Epsilon_xx)
+
+
+Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Disp_z[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Disp_z[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Disp_z[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Disp_z[3] 
+print("Epsilon_zz",Epsilon_zz)

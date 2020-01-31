@@ -134,8 +134,8 @@ for l in range(n_elem):
                     if (i==j==0) and (tau == s) and (l==0):
                     # print(F_Nu)
                         np.fill_diagonal(F_Nu,30e12)
-                    if (i==j==1) and (tau==s):
-                        F_Nu[0,0] = 30e12
+                    # if (i==j==1) and (tau==s):
+                    #     F_Nu[0,0] = 30e12
                     #     # F_Nu[2,2] = 30e12
                     Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                     
@@ -156,18 +156,18 @@ for l in range(n_elem):
                
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-# Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
 
 
-Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
 print("Load vector ----------------------------------------------")
 # print(Load_vector)
 

@@ -26,41 +26,48 @@ C_66 = G
 
 
 # Coordinates of the cross section
-#Upper flange coordinates
-X_coor_fl1 = np.array([-0.015,0.015,0.015,-0.015])
-Z_coor_fl1 = np.array([0.5,0.5,0.47,0.47])
+#Lower Flange coordinates
 X1 = -0.015
-Z1 =  0.5
+Z1 = -0.5
 X2 =  0.015
-Z2 =  0.5
+Z2 = -0.5
 X3 =  0.015
-Z3 =  0.47
+Z3 = -0.47
 X4 = -0.015
-Z4 =  0.47
+Z4 = -0.47
+
+
+X_coor_fl1 = np.array([X1,X2,X3,X4])
+Z_coor_fl1 = np.array([Z1,Z2,Z3,Z4])
+
+
 
 #Web coordinates
-X_coor_w = np.array([-0.0005,0.0005,0.0005,-0.0005])
-Z_coor_w = np.array([0.47,0.47,-0.47,-0.47])
 X5 = -0.0005
-Z5 =  0.47
+Z5 = -0.47
 X6 =  0.0005
-Z6 =  0.47
+Z6 = -0.47
 X7 =  0.0005
-Z7 = -0.47
+Z7 =  0.47
 X8 = -0.0005
-Z8 = -0.47
+Z8 =  0.47
 
-#Lower Flange coordinates
-X_coor_fl2 = np.array([-0.015,0.015,0.015,-0.015])
-Z_coor_fl2 = np.array([-0.47,-0.47,-0.5,-0.5])
+
+
+X_coor_w = np.array([X5,X6,X7,X8])
+Z_coor_w = np.array([Z5,Z6,Z7,Z8])
+
+#Upper flange coordinates
 X9  = -0.015
-Z9  = -0.47
+Z9  =  0.5
 X10 =  0.015
-Z10 = -0.47
+Z10 =  0.5
 X11 =  0.015
-Z11 = -0.5
+Z11 =  0.47
 X12 = -0.015
-Z12 = -0.5
+Z12 =  0.47
+X_coor_fl2 =  np.array([X9,X10,X11,X12])
+Z_coor_fl2 =  np.array([Z9,Z10,Z11,Z12])
 
 
 #Coordinate array----Cross sectional coordinates
@@ -147,6 +154,7 @@ for l in range(n_elem):
 
                 J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                      # Determinant of Jacobian matrix of the cross section
                 J_Cs = J_Cs[0]
+                # print(J_Cs)
                 
                 
                 Nodal_stiffness_matrix = np.zeros((4*3,4*3))
@@ -176,6 +184,14 @@ for l in range(n_elem):
                         K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                         F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
 
+
+                        if (i==j==0) and (tau == s) and (l==0):
+                    
+                            np.fill_diagonal(F_Nu,30e12)
+                        if (i==j==1) and (tau==s):
+                            F_Nu[0,0] = 30e12
+                        if (i==j==2) and (tau==s):
+                            F_Nu[0,0] = 30e12
                         Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
 
                 A_c_fac = 12
