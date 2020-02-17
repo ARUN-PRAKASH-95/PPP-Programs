@@ -165,23 +165,11 @@ for l in range(n_elem):
                         if (i==j==0) and (tau == s) and (l==0):
                             # print(F_Nu)
                             np.fill_diagonal(F_Nu,30e12)
-                        if (i==j==1) and (tau==s):
-                            F_Nu[0,0] = 30e12
+                        # if (i==j==1) and (tau==s):
+                        #     F_Nu[0,0] = 30e12
                         #     F_Nu[2,2] = 30e12
                         Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
-                        # if i == j == 1 and m==0:
-                        #     Nodal_Load_Vector[2] = -6.25
-                        #     Nodal_Load_Vector[5] = -6.25
-                        #     Nodal_Load_Vector[8] = -12.5
-                        #     Nodal_Load_Vector[11]= -12.5
-                                                     
                         
-                        # elif i == j == 1 and m==1:
-                            
-                        #     Nodal_Load_Vector[2] = -12.5
-                        #     Nodal_Load_Vector[5] = -6.25
-                        #     Nodal_Load_Vector[8] = -6.25
-                        #     Nodal_Load_Vector[11]= -12.5
                         
                                           
                     
@@ -244,6 +232,7 @@ print(Displacement[18:])
 print(Displacement.shape)
 np.savetxt('2L4_B2_displacement.txt',Displacement,delimiter=',')
 # print(np.trace(Global_stiffness_matrix))
+print("------------------------------------------------------------------------------------")
 
 
 
@@ -274,7 +263,7 @@ for k in range(n_nodes*n_cross_nodes):
 
 Req_Z_disp = Z_disp[-6::]
 print("Req_Z_disp",Req_Z_disp)
-
+print("------------------------------------------------------------------------------------")
 
 
 #Post processing
@@ -296,8 +285,8 @@ Z_coor_2 = np.array([0,0,0.1,0.1])
 
 
 #Coordinates of our interest
-X = np.array([0])
-Z = np.array([0])
+X = np.array([-0.1])
+Z = np.array([-0.1])
 
 
 
@@ -311,7 +300,7 @@ for i in Z:
         store_z = Z_coor_1
         Disp_x  = np.array([Req_X_disp[0],Req_X_disp[1],Req_X_disp[2],Req_X_disp[5]]) 
         Disp_y  = np.array([Req_Y_disp[0],Req_Y_disp[1],Req_Y_disp[2],Req_Y_disp[5]])
-        Disp_Z  = np.array([Req_Z_disp[0],Req_Z_disp[1],Req_Z_disp[2],Req_Z_disp[5]])
+        Disp_z  = np.array([Req_Z_disp[0],Req_Z_disp[1],Req_Z_disp[2],Req_Z_disp[5]])
     else:
         store_x = X_coor_2
         store_z = Z_coor_2
@@ -320,8 +309,8 @@ for i in Z:
         Disp_z  = np.array([Req_Z_disp[5],Req_Z_disp[2],Req_Z_disp[3],Req_Z_disp[4]])
 
 
-print("1st_element_Z",Disp_z)
-
+print("Element_Z",Disp_z)
+print("------------------------------------------------------------------------------------")
 
 coor = np.array([])
 #Loop for finding the natural coordinates of the physical domain
@@ -348,6 +337,8 @@ for i in range(len(coor)):
 Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
 print(X_nat)
 print(Y_nat)
+print("------------------------------------------------------------------------------------")
+
 
 U_Z =  Lag_poly[0]*Disp_z[0] + Lag_poly[1]*Disp_z[1] + Lag_poly[2]*Disp_z[2] + Lag_poly[3]*Disp_z[3] 
 print("Displacement_z",U_Z)
@@ -356,6 +347,7 @@ print("Displacement_z",U_Z)
 #Axial strain
 Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Disp_y[1] + Lag_poly[1]*1/2*(1/J_Length)*Disp_y[2] + Lag_poly[2]*1/2*(1/J_Length)*Disp_y[0] + Lag_poly[3]*1/2*(1/J_Length)*Disp_y[3] 
 print("Epsilon_yy",Epsilon_yy)
+print("------------------------------------------------------------------------------------")
 
 
 #Non-axial strains
@@ -371,7 +363,9 @@ Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
 Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Disp_x[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Disp_x[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Disp_x[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Disp_x[3] 
 print("Epsilon_xx",Epsilon_xx)
+print("------------------------------------------------------------------------------------")
 
 
-Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Disp_z[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Disp_z[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Disp_z[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Disp_z[3] 
+Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Disp_z[0] + 1/J_Cs*((-X_alpha*-alpha_der[1])+(X_beta*beta_der[1]))*Disp_z[1] + 1/J_Cs*((-X_alpha*-alpha_der[2])+(X_beta*beta_der[2]))*Disp_z[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Disp_z[3] 
 print("Epsilon_zz",Epsilon_zz)
+print("------------------------------------------------------------------------------------")

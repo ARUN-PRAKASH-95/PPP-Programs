@@ -31,13 +31,13 @@ X4 = -0.1
 Z4 =  0.1
 
 #Along the beam axis(Y)
-n_elem = 1                                               # No of elements
+n_elem   = 1                                               # No of elements
 per_elem = 2                                             # Type of the element
 n_nodes  = (per_elem-1)*n_elem  + 1                      # Total no of nodes 
-xi = 0                       # Gauss points
-W_Length   =  2                                        # Weight for gauss quadrature
+xi       = 0#np.array([0.57735,-0.57735])                # Gauss points
+W_Length   =  2                                         # Weight for gauss quadrature
 Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])           # Shape functions
-N_Der_xi = np.array([-1/2,1/2])                          # Derivative of the shape function (N,xi)
+N_Der_xi   = np.array([-1/2,1/2])                        # Derivative of the shape function (N,xi)
 
 
 #Things that change by changing number of elements
@@ -99,43 +99,51 @@ for i in range(len(Shape_func)):
                 K_zx =  C_12*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) 
                 K_zy =  C_13*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
                 K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
-                F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
+                F_Nu =  np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
+                if (i==j==0) and (tau == s == 0):
+                    print(K_xz)
                 
                 if (i==j==0) and (tau == s):
-                    # print(F_Nu)
                     np.fill_diagonal(F_Nu,30e12)            
-                if (i==j==1) and (tau==s):
-                    F_Nu[0,0] = 30e12
-                    # F_Nu[2,2] = 30e12
+              
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
-                                                        
+                
+        
                 
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
+       
+
       
 
-np.savetxt('B2_stiffness.txt',Elemental_stiffness_matrix[12:,12:],delimiter=',')
-print(Elemental_stiffness_matrix[15,3])
-# print(np.allclose(Elemental_stiffness_matrix,Elemental_stiffness_matrix.T))
+
+
+# Elemental_stiffness_matrix = Elemental_stiffness_matrix[12:,12:]
+# print(Elemental_stiffness_matrix.shape)
+#Stiffness matrix checkers
+# print("Transpose",np.allclose(Elemental_stiffness_matrix,Elemental_stiffness_matrix.T))
+# inv = np.linalg.inv(Elemental_stiffness_matrix)
+# print("Determinant",np.linalg.det(Elemental_stiffness_matrix))
+# EV,EVector = np.linalg.eig(Elemental_stiffness_matrix)
+# print("Eigen_value",EV)
+# print(Elemental_stiffness_matrix - Elemental_stiffness_matrix.transpose())
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
+# Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
-Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
-
-# Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
 # print(Load_vector[12:])
 
 
 
 Displacement = np.linalg.solve(Elemental_stiffness_matrix,Load_vector)
 print("Displacement----------------------------------------------")
-print(Displacement)
-np.savetxt('B2_displacement_1_point_gauss.txt',Displacement,delimiter=',')
+print(Displacement[12:])
 

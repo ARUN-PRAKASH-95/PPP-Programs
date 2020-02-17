@@ -106,29 +106,41 @@ for i in range(len(Shape_func)):
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
                 
                 
-                if (i==j==0) and (tau == s):
-                    # print(F_Nu)
-                    np.fill_diagonal(F_Nu,30e11)
-                if (i==j==1) and (tau==s):
-                    F_Nu[0,0] = 30e11
-                    # F_Nu[2,2] = 30e12
-                if (i==j==2) and (tau==s):
-                    F_Nu[0,0] = 30e11
+                # if (i==j==0) and (tau == s):
+                #     # print(F_Nu)
+                #     np.fill_diagonal(F_Nu,30e11)
+                # if (i==j==1) and (tau==s):
+                #     F_Nu[0,0] = 30e11
+                #     # F_Nu[2,2] = 30e12
+                # if (i==j==2) and (tau==s):
+                #     F_Nu[0,0] = 30e11
                     # F_Nu[2,2] = 30e12
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                
                  
                 
-        
+        #Stiffness matrix checkers
+        print("Nodal_stiffness_checkers")
+        print("Transpose",np.allclose(Nodal_stiffness_matrix,Nodal_stiffness_matrix.T))
+        inv = np.linalg.inv(Nodal_stiffness_matrix)
+        print("Determinant",np.linalg.det(Nodal_stiffness_matrix))
+        EV,EVector = np.linalg.eig(Nodal_stiffness_matrix)
+        print("Eigen_value",EV)     
+        print("--------------------------------------------------")    
                 
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
-# print(Elemental_stiffness_matrix[15,3])
-print("Stiffness matrix ----------------------------------------")
-# print(Elemental_stiffness_matrix)
-print(Elemental_stiffness_matrix.shape)   
-np.savetxt('Elemental_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')             
 
-print(np.allclose(Elemental_stiffness_matrix,Elemental_stiffness_matrix.T))
+
+print("Stiffness matrix ----------------------------------------")
+print(Elemental_stiffness_matrix.shape)   
+np.savetxt('Elemental_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')  
+
+#Stiffness matrix checkers
+print("Transpose",np.allclose(Elemental_stiffness_matrix,Elemental_stiffness_matrix.T))
+print("Inverse",np.linalg.inv(Elemental_stiffness_matrix))
+print("Determinant",np.linalg.det(Elemental_stiffness_matrix))
+EV,EVector = np.linalg.eig(Elemental_stiffness_matrix)
+print("Eigen_value",EV)
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
@@ -136,6 +148,8 @@ Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+
+
 # Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
 # Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
 # Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5

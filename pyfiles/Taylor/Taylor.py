@@ -32,7 +32,7 @@ S_point = 18
 n_elem = 1                                               # No of elements
 per_elem = 3                                             # Type of the element
 n_nodes  = (per_elem-1)*n_elem  + 1                      # Total no of nodes 
-xi = np.array([0,0.774597,-0.774597])#np.array([0.57735,-0.57735])                        # Gauss points
+xi = np.array([0,0.774597,-0.774597])             #np.array([0.57735,-0.57735])                        # Gauss points
 W_Length   = np.array([0.888889,0.555556,0.555556])                                        # Weight for the gauss quadrature
 Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                #np.array([1/2*(1-xi),1/2*(1+xi)])
 N_Der_xi   = np.array([symbols('xi')-1/2,-2*symbols('xi'),symbols('xi')+1/2])                #np.array([-1/2,1/2])                        # Derivative of the shape function (N,xi)
@@ -60,7 +60,7 @@ sep = int((per_elem*n_cross_nodes*DOF)/per_elem)                             # S
 
 
 for i in range(per_elem):
-    print(i)
+    
     for j in range(per_elem):
             #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
         Nodal_stiffness_matrix = np.zeros((n_cross_nodes*DOF,n_cross_nodes*DOF))
@@ -78,8 +78,9 @@ for i in range(per_elem):
                 K_zz =  C_11*integrate(Z_der[tau]*Z_der[s],(x,low, a),(z,low,a))*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*integrate(X_der[tau]*X_der[s],(x,low, a),(z,low,a))*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*integrate(Taylor_poly[tau]*Taylor_poly[s],(x,low, a),(z,low,a))*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                 F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
                 # print(tau,F_Nu)
-                # if (i==j==0) and (tau == s):
-                #     np.fill_diagonal(F_Nu,30e12)
+                
+                if (i==j==0) and (tau == s):
+                    np.fill_diagonal(F_Nu,30e12)
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                 
                 
@@ -88,10 +89,24 @@ for i in range(per_elem):
         
                 
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
-print(Elemental_stiffness_matrix.shape)
-print("Stiffness matrix ----------------------------------------")
-print(Elemental_stiffness_matrix) 
-# print(Elemental_stiffness_matrix[12,3])               
+
+#Stiffness matrix checkers
+# print("Transpose",np.allclose(Elemental_stiffness_matrix,Elemental_stiffness_matrix.T))
+# print("Inverse",np.linalg.inv(Elemental_stiffness_matrix))
+# print("Determinant",np.linalg.det(Elemental_stiffness_matrix))
+# EV,EVector = np.linalg.eig(Elemental_stiffness_matrix)
+# print("Eigen_value",EV)
+
+
+
+
+# print(Elemental_stiffness_matrix.shape)
+# print("Stiffness matrix ----------------------------------------")
+# print(Elemental_stiffness_matrix) 
+# # print(Elemental_stiffness_matrix[12,3])               
+
+
+
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
 Load_vector[n_nodes*n_cross_nodes*DOF-16] = -50
 Load_vector[n_nodes*n_cross_nodes*DOF-13] = -5
@@ -99,11 +114,11 @@ Load_vector[n_nodes*n_cross_nodes*DOF-10] = -5
 Load_vector[n_nodes*n_cross_nodes*DOF-7] = -0.5
 Load_vector[n_nodes*n_cross_nodes*DOF-4] = -0.5
 Load_vector[n_nodes*n_cross_nodes*DOF-1] = -0.5
-print("Load vector ----------------------------------------------")
-print(Load_vector)
+# print("Load vector ----------------------------------------------")
+# print(Load_vector)
 
 C = np.linalg.solve(Elemental_stiffness_matrix[S_point:,S_point:],Load_vector[S_point:])
 print("Displacement----------------------------------------------")
 print(C)
-np.savetxt('Taylor_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')
-print(C.shape)
+# # np.savetxt('Taylor_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')
+# print(C.shape)
