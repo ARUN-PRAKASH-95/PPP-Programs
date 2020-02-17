@@ -6,7 +6,7 @@ import sympy as sp
 #PARAMETERS
 a = 0.2            #[m] Square cross section
 L = 2              #[m] Length of the beam
-E = 71.7e9           #[Pa] Young's Modulus
+E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))
 First  = (E*(1-v))/((1+v)*(1-2*v))
@@ -134,6 +134,9 @@ for l in range(n_elem):
                     K_zy =  C_13*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
                     K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                     F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
+
+                    if (i==j==0) and (tau == s) and (l==0):
+                        np.fill_diagonal(F_Nu,30e12)
                     # print(F_Nu)
                     Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                     
@@ -158,17 +161,22 @@ np.savetxt('B4_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
+Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
 
 
 
-Displacement = np.linalg.solve(Global_stiffness_matrix[12:,12:],Load_vector[12:])
+
+Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
 print('Displacement-----------------------------------------------------')
 print(Displacement)
 print(Displacement.shape)
@@ -184,12 +192,12 @@ print(np.linalg.norm(Global_stiffness_matrix))
 # fig,ax = plt.subplots()
 # ax.plot(x_axis,Z_disp)
 # plt.show()
-Z_disp = np.array([])
+# Z_disp = np.array([])
 
-for k in range(n_nodes-1):
-    Z_disp = np.append(Z_disp,np.unique(Displacement[12*(k+1)-1]))
-# print(np.unique(Z_disp))
-x_axis=np.arange(0,len(Z_disp),1)
-fig,ax = plt.subplots()
-ax.plot(x_axis,Z_disp)
-plt.show()
+# for k in range(n_nodes-1):
+#     Z_disp = np.append(Z_disp,np.unique(Displacement[12*(k+1)-1]))
+# # print(np.unique(Z_disp))
+# x_axis=np.arange(0,len(Z_disp),1)
+# fig,ax = plt.subplots()
+# ax.plot(x_axis,Z_disp)
+# plt.show()
