@@ -57,23 +57,23 @@ Z8 =  0.47
 X_coor_w = np.array([X5,X6,X7,X8])
 Z_coor_w = np.array([Z5,Z6,Z7,Z8])
 
-#Upper flange coordinates
-X9  = -0.015
-Z9  =  0.5
-X10 =  0.015
-Z10 =  0.5
-X11 =  0.015
-Z11 =  0.47
-X12 = -0.015
-Z12 =  0.47
-X_coor_fl2 =  np.array([X9,X10,X11,X12])
-Z_coor_fl2 =  np.array([Z9,Z10,Z11,Z12])
+# #Upper flange coordinates
+# X9  = -0.015
+# Z9  =  0.5
+# X10 =  0.015
+# Z10 =  0.5
+# X11 =  0.015
+# Z11 =  0.47
+# X12 = -0.015
+# Z12 =  0.47
+# X_coor_fl2 =  np.array([X9,X10,X11,X12])
+# Z_coor_fl2 =  np.array([Z9,Z10,Z11,Z12])
 
 
 
 #Coordinate array----Cross sectional coordinates
-X_c_coor = np.array([X_coor_fl1,X_coor_w,X_coor_fl2])
-Z_c_coor = np.array([Z_coor_fl1,Z_coor_w,Z_coor_fl2])
+X_c_coor = np.array([X_coor_fl1,X_coor_w])
+Z_c_coor = np.array([Z_coor_fl1,Z_coor_w])
 
 
 
@@ -83,8 +83,8 @@ per_elem = 2                                              # Type of the element
 n_nodes  = (per_elem-1)*n_elem  + 1                       # Total number of nodes 
 Fixed_point = 0                                           # Coordinates of the beam
 Free_point  = L
-n_cross_elem = 3                                          # Number of L4 elements on each cross section
-n_cross_nodes = 12                                         # Total number of nodes on each cross section
+n_cross_elem = 2                                          # Number of L4 elements on each cross section
+n_cross_nodes = 8                                         # Total number of nodes on each cross section
 DOF = 3
 
 
@@ -105,8 +105,8 @@ coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 
 
 #Along the beam axis(Y)__________________________________________________________________
-xi =   0             #np.array([0.57735,-0.57735])                            # Gauss points
-W_Length   =  2
+xi =   np.array([0.57735,-0.57735])                            # Gauss points
+W_Length   =  1
 Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])                 # Shape functions of a linear element
 N_Der_xi   = np.array([-1/2,1/2])  
 
@@ -189,15 +189,15 @@ for l in range(n_elem):
                         F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
 
 
-                        if (i==j==0) and (tau == s) and (l==0):
+                        # if (i==j==0) and (tau == s) and (l==0):
                     
-                            np.fill_diagonal(F_Nu,30e12)
-                        if (i==j==1) and (tau==s):
-                            F_Nu[0,0] = 30e12
+                        #     np.fill_diagonal(F_Nu,30e12)
+                        # if (i==j==1) and (tau==s):
+                        #     F_Nu[0,0] = 30e12
                         Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
 
                 A_c_fac = 12
-                A_c_e = np.zeros((12,36))
+                A_c_e = np.zeros((12,24))
                 np.fill_diagonal(A_c_e[0:A_c_fac , A_c_fac*m:A_c_fac*(m+1)],1)
                 A_c_e_T = np.transpose(A_c_e)
 
@@ -209,7 +209,7 @@ for l in range(n_elem):
             Elemental_Load_Vector[sep*i:sep*(i+1)]  = Global_Nodal_Load_Vector 
 
 
-    A_fac = 36
+    A_fac = 24
     Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
     np.fill_diagonal( Ae[A_fac*0:A_fac*2 , A_fac*l:A_fac*(l+2)] , 1 )
     AeT = np.transpose(Ae)
@@ -224,12 +224,18 @@ print(Global_stiffness_matrix)
 print(Global_stiffness_matrix.shape)
 
 
-Load_vector[n_nodes*n_cross_nodes*DOF-22] = -2500
-Load_vector[n_nodes*n_cross_nodes*DOF-19] = -2500
-Load_vector[n_nodes*n_cross_nodes*DOF-16] = -2500
-Load_vector[n_nodes*n_cross_nodes*DOF-13] = -2500
+
+# Load_vector[n_nodes*n_cross_nodes*DOF-22]  = -1250
+# Load_vector[n_nodes*n_cross_nodes*DOF-19]  = -1250
+# Load_vector[n_nodes*n_cross_nodes*DOF-16]  = -1250
+# Load_vector[n_nodes*n_cross_nodes*DOF-13]  = -1250
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -2500
+Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -2500
+Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -2500
+Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -2500
+print(Load_vector)
 
 
-Displacement = np.linalg.solve(Global_stiffness_matrix[36:,36:],Load_vector[36:])
+Displacement = np.linalg.solve(Global_stiffness_matrix[24:,24:],Load_vector[24:])
 print(Displacement)
 print(Displacement.shape)

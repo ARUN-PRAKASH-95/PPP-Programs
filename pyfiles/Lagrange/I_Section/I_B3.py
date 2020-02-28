@@ -145,6 +145,7 @@ for l in range(n_elem):
                 #Lagrange Derivatives
                 alpha_der = np.array([-1/4*(1-beta),1/4*(1-beta),1/4*(1+beta),-1/4*(1+beta)])         # Derivatives of the lagrange polynomials
                 beta_der  = np.array([-1/4*(1-alpha),-1/4*(1+alpha),1/4*(1+alpha),1/4*(1-alpha)])     # with respect to alpha and beta
+                
                 X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
                 X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
                 Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
@@ -185,13 +186,13 @@ for l in range(n_elem):
                         F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
 
 
-                        if (i==j==0) and (tau == s) and (l==0):
+                        # if (i==j==0) and (tau == s) and (l==0):
                     
-                            np.fill_diagonal(F_Nu,30e12)
-                        if (i==j==1) and (tau==s):
-                            F_Nu[0,0] = 30e12
-                        if (i==j==2) and (tau==s):
-                            F_Nu[0,0] = 30e12
+                        #     np.fill_diagonal(F_Nu,30e12)
+                        # if (i==j==1) and (tau==s):
+                        #     F_Nu[0,0] = 30e12
+                        # if (i==j==2) and (tau==s):
+                        #     F_Nu[0,0] = 30e12
                         Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
 
                 A_c_fac = 12

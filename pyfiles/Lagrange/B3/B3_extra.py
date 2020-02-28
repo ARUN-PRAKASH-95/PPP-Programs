@@ -87,13 +87,13 @@ for i in range(len(Shape_func)):
                 
                 #Fundamental nucleus of the stiffness matrix
                 #Derivative of F wrt to x and z for tau
-                F_tau_x = 1/J_Cs*((Z_beta*alpha_der[tau])-(Z_alpha*beta_der[tau]))
-                F_tau_z = 1/J_Cs*((-X_alpha*alpha_der[tau])+(X_beta*beta_der[tau]))
+                F_tau_x = 1/J_Cs*((Z_beta*alpha_der[tau]))
+                F_tau_z = 1/J_Cs*((-X_alpha*alpha_der[tau]))
                 
                 
                 #Derivative of F wrt to x and z for s
-                F_s_x = 1/J_Cs*((Z_beta*alpha_der[s])-(Z_alpha*beta_der[s]))
-                F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
+                F_s_x = 1/J_Cs*((Z_beta*alpha_der[s]))
+                F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s]))
                 
                 
 
@@ -102,30 +102,25 @@ for i in range(len(Shape_func)):
                     print("F_tau_z",F_tau_z)
                     print("F_s_x",F_s_x)
                     print("F_s_z",F_s_z)
+                    print("adnann",((Z_beta*alpha_der[tau])))
                 
                 K_xx =  C_22*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                 K_xy =  C_23*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
-                K_xz =  C_12*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length)     
+                K_xz =  C_12*-np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*-np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length)     
                 K_yx =  C_44*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_23*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
                 K_yy =  C_55*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_33*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length) 
                 K_yz =  C_55*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_13*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
                 K_zx =  C_12*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) 
                 K_zy =  C_13*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
                 K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
+                
                 F_Nu =  np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
                 
                 
                 if (i==j==0) and (tau == s == 0):
-                    # print(F_Nu)
-                    # np.fill_diagonal(F_Nu,1e10)
                     print(np.sum(Shape_func[i]*Shape_func[j]))
                     print(K_xx)
-                # if (i==j==1) and (tau==s):
-                #     F_Nu[0,0] = 1e10
-                #     # F_Nu[2,2] = 30e12
-                # if (i==j==2) and (tau==s):
-                #     F_Nu[0,0] = 1e10
-                #     F_Nu[2,2] = 30e12
+                
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                
                  
@@ -142,9 +137,9 @@ for i in range(len(Shape_func)):
         Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
 
 
-print("Stiffness matrix ----------------------------------------")
-# print(Elemental_stiffness_matrix)   
-np.savetxt('Elemental_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')  
+# print("Stiffness matrix ----------------------------------------")
+# # print(Elemental_stiffness_matrix)   
+# np.savetxt('Elemental_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')  
 
 #Stiffness matrix checkers
 # print("Transpose",np.allclose(Elemental_stiffness_matrix,Elemental_stiffness_matrix.T))
@@ -154,11 +149,11 @@ np.savetxt('Elemental_stiffness.txt',Elemental_stiffness_matrix,delimiter=',')
 # print("Eigen_value",EV)
 
 
-Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+# Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
+# Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
 # Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
@@ -171,9 +166,9 @@ Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
 
-Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
-print("Displacement----------------------------------------------")
-print(Displacement)
-print(Displacement.shape)
+# Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
+# print("Displacement----------------------------------------------")
+# print(Displacement)
+# print(Displacement.shape)
 # print(np.linalg.norm(Elemental_stiffness_matrix))
 

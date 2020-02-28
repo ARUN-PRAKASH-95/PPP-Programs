@@ -57,8 +57,8 @@ coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 
 
 #Along the beam axis(Y)
-xi = np.array([0,-0.7745966692414834,0.7745966692414834])                                                   # Gauss points
-W_Length   = np.array([0.8888,0.5555,0.555])  
+xi = np.array([0.339981,-0.339981,0.861136,0.861136])     #np.array([0,-0.7745966692414834,0.7745966692414834])                                                   # Gauss points
+W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])   #np.array([0.8888,0.5555,0.555])  
 Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
 N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
 N_Der_xi_m = np.array([-1/2,1/2])             # Taking just numerical values from shape function for easily computing jacobian
@@ -183,16 +183,16 @@ print("Eigen_value",EV)
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-# Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
-Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
 # print("Load vector ----------------------------------------------")
 # print(Load_vector.shape)
 

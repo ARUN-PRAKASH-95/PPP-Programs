@@ -65,7 +65,7 @@ Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
 Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
 
-J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)   # Determinant of Jacobian matrix of the cross section
+J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)              # Determinant of Jacobian matrix of the cross section
 J_Cs = np.unique(J_Cs)
 
 
@@ -100,11 +100,10 @@ for i in range(len(Shape_func)):
                 K_zy =  C_13*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
                 K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                 F_Nu =  np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-                if (i==j==0) and (tau == s == 0):
-                    print(K_xz)
-                
-                if (i==j==0) and (tau == s):
-                    np.fill_diagonal(F_Nu,30e12)            
+             
+
+                # if (i==j==0) and (tau == s):
+                #     np.fill_diagonal(F_Nu,30e12)            
               
                 Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                 
@@ -139,11 +138,12 @@ Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
 Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
-# print(Load_vector[12:])
+print("Load_vector",Load_vector)
 
 
 
-Displacement = np.linalg.solve(Elemental_stiffness_matrix,Load_vector)
-print("Displacement----------------------------------------------")
-print(Displacement[12:])
+Displacement = np.linalg.solve(Elemental_stiffness_matrix[12:,12:],Load_vector[12:])
+print("-----------------Displacement---------------------")
+print(Displacement)
+
 
