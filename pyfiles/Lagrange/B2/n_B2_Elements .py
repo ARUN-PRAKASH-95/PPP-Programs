@@ -9,7 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 #PARAMETERS
 a = 0.2            #[m] Square cross section
-L = 20              #[m] Length of the beam
+L = 2              #[m] Length of the beam
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))
@@ -165,10 +165,10 @@ inv = np.linalg.inv(Global_stiffness_matrix)
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-# Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
 
@@ -181,18 +181,18 @@ Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
 # # print(Load_vector)
 
 #Torsional load
-Load_vector[n_nodes*n_cross_nodes*DOF-12] = -25
-Load_vector[n_nodes*n_cross_nodes*DOF-9]  =  25
-Load_vector[n_nodes*n_cross_nodes*DOF-6]  =  25
-Load_vector[n_nodes*n_cross_nodes*DOF-3]  = -25
+# Load_vector[n_nodes*n_cross_nodes*DOF-12] = -25
+# Load_vector[n_nodes*n_cross_nodes*DOF-9]  =  25
+# Load_vector[n_nodes*n_cross_nodes*DOF-6]  =  25
+# Load_vector[n_nodes*n_cross_nodes*DOF-3]  = -25
 
 
 
 
 Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
 
-# Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
-# Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
+Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
+Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
 print(Displacement[12:])
 
 
@@ -311,17 +311,12 @@ Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0]
 
 
 
-# X = np.reshape(X,(2,2))
-# Z = np.reshape(Z,(2,2))
-# # Epsilon_yy = np.reshape(Epsilon_yy,(2,2))
-# Req_Y_disp = np.reshape(Req_Y_disp,(2,2))
-# # Y_Req = np.reshape(Y_Req,(3,2))
 
 Y_Req = np.reshape(Y_Req,XX.shape)
 Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
 fig,ax = plt.subplots()
 ax = plt.axes(projection='3d')
-ax.plot_wireframe(XX,ZZ,Y_Req)
+ax.plot_wireframe(XX,ZZ,Epsilon_yy)
 ax.set(xlabel = "X", ylabel = "Z")
 plt.show()
 

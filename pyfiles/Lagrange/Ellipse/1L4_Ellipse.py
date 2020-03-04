@@ -8,7 +8,8 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 #PARAMETERS
-a = 0.2            #[m] Square cross section
+sma = 0.5          #Semi major axis for the ellipse
+smi = 0.4          #Semi minor axis for  the  ellipse
 L = 2              #[m] Length of the beam
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
@@ -26,15 +27,22 @@ C_55 = G
 C_66 = G
 
 
-#Coordinates of the cross section
-X1 = -0.1
-Z1 = -0.1
-X2 =  0.1
-Z2 = -0.1
-X3 =  0.1
-Z3 =  0.1
-X4 = -0.1
-Z4 =  0.1
+
+# Maximum Possible rectangle that fits inside an ellipse
+l = 2*sma/(2**(1/2))      #Length of the max rectangle
+b = 2*smi/(2**(1/2))      #Breadth of the rectangle
+print(l)
+print(b)
+
+
+X1 = -l/2
+Z1 = -b/2
+X2 =  l/2
+Z2 = -b/2
+X3 =  l/2
+Z3 =  b/2
+X4 = -l/2
+Z4 =  b/2
 
 
 n_elem = int(input("Enter the number of elements: "))     # No of elements
@@ -239,18 +247,19 @@ for l in range(n_elem):
 #____________________________________________LOAD VECTOR____________________________________________________#
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -25
+Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -25
+Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -25
+Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -25
 
 
 
 Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
-print(Displacement)
 Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
 Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-11]
+print(Displacement)
 print(Displacement.shape)
+
 
 
 
@@ -263,7 +272,7 @@ X_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
 
-Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
+Req_X_disp = X_disp[-4::]                       #X Displacements of the lagrange nodes at end cross section
 print("Req_X_disp",Req_X_disp)
 
 
@@ -272,7 +281,7 @@ Y_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
 
-Req_Y_disp = Y_disp[-4::]
+Req_Y_disp = Y_disp[-4::]                      #Y Displacements of the lagrange nodes at end cross section
 print("Req_Y_disp",Req_Y_disp)
 
 
@@ -281,18 +290,34 @@ Z_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
 
-Req_Z_disp = Z_disp[-4::]
+Req_Z_disp = Z_disp[-4::]                      #Z Displacements of the lagrange nodes at end cross section
 print("Req_Z_disp",Req_Z_disp)
 
 
 
-#Post processing
-alpha,beta = symbols('alpha,beta')
-F1 = 1/4*(1-alpha)*(1-beta)
-F2 = 1/4*(1+alpha)*(1-beta)
-F3 = 1/4*(1+alpha)*(1+beta)
-F4 = 1/4*(1-alpha)*(1+beta)
 
+
+
+#Creating a mesh grid of major and minor axis to create coordinates inside an ellipse
+a = np.linspace(-sma,sma,25)
+b = np.linspace(-smi,smi,25)
+
+aa,bb = np.meshgrid(a,b)
+ell = (aa**2/0.2**2) + (bb**2/0.15**2)
+
+
+rows,col = ell.shape
+ell_x = np.array([])
+ell_y = np.array([])
+for i in range(rows):
+    for j in range(col):
+        if(ell[i,j]<=1):
+            ell_x = np.append(ell_x,aa[i,j])
+            ell_y = np.append(ell_y,bb[i,j])
+
+
+print(ell_x)
+print(ell_y)
 X1 = -0.1
 Z1 = -0.1
 X2 =  0.1
@@ -303,94 +328,35 @@ X4 = -0.1
 Z4 =  0.1
 
 
+print("smfm",ell_x[5])
 
-X = np.linspace(-0.1,0.1,15)
-Z = np.linspace(-0.1,0.1,15)
-
-XX,ZZ = np.meshgrid(X,Z)
+#Post-Processing Phase
+alpha,beta = symbols('alpha,beta')
+F1 = 1/4*((1-alpha)*(1-beta))
+F2 = 1/4*((1+alpha)*(1-beta))
+F3 = 1/4*((1+alpha)*(1+beta))
+F4 = 1/4*((1-alpha)*(1+beta))
 
 
 coor = np.array([])
-#Loop for finding the natural coordinates of the physical domain
-for i in range(len(X)):
-    for j in range(len(Z)):
-        eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - XX[i,j]
-        eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ZZ[i,j]
-        a = solve([eq1, eq2], (alpha,beta))
-        coor=np.append(coor,a)
-
-print(XX)
-print(coor)
-
+# for i in range(len(ell_x)):
+eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - ell_x[5]
+eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ell_y[5]
+a = solve([eq1, eq2], (alpha,beta))
+# coor=np.append(coor,a)
+print(a)
 
 #Natural coordinates of the points in the physical domain
-X_nat = np.array([])
-Y_nat = np.array([])
+# X_nat = np.array([])
+# Y_nat = np.array([])
 
-for i in range(len(coor)):
-    x_nat = coor[i][alpha]
-    y_nat = coor[i][beta]
-    X_nat = np.append(X_nat,x_nat)
-    Y_nat = np.append(Y_nat,y_nat)
-Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
-print(X_nat)
-print(Y_nat)
-
-'''
-#REQUIRED DISPLACEMENTS
-X_Req = Lag_poly[0]*Req_X_disp[0] + Lag_poly[1]*Req_X_disp[1] + Lag_poly[2]*Req_X_disp[2]  + Lag_poly[3]*Req_X_disp[3]
-Y_Req = Lag_poly[0]*Req_Y_disp[0] + Lag_poly[1]*Req_Y_disp[1] + Lag_poly[2]*Req_Y_disp[2]  + Lag_poly[3]*Req_Y_disp[3]
-Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_Z_disp[2]  + Lag_poly[3]*Req_Z_disp[3]
-print("Y_Req",Y_Req)
-print(Y_Req.shape)
-
-
-
-#Strains in Y axis
-Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-print("Epsilon_yy",Epsilon_yy)
-
-
-#Strains in X and Z axis
-alpha_der = np.array([-1/4*(1-Y_nat),1/4*(1-Y_nat),1/4*(1+Y_nat),-1/4*(1+Y_nat)])         # Derivatives of the lagrange polynomials
-beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
-
-X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
-X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
-Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
-Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
-
-
-Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
-# print("Epsilon_xx",Epsilon_xx)
-
-
-Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
-# print("Epsilon_zz",Epsilon_zz)
-
-# Y_Req = np.reshape(Y_Req,XX.shape)
-# Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
-# fig,ax = plt.subplots()
-# ax = plt.axes(projection='3d')
-# ax.plot_wireframe(XX,ZZ,Epsilon_yy)
-# ax.set(xlabel = "X", ylabel = "Z")
-# plt.show()
-
-
-
-# X_nat = np.full((10),1)
-# Y_nat = np.linspace(-1,1,10)
+# for i in range(len(coor)):
+#     x_nat = coor[i][alpha]
+#     y_nat = coor[i][beta]
+#     X_nat = np.append(X_nat,x_nat)
+#     Y_nat = np.append(Y_nat,y_nat)
 # Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
-# Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-# print(Epsilon_yy)
+# print(X_nat)
+# print(Y_nat)
 
-# h = np.linspace(-0.1,0.1,10)
-# a = 0.2
-# exact_epsilon_yy = (50*2*h*12)/(2*75e9*a**4)
-# print(exact_epsilon_yy)
 
-# fig,ax = plt.subplots()
-# ax.plot(h,Epsilon_yy)
-# ax.plot(h,exact_epsilon_yy)
-# plt.show()
-'''
