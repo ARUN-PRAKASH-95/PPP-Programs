@@ -9,7 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 #PARAMETERS
 sma = 0.5          #Semi major axis for the ellipse
-smi = 0.4          #Semi minor axis for  the  ellipse
+smi = 0.25         #Semi minor axis for  the  ellipse
 L = 2              #[m] Length of the beam
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
@@ -17,7 +17,7 @@ G = E/(2*(1+v))
 First  = (E*(1-v))/((1+v)*(1-2*v))
 Second = v*E/((1+v)*(1-2*v))
 C_11 = First
-C_22 = First
+C_18 = First
 C_33 = First
 C_12 = Second
 C_13 = Second
@@ -29,20 +29,23 @@ C_66 = G
 
 
 # Maximum Possible rectangle that fits inside an ellipse
-l = 2*sma/(2**(1/2))      #Length of the max rectangle
-b = 2*smi/(2**(1/2))      #Breadth of the rectangle
-print(l)
-print(b)
+# l = 2*sma/(2**(1/2))      #Length of the max rectangle
+# b = 2*smi/(2**(1/2))      #Breadth of the rectangle
+# print(l)
+# print(b)fig,ax = plt.subplots()
+# ax = plt.axes(projection='3d')
+# ax.plot_wireframe(ell_x,ell_y,Epsilon_yy)
+# ax.set(xlabel = "X", ylabel = "Z")
 
 
-X1 = -l/2
-Z1 = -b/2
-X2 =  l/2
-Z2 = -b/2
-X3 =  l/2
-Z3 =  b/2
-X4 = -l/2
-Z4 =  b/2
+X1 = -smi
+Z1 = -smi
+X2 =  smi
+Z2 = -smi
+X3 =  smi
+Z3 =  smi
+X4 = -smi
+Z4 =  smi
 
 
 n_elem = int(input("Enter the number of elements: "))     # No of elements
@@ -190,7 +193,7 @@ for l in range(n_elem):
                     F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
                     
                     
-                    K_xx =  C_22*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
+                    K_xx =  C_18*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                     K_xy =  C_23*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
                     K_xz =  C_12*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length)     
                     K_yx =  C_44*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_23*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
@@ -298,12 +301,12 @@ print("Req_Z_disp",Req_Z_disp)
 
 
 
-#Creating a mesh grid of major and minor axis to create coordinates inside an ellipse
-a = np.linspace(-sma,sma,25)
-b = np.linspace(-smi,smi,25)
+#Creating a mesh grid of major axis to create coordinates inside an ellipse
+a = np.linspace(-sma,sma,50)
+b = np.linspace(-sma,sma,50)
 
 aa,bb = np.meshgrid(a,b)
-ell = (aa**2/0.2**2) + (bb**2/0.15**2)
+ell = (aa**2/sma**2) + (bb**2/smi**2)
 
 
 rows,col = ell.shape
@@ -316,19 +319,19 @@ for i in range(rows):
             ell_y = np.append(ell_y,bb[i,j])
 
 
-print(ell_x)
-print(ell_y)
-X1 = -0.1
-Z1 = -0.1
-X2 =  0.1
-Z2 = -0.1
-X3 =  0.1
-Z3 =  0.1
-X4 = -0.1
-Z4 =  0.1
+print(ell_x.shape)
+print(ell_y.shape)
+
+X1 = -smi
+Z1 = -smi
+X2 =  smi
+Z2 = -smi
+X3 =  smi
+Z3 =  smi
+X4 = -smi
+Z4 =  smi
 
 
-print("smfm",ell_x[5])
 
 #Post-Processing Phase
 alpha,beta = symbols('alpha,beta')
@@ -339,24 +342,83 @@ F4 = 1/4*((1-alpha)*(1+beta))
 
 
 coor = np.array([])
-# for i in range(len(ell_x)):
-eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - ell_x[5]
-eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ell_y[5]
-a = solve([eq1, eq2], (alpha,beta))
-# coor=np.append(coor,a)
-print(a)
+for i in range(len(ell_x)):
+    eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - ell_x[i]
+    eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ell_y[i]
+    a = solve([eq1, eq2], (alpha,beta))
+    coor=np.append(coor,a)
+# print(coor)
 
 #Natural coordinates of the points in the physical domain
-# X_nat = np.array([])
-# Y_nat = np.array([])
+X_nat = np.array([])
+Y_nat = np.array([])
 
-# for i in range(len(coor)):
-#     x_nat = coor[i][alpha]
-#     y_nat = coor[i][beta]
-#     X_nat = np.append(X_nat,x_nat)
-#     Y_nat = np.append(Y_nat,y_nat)
-# Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
+for i in range(len(coor)):
+    x_nat = coor[i][alpha]
+    y_nat = coor[i][beta]
+    X_nat = np.append(X_nat,x_nat)
+    Y_nat = np.append(Y_nat,y_nat)
+Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
 # print(X_nat)
 # print(Y_nat)
+
+
+#REQUIRED DISPLACEMENTS
+X_Req = Lag_poly[0]*Req_X_disp[0] + Lag_poly[1]*Req_X_disp[1] + Lag_poly[2]*Req_X_disp[2]  + Lag_poly[3]*Req_X_disp[3]
+Y_Req = Lag_poly[0]*Req_Y_disp[0] + Lag_poly[1]*Req_Y_disp[1] + Lag_poly[2]*Req_Y_disp[2]  + Lag_poly[3]*Req_Y_disp[3]
+Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_Z_disp[2]  + Lag_poly[3]*Req_Z_disp[3]
+# print("Y_Req",Y_Req)
+print(Y_Req.shape)
+
+
+
+#Strains in Y axis
+Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
+print("Epsilon_yy",Epsilon_yy*10**9)
+
+
+#Strains in X and Z axis
+alpha_der = np.array([-1/4*(1-Y_nat),1/4*(1-Y_nat),1/4*(1+Y_nat),-1/4*(1+Y_nat)])         # Derivatives of the lagrange polynomials
+beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
+
+X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
+X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
+Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
+Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
+
+
+Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
+# print("Epsilon_xx",Epsilon_xx)
+
+
+Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
+# print("Epsilon_zz",Epsilon_zz)
+
+
+# res=18
+# Y_Req = np.reshape(Y_Req,(18,18))
+# Epsilon_yy = np.reshape(Epsilon_yy,(18,18))
+# ell_x = np.reshape(ell_x,(18,18))
+# ell_y = np.reshape(ell_y,(18,18))
+
+N_Epsilon_yy = np.array([])
+for i in Epsilon_yy:
+    N_Epsilon_yy = np.append(N_Epsilon_yy,round(i*10**9,5))
+
+
+print(N_Epsilon_yy)
+
+
+
+fig,ax = plt.subplots()
+ax = plt.axes(projection='3d')
+ax.scatter(ell_x,ell_y,N_Epsilon_yy)
+ax.set(xlabel = "X", ylabel = "Z")
+# cb = ax.contour(ell_x,ell_y,Epsilon_yy)
+# plt.colorbar(cb)
+
+
+# plt.scatter(ell_x,ell_y)
+plt.show()
 
 
