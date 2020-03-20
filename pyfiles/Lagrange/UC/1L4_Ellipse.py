@@ -5,53 +5,19 @@ from sympy import *
 from sympy.solvers.solveset import linsolve
 from mpl_toolkits.mplot3d import Axes3D
 
-print("-------------------------------------------------------------------------")
-print("Enter the type of cross section to be analysed")
-print("For Square cross section beam -type (1)")
-print("For Elliptical cross section beam -type (2)")
-cross_section = int(input("Enter the number here: ")) 
-print("-------------------------------------------------------------------------")
 
 
-if (cross_section == 1):
-    a = 0.2            #[m] Square cross section
-    L = 2              #[m] Length of the beam
-
-    #Coordinates of the cross section
-    X1 = -0.1
-    Z1 = -0.1
-    X2 =  0.1
-    Z2 = -0.1
-    X3 =  0.1
-    Z3 =  0.1
-    X4 = -0.1
-    Z4 =  0.1
-
-elif(cross_section==2):
-    
-    #PARAMETERS
-    sma = 0.5          #Semi major axis for the ellipse
-    smi = 0.20        #Semi minor axis for  the  ellipse
-    L = 2              #[m] Length of the beam
-
-    X1 = -smi
-    Z1 = -smi
-    X2 =  smi
-    Z2 = -smi
-    X3 =  smi
-    Z3 =  smi
-    X4 = -smi
-    Z4 =  smi
-
-
-#_______________________________________MATERIAL PARAMETERS___________________________________#
+#PARAMETERS
+sma = 0.5          #Semi major axis for the ellipse
+smi = 0.25         #Semi minor axis for  the  ellipse
+L = 2              #[m] Length of the beam
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))
 First  = (E*(1-v))/((1+v)*(1-2*v))
 Second = v*E/((1+v)*(1-2*v))
 C_11 = First
-C_22 = First
+C_18 = First
 C_33 = First
 C_12 = Second
 C_13 = Second
@@ -62,37 +28,48 @@ C_66 = G
 
 
 
+# Maximum Possible rectangle that fits inside an ellipse
+# l = 2*sma/(2**(1/2))      #Length of the max rectangle
+# b = 2*smi/(2**(1/2))      #Breadth of the rectangle
+# print(l)
+# print(b)fig,ax = plt.subplots()
+# ax = plt.axes(projection='3d')
+# ax.plot_wireframe(ell_x,ell_y,Epsilon_yy)
+# ax.set(xlabel = "X", ylabel = "Z")
 
-#______________________________________ELEMENT TYPE_________________________________#
 
-print(" ")
-print(" ")
+X1 = -smi
+Z1 = -smi
+X2 =  smi
+Z2 = -smi
+X3 =  smi
+Z3 =  smi
+X4 = -smi
+Z4 =  smi
+
+
+n_elem = int(input("Enter the number of elements: "))     # No of elements
 print("Choose the type of element: Linear type (2), Quadratic type (3), Cubic type(4) as input")
-per_elem    = int(input("Enter the type of element: "))        # Type of the element
-n_elem      = int(input("Enter the number of elements: "))     # No of elements
-n_nodes     = (per_elem-1)*n_elem  + 1                         # Total number of nodes 
-Fixed_point = 0                                                # Coordinates of the beam
+per_elem = int(input("Enter the type of element: "))   # Type of the element
+n_nodes  = (per_elem-1)*n_elem  + 1                       # Total number of nodes 
+Fixed_point = 0                                           # Coordinates of the beam
 Free_point  = L
-
 
 
 # _________________________________________MESH GENERATION ALONG BEAM AXIS(Y)_________________________________________________
 
-# coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
 # print(coordinate)
-mrf = 2
-q=mrf**(1/(n_elem-1))
-l=(Fixed_point-Free_point)*(1-q)/(1-mrf*q)
-rnode=Free_point
-c=np.array([Free_point])
-for i in range(n_elem):
-    rnode=rnode+l
-    c=np.append(c,rnode)
-    l=l*q
-coordinate = np.flip(c)
-
-
-
+# meshrefinementfactor = 2
+# q=meshrefinementfactor**(1/(n_elem-1))
+# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+# rnode=Free_point
+# c=np.array([Free_point])
+# for i in range(n_elem):
+#     rnode=rnode+l
+#     c=np.append(c,rnode)
+#     l=l*q
+# coordinate = np.flip(c)
 
 
 #________________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT______________________________________#
@@ -108,8 +85,8 @@ if (per_elem==2):
 elif (per_elem==3):
     
     #Along the beam axis(Y)
-    xi = np.array([0.339981,-0.339981,0.861136,0.861136])                                # Gauss points
-    W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])                         # Gauss weights
+    xi = np.array([0.339981,-0.339981,0.861136,0.861136])#np.array([0,-0.7745966692414834,0.7745966692414834])                            # Gauss points
+    W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])#np.array([0.8888,0.5555,0.555])  
     Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
     N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
     N_Der_xi_m = np.array([-1/2,1/2])                                                    # Taking just numerical values from shape function for easily computing jacobian
@@ -152,8 +129,7 @@ Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
 J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                                               # Determinant of Jacobian matrix of the cross section
 J_Cs = J_Cs[0]
-
-
+print(J_Cs)
 
 
 
@@ -207,7 +183,7 @@ for l in range(n_elem):
             for tau_en,tau in enumerate(range(n_cross_nodes)):
                 for s_en,s in enumerate(range(n_cross_nodes)):
                     
-                    
+                    #Fundamental nucleus of the stiffness matrix
                     #Derivative of F wrt to x and z for tau
                     F_tau_x = 1/J_Cs*((Z_beta*alpha_der[tau])-(Z_alpha*beta_der[tau]))
                     F_tau_z = 1/J_Cs*((-X_alpha*alpha_der[tau])+(X_beta*beta_der[tau]))
@@ -216,8 +192,8 @@ for l in range(n_elem):
                     F_s_x = 1/J_Cs*((Z_beta*alpha_der[s])-(Z_alpha*beta_der[s]))
                     F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
                     
-                    #Fundamental nucleus of the stiffness matrix
-                    K_xx =  C_22*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
+                    
+                    K_xx =  C_18*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                     K_xy =  C_23*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
                     K_xz =  C_12*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length)     
                     K_yx =  C_44*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_23*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
@@ -269,28 +245,21 @@ for l in range(n_elem):
         Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
 
+
+
 #____________________________________________LOAD VECTOR____________________________________________________#
 
-if(cross_section==1):
-    
-    Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-    Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-    Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-    Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-    Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
+Load_vector[n_nodes*n_cross_nodes*DOF-10] = -25
+Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -25
+Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -25
+Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -25
 
-
-elif(cross_section==2):
-
-    Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-    Load_vector[n_nodes*n_cross_nodes*DOF-10] = -25
-    Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -25
-    Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -25
-    Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -25
 
 
 Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
-
+Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
+Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-11]
 print(Displacement)
 print(Displacement.shape)
 
@@ -302,14 +271,12 @@ print(Displacement.shape)
 #To extract the displacement of our interest 
 
 #X displacements of all the lagrange nodes
-Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
-Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-11]
 X_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
 
-Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
-
+Req_X_disp = X_disp[-4::]                       #X Displacements of the lagrange nodes at end cross section
+print("Req_X_disp",Req_X_disp)
 
 
 #Y displacements of all the lagrange nodes
@@ -317,8 +284,8 @@ Y_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
 
-Req_Y_disp = Y_disp[-4::]
-
+Req_Y_disp = Y_disp[-4::]                      #Y Displacements of the lagrange nodes at end cross section
+print("Req_Y_disp",Req_Y_disp)
 
 
 #Z displacements of all the lagrange nodes
@@ -326,83 +293,61 @@ Z_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
 
-Req_Z_disp = Z_disp[-4::]
-
-#Z_displacement of the center point of all cross section
-Z_disp_cen = np.array([])
-for k in range(n_nodes):
-    Z_disp_cen = np.append(Z_disp_cen,Z_disp[4*(k+1)-3])
+Req_Z_disp = Z_disp[-4::]                      #Z Displacements of the lagrange nodes at end cross section
+print("Req_Z_disp",Req_Z_disp)
 
 
+
+
+
+
+#Creating a mesh grid of major axis to create coordinates inside an ellipse
+a = np.linspace(-sma,sma,50)
+b = np.linspace(-sma,sma,50)
+
+aa,bb = np.meshgrid(a,b)
+ell = (aa**2/sma**2) + (bb**2/smi**2)
+
+
+rows,col = ell.shape
+ell_x = np.array([])
+ell_y = np.array([])
+for i in range(rows):
+    for j in range(col):
+        if(ell[i,j]<=1):
+            ell_x = np.append(ell_x,aa[i,j])
+            ell_y = np.append(ell_y,bb[i,j])
+
+
+print(ell_x.shape)
+print(ell_y.shape)
+
+X1 = -smi
+Z1 = -smi
+X2 =  smi
+Z2 = -smi
+X3 =  smi
+Z3 =  smi
+X4 = -smi
+Z4 =  smi
+
+
+
+#Post-Processing Phase
 alpha,beta = symbols('alpha,beta')
-F1 = 1/4*(1-alpha)*(1-beta)
-F2 = 1/4*(1+alpha)*(1-beta)
-F3 = 1/4*(1+alpha)*(1+beta)
-F4 = 1/4*(1-alpha)*(1+beta)
+F1 = 1/4*((1-alpha)*(1-beta))
+F2 = 1/4*((1+alpha)*(1-beta))
+F3 = 1/4*((1+alpha)*(1+beta))
+F4 = 1/4*((1-alpha)*(1+beta))
 
 
-if(cross_section==1):
-    
-    X1 = -0.1
-    Z1 = -0.1
-    X2 =  0.1
-    Z2 = -0.1
-    X3 =  0.1
-    Z3 =  0.1
-    X4 = -0.1
-    Z4 =  0.1
-
-    X = np.linspace(-0.1,0.1,30)
-    Z = np.linspace(-0.1,0.1,30)
-
-    XX,ZZ = np.meshgrid(X,Z)                  #Mesh grid for getting coorddinates of the cross section
-
-    coor = np.array([])
-    #Loop for finding the natural coordinates of the physical domain
-    for i in range(len(X)):
-        for j in range(len(Z)):
-            eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - XX[i,j]
-            eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ZZ[i,j]
-            a = solve([eq1, eq2], (alpha,beta))
-            coor=np.append(coor,a)
-
-
-elif(cross_section==2):
-    
-    #Creating a mesh grid of major axis to create coordinates inside an ellipse
-    a = np.linspace(-sma,sma,100)
-    b = np.linspace(-sma,sma,100)
-
-    aa,bb = np.meshgrid(a,b)
-    ell = (aa**2/sma**2) + (bb**2/smi**2)
-
-
-    rows,col = ell.shape
-    ell_x = np.array([])
-    ell_y = np.array([])
-    for i in range(rows):
-        for j in range(col):
-            if(ell[i,j]<=1):
-                ell_x = np.append(ell_x,aa[i,j])
-                ell_y = np.append(ell_y,bb[i,j])
-
-
-    X1 = -smi
-    Z1 = -smi
-    X2 =  smi
-    Z2 = -smi
-    X3 =  smi
-    Z3 =  smi
-    X4 = -smi
-    Z4 =  smi
-    
-    coor = np.array([])
-    for i in range(len(ell_x)):
-        eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - ell_x[i]
-        eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ell_y[i]
-        a = solve([eq1, eq2], (alpha,beta))
-        coor=np.append(coor,a)
-
+coor = np.array([])
+for i in range(len(ell_x)):
+    eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - ell_x[i]
+    eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ell_y[i]
+    a = solve([eq1, eq2], (alpha,beta))
+    coor=np.append(coor,a)
+# print(coor)
 
 #Natural coordinates of the points in the physical domain
 X_nat = np.array([])
@@ -414,18 +359,22 @@ for i in range(len(coor)):
     X_nat = np.append(X_nat,x_nat)
     Y_nat = np.append(Y_nat,y_nat)
 Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
+# print(X_nat)
+# print(Y_nat)
 
 
 #REQUIRED DISPLACEMENTS
 X_Req = Lag_poly[0]*Req_X_disp[0] + Lag_poly[1]*Req_X_disp[1] + Lag_poly[2]*Req_X_disp[2]  + Lag_poly[3]*Req_X_disp[3]
 Y_Req = Lag_poly[0]*Req_Y_disp[0] + Lag_poly[1]*Req_Y_disp[1] + Lag_poly[2]*Req_Y_disp[2]  + Lag_poly[3]*Req_Y_disp[3]
 Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_Z_disp[2]  + Lag_poly[3]*Req_Z_disp[3]
-# print(Y_Req)
+# print("Y_Req",Y_Req)
+print(Y_Req.shape)
+
 
 
 #Strains in Y axis
 Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-# print("Epsilon_yy",Epsilon_yy)
+print("Epsilon_yy",Epsilon_yy*10**9)
 
 
 #Strains in X and Z axis
@@ -446,88 +395,30 @@ Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0]
 # print("Epsilon_zz",Epsilon_zz)
 
 
-if(cross_section==1):
-    
-#___________Z_displacement of the center of all the nodes________#
-    fig,ax = plt.subplots()
-    co=np.linspace(Fixed_point,Free_point,n_nodes)
-    ax.plot(co,Z_disp_cen*10**5)
-    ax.set_title("Z_displacement of the central point of all cross sections")
-    ax.set_xlabel('Coordinates of the beam along beam axis[Y]')
-    ax.set_ylabel('$u_{z}[10^{-5}m]$')
-    plt.savefig('Z_Displacement.png')
+# res=18
+# Y_Req = np.reshape(Y_Req,(18,18))
+# Epsilon_yy = np.reshape(Epsilon_yy,(18,18))
+# ell_x = np.reshape(ell_x,(18,18))
+# ell_y = np.reshape(ell_y,(18,18))
+
+N_Epsilon_yy = np.array([])
+for i in Epsilon_yy:
+    N_Epsilon_yy = np.append(N_Epsilon_yy,round(i*10**9,5))
 
 
-#___________Plots Y displacment of the end cross section(shows bending behaviour)________#
-    Y_Req = np.reshape(Y_Req,XX.shape)
-    Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
-    fig,ax = plt.subplots()
-    ax = plt.axes(projection='3d')
-    ax.plot_wireframe(XX,ZZ,Y_Req*10**6)
-    ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$u_{y}[10^{-6}m]$", title='(B'+ str(per_elem)+')element along beam axis(Y)')
-    plt.savefig('B'+str(per_elem)+'_Y_Displacement.png')
-    
-
-#____________Plots the axial strain(Epsilon_yy) of the end cross section_________#
-    fig,ax = plt.subplots()
-    cb=ax.contourf(XX,ZZ,Epsilon_yy*10**6)
-    ax.set(xlabel='X[m]',ylabel='Z[m]',title='Strain ($\epsilon_{yy}$) of the end cross section')
-    plt.colorbar(cb,label='$\epsilon_{yy}[10^{-6}]$')
-    plt.savefig('Strain.png')
-
-#____________Plots the axial strain(Sigma_yy) of the end cross section_________#
-    fig,ax = plt.subplots()
-    cb=ax.contourf(XX,ZZ,E*Epsilon_yy,cmap='RdBu')
-    ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress ($\sigma_{yy}$) of the end cross section')
-    plt.colorbar(cb,label='$\sigma_{yy}[pa]$')
-    plt.savefig('Stress.png')
-
-#________________
+print(N_Epsilon_yy)
 
 
-elif(cross_section==2):
-    N_Epsilon_yy = np.array([])
-    for i in Epsilon_yy:
-        N_Epsilon_yy = np.append(N_Epsilon_yy,round(i*10**9,5))
 
-    N_Y_Req = np.array([])
-    for i in Y_Req:
-        N_Y_Req = np.append(N_Y_Req,round(i*10**8,5))
-
-#___________Z_displacement of the center of all the nodes________#
-    fig,ax = plt.subplots()
-    co=np.linspace(Fixed_point,Free_point,n_nodes)
-    ax.plot(co,Z_disp_cen*10**5)
-    ax.set_title("Z_displacement of the central point of all cross sections")
-    ax.set_xlabel('Coordinates of the beam along beam axis[Y]')
-    ax.set_ylabel('$u_{z}[10^{-5}m]$')
-    plt.savefig('Z_Displacement_ell.png')
-    
-    
-#___________Plots Y displacment of the end cross section(shows bending behaviour)________#    
-    fig,ax = plt.subplots()
-    ax = plt.axes(projection='3d')
-    ax.scatter(ell_x,ell_y,N_Y_Req)
-    ax.set(xlabel = "X", ylabel = "Z", zlabel="$u_{y}[10^{-8}m]$", title='(B'+ str(per_elem)+')element along beam axis(Y)')
-    plt.savefig('B'+str(per_elem)+'_Y_Displacement_ell.png')
-    # cb = ax.contour(ell_x,ell_y,Epsilon_yy)
-    # plt.colorbar(cb)
+fig,ax = plt.subplots()
+ax = plt.axes(projection='3d')
+ax.scatter(ell_x,ell_y,N_Epsilon_yy)
+ax.set(xlabel = "X", ylabel = "Z")
+# cb = ax.contour(ell_x,ell_y,Epsilon_yy)
+# plt.colorbar(cb)
 
 
-#____________Plots the axial strain(Epsilon_yy) of the end cross section_________#
-    fig,ax = plt.subplots()
-    cb=ax.scatter(ell_x,ell_y,c=N_Epsilon_yy)
-    ax.set(xlabel='X[m]',ylabel='Z[m]',title='Strain ($\epsilon_{yy}$) of the end cross section')
-    plt.colorbar(cb,label='$\epsilon_{yy}[10^{-9}]$')
-    plt.savefig('Strain_ell.png')
+# plt.scatter(ell_x,ell_y)
+plt.show()
 
-#____________Plots the axial strain(Sigma_yy) of the end cross section_________#
-    fig,ax = plt.subplots()
-    cb=ax.scatter(ell_x,ell_y,c=E*N_Epsilon_yy,cmap='RdBu')
-    ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress ($\sigma_{yy}$) of the end cross section')
-    plt.colorbar(cb,label='$\sigma_{yy}[pa]$')
-    plt.savefig('Stress_ell.png')
-
-    # plt.scatter(ell_x,ell_y)
-    plt.show()
 

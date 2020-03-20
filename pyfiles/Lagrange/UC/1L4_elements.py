@@ -37,361 +37,393 @@ X4 = -0.1
 Z4 =  0.1
 
 
-n_elem = int(input("Enter the number of elements: "))     # No of elements
-print("Choose the type of element: Linear type (2), Quadratic type (3), Cubic type(4) as input")
-per_elem = int(input("Enter the type of element: "))   # Type of the element
-n_nodes  = (per_elem-1)*n_elem  + 1                       # Total number of nodes 
-Fixed_point = 0                                           # Coordinates of the beam
-Free_point  = L
+per_element = np.array([2,3,4])
+n_elem = np.array([1])
+z_end = np.array([])
+epsilon_yy = np.array([])
 
 
-# _________________________________________MESH GENERATION ALONG BEAM AXIS(Y)_________________________________________________
+for per_elem in per_element: 
 
-coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
-# print(coordinate)
-# meshrefinementfactor = 2
-# q=meshrefinementfactor**(1/(n_elem-1))
-# l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-# rnode=Free_point
-# c=np.array([Free_point])
-# for i in range(n_elem):
-#     rnode=rnode+l
-#     c=np.append(c,rnode)
-#     l=l*q
-# coordinate = np.flip(c)
+    for i in n_elem:
+        n_nodes  = (per_elem-1)*i  + 1                       # Total number of nodes 
+        Fixed_point = 0                                      # Coordinates of the beam
+        Free_point  = L
 
 
-#________________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT______________________________________#
+        # _________________________________________MESH GENERATION ALONG BEAM AXIS(Y)_________________________________________________
 
-if (per_elem==2):
-    
-    #Along the beam axis(Y)
-    xi         = 0                                                 # Gauss points
-    W_Length   = 2
-    Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])                 # Shape functions of a linear element
-    N_Der_xi   = np.array([-1/2,1/2])                              # Derivative of the shape function (N,xi)  
-
-elif (per_elem==3):
-    
-    #Along the beam axis(Y)
-    xi = np.array([0.339981,-0.339981,0.861136,0.861136])#np.array([0,-0.7745966692414834,0.7745966692414834])                            # Gauss points
-    W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])#np.array([0.8888,0.5555,0.555])  
-    Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
-    N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
-    N_Der_xi_m = np.array([-1/2,1/2])                                                    # Taking just numerical values from shape function for easily computing jacobian
-
-elif (per_elem==4):
-    
-    #Along the beam axis(Y)
-    xi = np.array([0,0.5384693101056831,-0.5384693101056831,0.9061798459386640,-0.9061798459386640])                                                                     # Gauss points
-    W_Length   =   np.array([0.5688888888888889,0.4786286704993665,0.4786286704993665,0.2369268850561891,0.2369268850561891])           
-    Shape_func = np.array([-9/16*(xi+1/3)*(xi-1/3)*(xi-1), 27/16*(xi+1)*(xi-1/3)*(xi-1),-27/16*(xi+1)*(xi+1/3)*(xi-1),9/16*(xi+1/3)*(xi-1/3)*(xi+1)])                       # Shape functions
-    N_Der_xi = N_Der_xi = np.array([-1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') + 0.0625,5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') - 1.6875,-5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') + 1.6875,1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') - 0.0625])    # Derivative of the shape function (N,xi)
-    N_Der_xi_m = np.array([0.0625,- 1.6875,1.6875,-0.0625]) 
+        coordinate = np.linspace(Fixed_point,Free_point,i+1)
+        # print(coordinate)
+        # meshrefinementfactor = 2
+        # q=meshrefinementfactor**(1/(i-1))
+        # l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
+        # rnode=Free_point
+        # c=np.array([Free_point])
+        # for i in range(i):
+        #     rnode=rnode+l
+        #     c=np.append(c,rnode)
+        #     l=l*q
+        # coordinate = np.flip(c)
 
 
+        #________________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT______________________________________#
 
+        if (per_elem==2):
+            
+            #Along the beam axis(Y)
+            xi         = 0                                                 # Gauss points
+            W_Length   = 2
+            Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])                 # Shape functions of a linear element
+            N_Der_xi   = np.array([-1/2,1/2])                              # Derivative of the shape function (N,xi)  
 
+        elif (per_elem==3):
+            
+            #Along the beam axis(Y)
+            xi = np.array([0.339981,-0.339981,0.861136,0.861136])#np.array([0,-0.7745966692414834,0.7745966692414834])                            # Gauss points
+            W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])#np.array([0.8888,0.5555,0.555])  
+            Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
+            N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
+            N_Der_xi_m = np.array([-1/2,1/2])                                                    # Taking just numerical values from shape function for easily computing jacobian
 
-#_______________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR CROSS SECTIONAL ELEMENT________________________________#
-
-
-
-#Along the Beam cross section (X,Z)
-#Lagrange polynomials
-alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])           # Gauss points 
-beta  = np.array([0.57735,-0.57735,0.57735,-0.57735]) 
-W_Cs  = 1                                                                             # WeightS for gauss quadrature in the cross section
-Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
-n_cross_nodes = len(Lag_poly)                                                         # No of lagrange nodes per node
-DOF = 3                                                                               # Degree of freedom of each lagrange node
-
-#Lagrange Derivatives
-alpha_der = np.array([-1/4*(1-beta),1/4*(1-beta),1/4*(1+beta),-1/4*(1+beta)])         # Derivatives of the lagrange polynomials
-beta_der  = np.array([-1/4*(1-alpha),-1/4*(1+alpha),1/4*(1+alpha),1/4*(1-alpha)])     # with respect to alpha and beta
-
-X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
-X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
-Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
-Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
-
-
-J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                                               # Determinant of Jacobian matrix of the cross section
-J_Cs = J_Cs[0]
-print(J_Cs)
+        elif (per_elem==4):
+            
+            #Along the beam axis(Y)
+            xi = np.array([0,0.5384693101056831,-0.5384693101056831,0.9061798459386640,-0.9061798459386640])                                                                     # Gauss points
+            W_Length   =   np.array([0.5688888888888889,0.4786286704993665,0.4786286704993665,0.2369268850561891,0.2369268850561891])           
+            Shape_func = np.array([-9/16*(xi+1/3)*(xi-1/3)*(xi-1), 27/16*(xi+1)*(xi-1/3)*(xi-1),-27/16*(xi+1)*(xi+1/3)*(xi-1),9/16*(xi+1/3)*(xi-1/3)*(xi+1)])                       # Shape functions
+            N_Der_xi = N_Der_xi = np.array([-1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') + 0.0625,5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') - 1.6875,-5.0625*sp.Symbol('xi')**2 - 1.125*sp.Symbol('xi') + 1.6875,1.6875*sp.Symbol('xi')**2 + 1.125*sp.Symbol('xi') - 0.0625])    # Derivative of the shape function (N,xi)
+            N_Der_xi_m = np.array([0.0625,- 1.6875,1.6875,-0.0625]) 
 
 
 
-#__________________________________________STIFFNESS MATRIX COMPUTATION____________________________________________________#
 
 
-#Size of the global stiffness matrix computed using no of nodes and no of cross nodes on each node and DOF
-Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
-for l in range(n_elem):
-
-    if (per_elem==2):
-        J_Length = N_Der_xi@np.array([[coordinate[l]],            # Jacobian of each element along beam axis
-                                     [coordinate[l+1]]])
-    
-        # Derivative of the shape functions with respect to physical coordinates (N,y)
-        N_Der    = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)]) 
+        #_______________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR CROSS SECTIONAL ELEMENT________________________________#
 
 
-    elif (per_elem==3):
-        X_coor     = np.array([[coordinate[l]],
-                               [coordinate[l+1]]])                                                        
-        J_Length   = N_Der_xi_m@X_coor                             # Jacobian of each element along beam axis
-        
-        # Derivative of the shape function wrt to physical coordinates(N,y) 
-        N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)]) 
 
-    elif (per_elem==4):
-        mid = (coordinate[l+1]+coordinate[l])/2
-        mid_length = (coordinate[l+1]-coordinate[l])/2 
-        X_coor = np.array([[coordinate[l]],
-                           [mid-(mid_length/3)], 
-                           [mid+(mid_length/3)],
-                           [coordinate[l+1]]])                                                      
+        #Along the Beam cross section (X,Z)
+        #Lagrange polynomials
+        alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])           # Gauss points 
+        beta  = np.array([0.57735,-0.57735,0.57735,-0.57735]) 
+        W_Cs  = 1                                                                             # WeightS for gauss quadrature in the cross section
+        Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
+        n_cross_nodes = len(Lag_poly)                                                         # No of lagrange nodes per node
+        DOF = 3                                                                               # Degree of freedom of each lagrange node
 
-                  
-        J_Length   = N_Der_xi_m@X_coor                                            # Jacobian for the length of the beam
-        N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
+        #Lagrange Derivatives
+        alpha_der = np.array([-1/4*(1-beta),1/4*(1-beta),1/4*(1+beta),-1/4*(1+beta)])         # Derivatives of the lagrange polynomials
+        beta_der  = np.array([-1/4*(1-alpha),-1/4*(1+alpha),1/4*(1+alpha),1/4*(1-alpha)])     # with respect to alpha and beta
 
-               
-     
-    
+        X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
+        X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
+        Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
+        Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
-    # Element stiffness matrix created using no of nodes per element and cross node and DOF  
-    Elemental_stiffness_matrix = np.zeros((per_elem*n_cross_nodes*DOF,per_elem*n_cross_nodes*DOF)) 
-    sep = int((per_elem*n_cross_nodes*DOF)/per_elem)                             # Seperation point for stacking element stiffness matrix                  
 
-    for i in range(per_elem):
-        for j in range(per_elem):
-            #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
-            Nodal_stiffness_matrix = np.zeros((n_cross_nodes*3,n_cross_nodes*3))
-            for tau_en,tau in enumerate(range(n_cross_nodes)):
-                for s_en,s in enumerate(range(n_cross_nodes)):
-                    
-                    #Fundamental nucleus of the stiffness matrix
-                    #Derivative of F wrt to x and z for tau
-                    F_tau_x = 1/J_Cs*((Z_beta*alpha_der[tau])-(Z_alpha*beta_der[tau]))
-                    F_tau_z = 1/J_Cs*((-X_alpha*alpha_der[tau])+(X_beta*beta_der[tau]))
+        J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                                               # Determinant of Jacobian matrix of the cross section
+        J_Cs = J_Cs[0]
+        # print(J_Cs)
 
-                    #Derivative of F wrt to x and z for s
-                    F_s_x = 1/J_Cs*((Z_beta*alpha_der[s])-(Z_alpha*beta_der[s]))
-                    F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
-                    
-                    
-                    K_xx =  C_22*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
-                    K_xy =  C_23*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
-                    K_xz =  C_12*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length)     
-                    K_yx =  C_44*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_23*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
-                    K_yy =  C_55*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_33*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length) 
-                    K_yz =  C_55*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_13*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
-                    K_zx =  C_12*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) 
-                    K_zy =  C_13*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
-                    K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
-                    F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
-                    
-                    
-                    if (i==j==0) and (tau == s) and (l==0):
-                        np.fill_diagonal(F_Nu,30e12)
-                    
-                    Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
+
+
+        #__________________________________________STIFFNESS MATRIX COMPUTATION____________________________________________________#
+
+
+        #Size of the global stiffness matrix computed using no of nodes and no of cross nodes on each node and DOF
+        Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
+        for l in range(i):
+
+            if (per_elem==2):
+                J_Length = N_Der_xi@np.array([[coordinate[l]],            # Jacobian of each element along beam axis
+                                            [coordinate[l+1]]])
+            
+                # Derivative of the shape functions with respect to physical coordinates (N,y)
+                N_Der    = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)]) 
+
+
+            elif (per_elem==3):
+                X_coor     = np.array([[coordinate[l]],
+                                    [coordinate[l+1]]])                                                        
+                J_Length   = N_Der_xi_m@X_coor                             # Jacobian of each element along beam axis
+                
+                # Derivative of the shape function wrt to physical coordinates(N,y) 
+                N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)]) 
+
+            elif (per_elem==4):
+                mid = (coordinate[l+1]+coordinate[l])/2
+                mid_length = (coordinate[l+1]-coordinate[l])/2 
+                X_coor = np.array([[coordinate[l]],
+                                [mid-(mid_length/3)], 
+                                [mid+(mid_length/3)],
+                                [coordinate[l+1]]])                                                      
+
+                        
+                J_Length   = N_Der_xi_m@X_coor                                            # Jacobian for the length of the beam
+                N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
+
                     
             
+            
+
+            # Element stiffness matrix created using no of nodes per element and cross node and DOF  
+            Elemental_stiffness_matrix = np.zeros((per_elem*n_cross_nodes*DOF,per_elem*n_cross_nodes*DOF)) 
+            sep = int((per_elem*n_cross_nodes*DOF)/per_elem)                             # Seperation point for stacking element stiffness matrix                  
+
+            for i in range(per_elem):
+                for j in range(per_elem):
+                    #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
+                    Nodal_stiffness_matrix = np.zeros((n_cross_nodes*3,n_cross_nodes*3))
+                    for tau_en,tau in enumerate(range(n_cross_nodes)):
+                        for s_en,s in enumerate(range(n_cross_nodes)):
+                            
+                            #Fundamental nucleus of the stiffness matrix
+                            #Derivative of F wrt to x and z for tau
+                            F_tau_x = 1/J_Cs*((Z_beta*alpha_der[tau])-(Z_alpha*beta_der[tau]))
+                            F_tau_z = 1/J_Cs*((-X_alpha*alpha_der[tau])+(X_beta*beta_der[tau]))
+
+                            #Derivative of F wrt to x and z for s
+                            F_s_x = 1/J_Cs*((Z_beta*alpha_der[s])-(Z_alpha*beta_der[s]))
+                            F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
+                            
+                            
+                            K_xx =  C_22*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
+                            K_xy =  C_23*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
+                            K_xz =  C_12*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length)     
+                            K_yx =  C_44*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_23*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
+                            K_yy =  C_55*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_33*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length) 
+                            K_yz =  C_55*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_13*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
+                            K_zx =  C_12*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) 
+                            K_zy =  C_13*np.sum(W_Cs*Lag_poly[tau]*F_s_z*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*F_tau_z*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)  
+                            K_zz =  C_11*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_55*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
+                            F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
+                            
+                            
+                            if (i==j==0) and (tau == s) and (l==0):
+                                np.fill_diagonal(F_Nu,30e12)
+                            
+                            Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
+                            
                     
-            Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
+                            
+                    Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
+                
+            if (per_elem==2):
+                
+                #Assignment matix for arranging global stiffness matrix
+                A_fac = 12
+                Ae = np.zeros((per_elem*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
+                np.fill_diagonal( Ae[0:A_fac*2 , A_fac*l:A_fac*(l+2)] ,1)
+                AeT = np.transpose(Ae)
+                K = AeT@Elemental_stiffness_matrix@Ae
+                Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
+
+            elif (per_elem==3):
+
+                #Assignment matix for arranging global stiffness matrix
+                A_fac = 12
+                Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
+                np.fill_diagonal( Ae[A_fac*0:A_fac*3 , A_fac*2*l:A_fac*(3+(2*l))] , 1 )
+                AeT = np.transpose(Ae)
+                K = AeT@Elemental_stiffness_matrix@Ae
+                Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
+
+            elif (per_elem==4):
+
+                #Assignment matix for arranging global stiffness matrix
+                A_fac = 12
+                Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))
+                np.fill_diagonal( Ae[A_fac*0:A_fac*4 , A_fac*3*l:A_fac*(4+(3*l))] , 1 )
+                AeT = np.transpose(Ae)
+                K = AeT@Elemental_stiffness_matrix@Ae
+                Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
+
+
+
+
+        #____________________________________________LOAD VECTOR____________________________________________________#
+
+        Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
+        Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+        Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+        Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+        Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
+
+
+
+        Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
+        # print(Displacement)
+
+
+        #____________________________________________POST PROCESSING PHASE______________________________________________________#
+
+        #To extract the displacement of our interest 
+        Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
+        Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-11]
+        z_end = np.append(z_end,Displacement[n_nodes*n_cross_nodes*DOF-1])
+
+        #X displacements of all the lagrange nodes
+        X_disp = np.array([])
+        for k in range(n_nodes*n_cross_nodes):
+            X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
+
+        Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
+
+
+        #Y displacements of all the lagrange nodes
+        Y_disp = np.array([])
+        for k in range(n_nodes*n_cross_nodes):
+            Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
+
+        Req_Y_disp = Y_disp[-4::]
+
+
+        #Z displacements of all the lagrange nodes
+        Z_disp = np.array([])
+        for k in range(n_nodes*n_cross_nodes):
+            Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+
+        Req_Z_disp = Z_disp[-4::]
+
+
+        #Z_displacement of the center point of all cross section
+        Z_disp_cen = np.array([])
+
+        for k in range(n_nodes):
+            Z_disp_cen = np.append(Z_disp_cen,Z_disp[4*(k+1)-3])
+
+        print(Z_disp_cen)
+
+
+
+        #Post processing
+        alpha,beta = symbols('alpha,beta')
+        F1 = 1/4*(1-alpha)*(1-beta)
+        F2 = 1/4*(1+alpha)*(1-beta)
+        F3 = 1/4*(1+alpha)*(1+beta)
+        F4 = 1/4*(1-alpha)*(1+beta)
+
+        X1 = -0.1
+        Z1 = -0.1
+        X2 =  0.1
+        Z2 = -0.1
+        X3 =  0.1
+        Z3 =  0.1
+        X4 = -0.1
+        Z4 =  0.1
+
+
+
+        X = np.linspace(-0.1,0.1,15)
+        Z = np.linspace(-0.1,0.1,15)
+
+        XX,ZZ = np.meshgrid(X,Z)
+
+
+        coor = np.array([])
+        #Loop for finding the natural coordinates of the physical domain
+        for i in range(len(X)):
+            for j in range(len(Z)):
+                eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - XX[i,j]
+                eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ZZ[i,j]
+                a = solve([eq1, eq2], (alpha,beta))
+                coor=np.append(coor,a)
+
+        # print(XX.shape)
+        # print(coor)
+
+
+        #Natural coordinates of the points in the physical domain
+        X_nat = np.array([])
+        Z_nat = np.array([])
+
+        for i in range(len(coor)):
+            x_nat = coor[i][alpha]
+            z_nat = coor[i][beta]
+            X_nat = np.append(X_nat,x_nat)
+            Z_nat = np.append(Z_nat,z_nat)
+        Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
         
-    if (per_elem==2):
+
+        #REQUIRED DISPLACEMENTS
+        X_Req = Lag_poly[0]*Req_X_disp[0] + Lag_poly[1]*Req_X_disp[1] + Lag_poly[2]*Req_X_disp[2]  + Lag_poly[3]*Req_X_disp[3]
+        Y_Req = Lag_poly[0]*Req_Y_disp[0] + Lag_poly[1]*Req_Y_disp[1] + Lag_poly[2]*Req_Y_disp[2]  + Lag_poly[3]*Req_Y_disp[3]
+        Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_Z_disp[2]  + Lag_poly[3]*Req_Z_disp[3]
+        # print("Y_Req",Y_Req)
+        # print(Y_Req.shape)
+
+
+
+        #Strains in Y axis
+        Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
+        # print("Epsilon_yy",Epsilon_yy)
+
+
+        #Strains in X and Z axis
+        alpha_der = np.array([-1/4*(1-z_nat),1/4*(1-z_nat),1/4*(1+z_nat),-1/4*(1+z_nat)])         # Derivatives of the lagrange polynomials
+        beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
+
+        X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
+        X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
+        Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
+        Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
+
+
+        Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
+        # print("Epsilon_xx",Epsilon_xx)
+
+
+        Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
+       
+
+
+        X_nat = np.full((10),0)
+        z_nat = np.linspace(-1,1,10)
+        Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
+        Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
+        epsilon_yy = np.append(epsilon_yy,Epsilon_yy)
+
         
-        #Assignment matix for arranging global stiffness matrix
-        A_fac = 12
-        Ae = np.zeros((per_elem*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
-        np.fill_diagonal( Ae[0:A_fac*2 , A_fac*l:A_fac*(l+2)] ,1)
-        AeT = np.transpose(Ae)
-        K = AeT@Elemental_stiffness_matrix@Ae
-        Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
-    elif (per_elem==3):
-
-        #Assignment matix for arranging global stiffness matrix
-        A_fac = 12
-        Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
-        np.fill_diagonal( Ae[A_fac*0:A_fac*3 , A_fac*2*l:A_fac*(3+(2*l))] , 1 )
-        AeT = np.transpose(Ae)
-        K = AeT@Elemental_stiffness_matrix@Ae
-        Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
-
-    elif (per_elem==4):
-
-        #Assignment matix for arranging global stiffness matrix
-        A_fac = 12
-        Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))
-        np.fill_diagonal( Ae[A_fac*0:A_fac*4 , A_fac*3*l:A_fac*(4+(3*l))] , 1 )
-        AeT = np.transpose(Ae)
-        K = AeT@Elemental_stiffness_matrix@Ae
-        Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
-
-
-
-
-#____________________________________________LOAD VECTOR____________________________________________________#
-
-Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
-
-
-
-Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
-print(Displacement)
-Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
-Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-11]
-print(Displacement.shape)
-
-
-
-#____________________________________________POST PROCESSING PHASE______________________________________________________#
-
-#To extract the displacement of our interest 
-
-#X displacements of all the lagrange nodes
-X_disp = np.array([])
-for k in range(n_nodes*n_cross_nodes):
-    X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
-
-Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
-print("Req_X_disp",Req_X_disp)
-
-
-#Y displacements of all the lagrange nodes
-Y_disp = np.array([])
-for k in range(n_nodes*n_cross_nodes):
-    Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
-
-Req_Y_disp = Y_disp[-4::]
-print("Req_Y_disp",Req_Y_disp)
-
-
-#Z displacements of all the lagrange nodes
-Z_disp = np.array([])
-for k in range(n_nodes*n_cross_nodes):
-    Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
-
-Req_Z_disp = Z_disp[-4::]
-print("Req_Z_disp",Req_Z_disp)
-
-
-
-#Post processing
-alpha,beta = symbols('alpha,beta')
-F1 = 1/4*(1-alpha)*(1-beta)
-F2 = 1/4*(1+alpha)*(1-beta)
-F3 = 1/4*(1+alpha)*(1+beta)
-F4 = 1/4*(1-alpha)*(1+beta)
-
-X1 = -0.1
-Z1 = -0.1
-X2 =  0.1
-Z2 = -0.1
-X3 =  0.1
-Z3 =  0.1
-X4 = -0.1
-Z4 =  0.1
-
-
-
-X = np.linspace(-0.1,0.1,15)
-Z = np.linspace(-0.1,0.1,15)
-
-XX,ZZ = np.meshgrid(X,Z)
-
-
-coor = np.array([])
-#Loop for finding the natural coordinates of the physical domain
-for i in range(len(X)):
-    for j in range(len(Z)):
-        eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - XX[i,j]
-        eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ZZ[i,j]
-        a = solve([eq1, eq2], (alpha,beta))
-        coor=np.append(coor,a)
-
-print(XX.shape)
-# print(coor)
-
-
-#Natural coordinates of the points in the physical domain
-X_nat = np.array([])
-Z_nat = np.array([])
-
-for i in range(len(coor)):
-    x_nat = coor[i][alpha]
-    z_nat = coor[i][beta]
-    X_nat = np.append(X_nat,x_nat)
-    Z_nat = np.append(Z_nat,z_nat)
-Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
-print(X_nat)
-print(z_nat)
-
-
-#REQUIRED DISPLACEMENTS
-X_Req = Lag_poly[0]*Req_X_disp[0] + Lag_poly[1]*Req_X_disp[1] + Lag_poly[2]*Req_X_disp[2]  + Lag_poly[3]*Req_X_disp[3]
-Y_Req = Lag_poly[0]*Req_Y_disp[0] + Lag_poly[1]*Req_Y_disp[1] + Lag_poly[2]*Req_Y_disp[2]  + Lag_poly[3]*Req_Y_disp[3]
-Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_Z_disp[2]  + Lag_poly[3]*Req_Z_disp[3]
-print("Y_Req",Y_Req)
-print(Y_Req.shape)
-
-
-
-#Strains in Y axis
-Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-print("Epsilon_yy",Epsilon_yy)
-
-
-#Strains in X and Z axis
-alpha_der = np.array([-1/4*(1-z_nat),1/4*(1-z_nat),1/4*(1+z_nat),-1/4*(1+z_nat)])         # Derivatives of the lagrange polynomials
-beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
-
-X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
-X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
-Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
-Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
-
-
-Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
-# print("Epsilon_xx",Epsilon_xx)
-
-
-Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
-# print("Epsilon_zz",Epsilon_zz)
-
-# Y_Req = np.reshape(Y_Req,XX.shape)
-# Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
-# fig,ax = plt.subplots()
-# ax = plt.axes(projection='3d')
-# ax.plot_wireframe(XX,ZZ,Epsilon_yy)
-# ax.set(xlabel = "X", ylabel = "Z")
-# cb=ax.contour(XX,ZZ,Epsilon_yy)
-# plt.colorbar(cb)
-# plt.show()
-
-
-
-X_nat = np.full((10),0)
-z_nat = np.linspace(-1,1,10)
-Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
-Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-print(Epsilon_yy)
+      
 
 h = np.linspace(-0.1,0.1,10)
 a = 0.2
 exact_epsilon_yy = (50*2*h*12)/(2*75e9*a**4)
 print(exact_epsilon_yy)
+print(epsilon_yy)
 
 fig,ax = plt.subplots()
-ax.plot(h,Epsilon_yy)
-ax.plot(h,exact_epsilon_yy)
+ax.plot(h,epsilon_yy[: 10],label='Linear(B2)')
+ax.plot(h,epsilon_yy[10 : 20],label='Quadratic(B3)')
+# ax.plot(h,epsilon_yy[20 : 30],label='Cubic(B4)')
+ax.plot(h,exact_epsilon_yy,label='Exact')
+ax.set(xlabel='Z [m]',ylabel='$\epsilon_{yy}[10^{-7}]$',title='Axial strain ($\epsilon_{yy}$) vs Z')
+ax.legend()
+plt.savefig('Strain_limit.png')
+
+
+
+fig,ax = plt.subplots()
+ax.plot(h,E*epsilon_yy[: 10],label='Linear(B2)')
+ax.plot(h,E*epsilon_yy[10 : 20],label='Quadratic(B3)')
+# ax.plot(h,*epsilon_yy[20 : 30],label='Cubic(B4)')
+ax.plot(h,E*exact_epsilon_yy,label='Exact')
+ax.set(xlabel='Z [m]',ylabel='$\sigma_{yy}[pa]$',title='Axial stress ($\sigma_{yy}$) vs Z')
+ax.legend()
+plt.savefig('Stress_limit.png')
 plt.show()
+
+
+# fig,ax = plt.subplots()
+# ax.plot(n_elem,z_end[: len(n_elem)]*10**5,label='Linear')
+# ax.plot(n_elem,z_end[len(n_elem) : len(n_elem)*2]*10**5,label='Quadratic')
+# ax.plot(n_elem,z_end[len(n_elem)*2 : len(n_elem)*3]*10**5,label='Cubic')
+# ax.plot(n_elem,np.full((len(n_elem)),-1.33),label='Exact')
+# ax.set_title("Displacment of central point of tip cross section")
+# ax.set_xlabel('Number of elements')
+# ax.set_ylabel('$u_{z}[10^{-5}m]$')
+# ax.legend()
+# plt.savefig('Displacement_center.png')
+# plt.show()
