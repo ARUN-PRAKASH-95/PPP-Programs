@@ -38,7 +38,7 @@ Z4 =  0.1
 
 
 per_element = np.array([2,3,4])
-n_elem = np.array([1])
+n_elem = np.array([40])
 z_end = np.array([])
 epsilon_yy = np.array([])
 
@@ -259,8 +259,10 @@ for per_elem in per_element:
         #____________________________________________POST PROCESSING PHASE______________________________________________________#
 
         #To extract the displacement of our interest 
-        Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
-        Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-11]
+        # Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
+        # Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
+        Displacement[13] =  -Displacement[13] 
+        Displacement[19] =  -Displacement[19]
         z_end = np.append(z_end,Displacement[n_nodes*n_cross_nodes*DOF-1])
 
         #X displacements of all the lagrange nodes
@@ -268,15 +270,16 @@ for per_elem in per_element:
         for k in range(n_nodes*n_cross_nodes):
             X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
 
-        Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
-
+        # Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
+        Req_X_disp = X_disp[4:8]
 
         #Y displacements of all the lagrange nodes
         Y_disp = np.array([])
         for k in range(n_nodes*n_cross_nodes):
             Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
 
-        Req_Y_disp = Y_disp[-4::]
+        Req_Y_disp = Y_disp[4:8]
+        # print(Req_Y_disp)
 
 
         #Z displacements of all the lagrange nodes
@@ -284,7 +287,7 @@ for per_elem in per_element:
         for k in range(n_nodes*n_cross_nodes):
             Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
 
-        Req_Z_disp = Z_disp[-4::]
+        Req_Z_disp = Z_disp[4:8]
 
 
         #Z_displacement of the center point of all cross section
@@ -293,7 +296,7 @@ for per_elem in per_element:
         for k in range(n_nodes):
             Z_disp_cen = np.append(Z_disp_cen,Z_disp[4*(k+1)-3])
 
-        print(Z_disp_cen)
+        # print(Z_disp_cen)
 
 
 
@@ -357,7 +360,7 @@ for per_elem in per_element:
 
         #Strains in Y axis
         Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-        # print("Epsilon_yy",Epsilon_yy)
+        
 
 
         #Strains in X and Z axis
@@ -386,44 +389,52 @@ for per_elem in per_element:
 
         
 
-      
-
 h = np.linspace(-0.1,0.1,10)
 a = 0.2
 exact_epsilon_yy = (50*2*h*12)/(2*75e9*a**4)
+
 print(exact_epsilon_yy)
-print(epsilon_yy)
+print("Epsilon_yy",Epsilon_yy)
+
+
+##################### PLOTS Z DISPLACEMENT OF THE CENTRAL POINT OF TIP CROSS SECTION(B2,B3,B4) AND EXACT SOLUTION ##############
+
+# fig,ax = plt.subplots()
+# ax.plot(n_elem,z_end[: len(n_elem)]*10**5,marker='o',label='Linear')
+# ax.plot(n_elem,z_end[len(n_elem) : len(n_elem)*2]*10**5,marker='*',label='Quadratic')
+# ax.plot(n_elem,z_end[len(n_elem)*2 : len(n_elem)*3]*10**5,marker='x',label='Cubic')
+# ax.plot(n_elem,np.full((len(n_elem)),-1.33),marker='+',label='Exact')
+# ax.set_title("Displacement of the central point of tip cross section")
+# ax.set_xlabel('Number of elements')
+# ax.set_ylabel('$u_{z}[10^{-5}m]$')
+# ax.legend()
+# plt.savefig('Displacement_center.png')
+
+
+
+##################### PLOTS THE AXIAL STRAIN(EPSILON_YY) VS Z AT X=0,Y=O (GIVES STRAIN LIMIT AT TIP CROSS SECTION) ####################
 
 fig,ax = plt.subplots()
-ax.plot(h,epsilon_yy[: 10],label='Linear(B2)')
-ax.plot(h,epsilon_yy[10 : 20],label='Quadratic(B3)')
-# ax.plot(h,epsilon_yy[20 : 30],label='Cubic(B4)')
-ax.plot(h,exact_epsilon_yy,label='Exact')
+ax.plot(h,epsilon_yy[: 10],marker='o',label='Linear(B2)')
+ax.plot(h,epsilon_yy[10 : 20],marker='*',label='Quadratic(B3)')
+ax.plot(h,epsilon_yy[20 : 30],marker='x',label='Cubic(B4)')
+ax.plot(h,exact_epsilon_yy,marker='+',label='Exact')
 ax.set(xlabel='Z [m]',ylabel='$\epsilon_{yy}[10^{-7}]$',title='Axial strain ($\epsilon_{yy}$) vs Z')
 ax.legend()
 plt.savefig('Strain_limit.png')
 
 
 
+# ##################### PLOTS THE AXIAL STRESS(SIGMA_YY) VS Z AT X=0,Y=O (GIVES STRESS LIMIT AT TIP CROSS SECTION) ####################
+
 fig,ax = plt.subplots()
-ax.plot(h,E*epsilon_yy[: 10],label='Linear(B2)')
-ax.plot(h,E*epsilon_yy[10 : 20],label='Quadratic(B3)')
-# ax.plot(h,*epsilon_yy[20 : 30],label='Cubic(B4)')
-ax.plot(h,E*exact_epsilon_yy,label='Exact')
+ax.plot(h,E*epsilon_yy[: 10],marker='o',label='Linear(B2)')
+ax.plot(h,E*epsilon_yy[10 : 20],marker='*',label='Quadratic(B3)')
+ax.plot(h,E*epsilon_yy[20 : 30],marker='x',label='Cubic(B4)')
+ax.plot(h,E*exact_epsilon_yy,marker='+',label='Exact')
 ax.set(xlabel='Z [m]',ylabel='$\sigma_{yy}[pa]$',title='Axial stress ($\sigma_{yy}$) vs Z')
 ax.legend()
 plt.savefig('Stress_limit.png')
-plt.show()
 
 
-# fig,ax = plt.subplots()
-# ax.plot(n_elem,z_end[: len(n_elem)]*10**5,label='Linear')
-# ax.plot(n_elem,z_end[len(n_elem) : len(n_elem)*2]*10**5,label='Quadratic')
-# ax.plot(n_elem,z_end[len(n_elem)*2 : len(n_elem)*3]*10**5,label='Cubic')
-# ax.plot(n_elem,np.full((len(n_elem)),-1.33),label='Exact')
-# ax.set_title("Displacment of central point of tip cross section")
-# ax.set_xlabel('Number of elements')
-# ax.set_ylabel('$u_{z}[10^{-5}m]$')
-# ax.legend()
-# plt.savefig('Displacement_center.png')
-# plt.show()
+

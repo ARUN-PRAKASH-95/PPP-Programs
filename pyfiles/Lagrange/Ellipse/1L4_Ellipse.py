@@ -8,9 +8,9 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 #PARAMETERS
-sma = 0.5          #Semi major axis for the ellipse
-smi = 0.25         #Semi minor axis for  the  ellipse
-L = 2              #[m] Length of the beam
+sma = 0.4          #Semi major axis for the ellipse
+smi = 0.2         #Semi minor axis for  the  ellipse
+L = 4              #[m] Length of the beam
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))

@@ -39,7 +39,7 @@ Fixed_point = 0                                           # Coordinates of the b
 Free_point  = L
 
 #Mesh generation
-coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+coordinate = np.linspace(Fixed_point,Free_point,n_nodes)
 # meshrefinementfactor = 2
 # q=meshrefinementfactor**(1/(n_elem-1))
 # l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
@@ -89,14 +89,20 @@ J_Cs = np.unique(J_Cs)
 Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
 for l in range(n_elem):
     # print(l)
-    mid = (coordinate[l+1]+coordinate[l])/2
-    mid_length = (coordinate[l+1]-coordinate[l])/2 
-    X_coor = np.array([[coordinate[l]],
-                      [mid-(mid_length/3)], 
-                      [mid+(mid_length/3)],
-                      [coordinate[l+1]]])                                                      
+    # mid = (coordinate[l+1]+coordinate[l])/2
+    # mid_length = (coordinate[l+1]-coordinate[l])/2 
+    # X_coor = np.array([[coordinate[l]],
+    #                   [mid-(mid_length/3)], 
+    #                   [mid+(mid_length/3)],
+    #                   [coordinate[l+1]]]) 
 
-    # print(X_coor)               
+    X_coor = np.array([[coordinate[3*l]],
+                      [coordinate[(3*l)+1]], 
+                      [coordinate[(3*l)+2]],
+                      [coordinate[(3*l)+3]]])                                                      
+                                                     
+
+    print(X_coor)               
     J_Length   = N_Der_xi_m@X_coor                                            # Jacobian for the length of the beam
     N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
 
@@ -161,17 +167,17 @@ np.savetxt('B4_Stiffness_matrix.txt',Global_stiffness_matrix,delimiter=',')
 
 
 Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-# Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
-# Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-10]= -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-7] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-4] = -12.5
+Load_vector[n_nodes*n_cross_nodes*DOF-1] = -12.5
 print("Load vector ----------------------------------------------")
 print(Load_vector)
 
-Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
-Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-11] = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-8]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-5]  = 12.5
+# Load_vector[n_nodes*n_cross_nodes*DOF-2]  = 12.5
 
 
 
