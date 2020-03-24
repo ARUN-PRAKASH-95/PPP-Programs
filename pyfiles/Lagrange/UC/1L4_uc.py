@@ -43,6 +43,16 @@ elif(cross_section==2):
     X4 = -sma
     Z4 =  sma
 
+    # X1 = -sma
+    # Z1 = -smi
+    # X2 =  sma
+    # Z2 = -smi
+    # X3 =  sma
+    # Z3 =  smi
+    # X4 = -sma
+    # Z4 =  smi
+
+
 
 #_______________________________________MATERIAL PARAMETERS___________________________________#
 E = 75e9           #[Pa] Young's Modulus
@@ -377,8 +387,8 @@ elif(cross_section==2):
     a = np.linspace(-sma,sma,100)
     b = np.linspace(-sma,sma,100)
 
-    aa,bb = np.meshgrid(a,b)
-    ell = (aa**2/sma**2) + (bb**2/smi**2)
+    aa,bb = np.meshgrid(a,b)    #Mesh grid 
+    ell = (aa**2/sma**2) + (bb**2/smi**2)   #Ellipse equation to get points inside the ellipse
 
 
     rows,col = ell.shape
@@ -400,6 +410,17 @@ elif(cross_section==2):
     X4 = -sma
     Z4 =  sma
     
+
+    # X1 = -sma
+    # Z1 = -smi
+    # X2 =  sma
+    # Z2 = -smi
+    # X3 =  sma
+    # Z3 =  smi
+    # X4 = -sma
+    # Z4 =  smi
+
+    ########### Sympy equation to find natural coordinates of the physical domain #############
     coor = np.array([])
     for i in range(len(ell_x)):
         eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - ell_x[i]
@@ -417,37 +438,57 @@ for i in range(len(coor)):
     y_nat = coor[i][beta]
     X_nat = np.append(X_nat,x_nat)
     Y_nat = np.append(Y_nat,y_nat)
+
 Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
 
 
-#REQUIRED DISPLACEMENTS
+########################  REQUIRED DISPLACEMENTS (X,Y AND Z) OF THE MESH GRID (CROSS SECTION) #########################
 X_Req = Lag_poly[0]*Req_X_disp[0] + Lag_poly[1]*Req_X_disp[1] + Lag_poly[2]*Req_X_disp[2]  + Lag_poly[3]*Req_X_disp[3]
 Y_Req = Lag_poly[0]*Req_Y_disp[0] + Lag_poly[1]*Req_Y_disp[1] + Lag_poly[2]*Req_Y_disp[2]  + Lag_poly[3]*Req_Y_disp[3]
 Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_Z_disp[2]  + Lag_poly[3]*Req_Z_disp[3]
 # print(Y_Req)
 
 
-#Strains in Y axis
+
+
+############################   AXIAL STRAINS (Epsilon_xx, Epsilon_yy and Epsilon_zz)  #################################
+
+#____________________Strains in Y axis (Epsilon_yy)____________________#
 Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
 # print("Epsilon_yy",Epsilon_yy)
 
 
-#Strains in X and Z axis
+#_____________Strains in X and Z axis (Epsilon_xx and Epsilon_zz)_____________#
 alpha_der = np.array([-1/4*(1-Y_nat),1/4*(1-Y_nat),1/4*(1+Y_nat),-1/4*(1+Y_nat)])         # Derivatives of the lagrange polynomials
 beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
 
+#_____________Derivative of X and z with respect to alpha and beta_____________#
 X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
 X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
 Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
 Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
-
 Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
 # print("Epsilon_xx",Epsilon_xx)
 
-
 Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
 # print("Epsilon_zz",Epsilon_zz)
+#_________________________________________________________________________________________________________________________#
+
+
+
+
+##################################    NON-AXIAL STRAIN (Epsilon_yz)   ###########################################
+
+#_____________________ Derivative of y_displacement w.r.t to z (U_y,z)_________________________#
+U_yz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Y_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Y_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Y_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Y_disp[3] 
+
+#_____________________ Derivative of z_displacement w.r.t to z (U_z,y)_________________________#
+U_zy = Lag_poly[0]*1/2*(1/J_Length)*Req_Z_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Z_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Z_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Z_disp[3] 
+
+Epsilon_yz = 1/2(U_yz + U_zy)
+print(Epsilon_yz)
+
 
 
 if(cross_section==1):
