@@ -38,7 +38,7 @@ Z4 =  0.1
 
 
 per_element = np.array([2,3,4])
-n_elem = np.array([2])
+n_elem = np.array([40])
 z_end = np.array([])
 epsilon_yy = np.array([])
 epsilon_yz = np.array([])
@@ -125,7 +125,6 @@ for per_elem in per_element:
 
         J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                                               # Determinant of Jacobian matrix of the cross section
         J_Cs = J_Cs[0]
-        # print(J_Cs)
 
 
 
@@ -246,16 +245,10 @@ for per_elem in per_element:
         #____________________________________________LOAD VECTOR____________________________________________________#
 
         Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
-        # Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
-        # Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
-        # Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
-        # Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
-
-
-        Load_vector[n_nodes*n_cross_nodes*DOF-10] = -25
-        Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -25
-        Load_vector[n_nodes*n_cross_nodes*DOF-4]  =  25
-        Load_vector[n_nodes*n_cross_nodes*DOF-1]  =  25
+        Load_vector[n_nodes*n_cross_nodes*DOF-10] = -12.5
+        Load_vector[n_nodes*n_cross_nodes*DOF-7]  = -12.5
+        Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
+        Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
 
@@ -266,10 +259,10 @@ for per_elem in per_element:
         #____________________________________________POST PROCESSING PHASE______________________________________________________#
 
         #To extract the displacement of our interest 
-        # Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
-        # Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
-        # Displacement[13] =  -Displacement[13] 
-        # Displacement[19] =  -Displacement[19]
+        Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
+        Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
+        Displacement[13] =  -Displacement[13] 
+        Displacement[19] =  -Displacement[19]
         z_end = np.append(z_end,Displacement[n_nodes*n_cross_nodes*DOF-1])
 
         #X displacements of all the lagrange nodes
@@ -287,7 +280,7 @@ for per_elem in per_element:
 
         # Req_Y_disp = X_disp[-4::]  
         Req_Y_disp = Y_disp[4:8]
-        # print(Req_Y_disp)
+        
 
 
         #Z displacements of all the lagrange nodes
@@ -305,149 +298,35 @@ for per_elem in per_element:
         for k in range(n_nodes):
             Z_disp_cen = np.append(Z_disp_cen,Z_disp[4*(k+1)-3])
 
-        # print(Z_disp_cen)
 
-
-
-        #Post processing
-        alpha,beta = symbols('alpha,beta')
-        F1 = 1/4*(1-alpha)*(1-beta)
-        F2 = 1/4*(1+alpha)*(1-beta)
-        F3 = 1/4*(1+alpha)*(1+beta)
-        F4 = 1/4*(1-alpha)*(1+beta)
-
-        X1 = -0.1
-        Z1 = -0.1
-        X2 =  0.1
-        Z2 = -0.1
-        X3 =  0.1
-        Z3 =  0.1
-        X4 = -0.1
-        Z4 =  0.1
-
-
-
-        X = np.linspace(-0.1,0.1,15)
-        Z = np.linspace(-0.1,0.1,15)
-
-        XX,ZZ = np.meshgrid(X,Z)
-
-
-        coor = np.array([])
-        #Loop for finding the natural coordinates of the physical domain
-        for i in range(len(X)):
-            for j in range(len(Z)):
-                eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - XX[i,j]
-                eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ZZ[i,j]
-                a = solve([eq1, eq2], (alpha,beta))
-                coor=np.append(coor,a)
-
-        # print(XX.shape)
-        # print(coor)
-
-
-        #Natural coordinates of the points in the physical domain
-        X_nat = np.array([])
-        Z_nat = np.array([])
-
-        for i in range(len(coor)):
-            x_nat = coor[i][alpha]
-            z_nat = coor[i][beta]
-            X_nat = np.append(X_nat,x_nat)
-            Z_nat = np.append(Z_nat,z_nat)
-        Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
-        
-
-        #REQUIRED DISPLACEMENTS
-        X_Req = Lag_poly[0]*Req_X_disp[0] + Lag_poly[1]*Req_X_disp[1] + Lag_poly[2]*Req_X_disp[2]  + Lag_poly[3]*Req_X_disp[3]
-        Y_Req = Lag_poly[0]*Req_Y_disp[0] + Lag_poly[1]*Req_Y_disp[1] + Lag_poly[2]*Req_Y_disp[2]  + Lag_poly[3]*Req_Y_disp[3]
-        Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_Z_disp[2]  + Lag_poly[3]*Req_Z_disp[3]
-        # print("Y_Req",Y_Req)
-        # print(Y_Req.shape)
-
-
-
-        #Strains in Y axis
-        Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-        
-
-
-        #Strains in X and Z axis
-        alpha_der = np.array([-1/4*(1-z_nat),1/4*(1-z_nat),1/4*(1+z_nat),-1/4*(1+z_nat)])         # Derivatives of the lagrange polynomials
-        beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
-
-        X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
-        X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
-        Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
-        Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
-
-
-        Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
-        # print("Epsilon_xx",Epsilon_xx)
-        Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
-       
-
-
+                       
         X_nat = np.full((10),0)
         z_nat = np.linspace(-1,1,10)
         Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
         
-        Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
+        Epsilon_yy = (Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3])*2
         epsilon_yy = np.append(epsilon_yy,Epsilon_yy)
         
-        # X_nat = np.full((10),-1)
-        # z_nat = np.linspace(-1,1,10)
-        
-        # Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
-
-        # alpha_der = np.array([-1/4*(1-z_nat),1/4*(1-z_nat),1/4*(1+z_nat),-1/4*(1+z_nat)])         # Derivatives of the lagrange polynomials
-        # beta_der  = np.array([-1/4*(1-X_nat),-1/4*(1+X_nat),1/4*(1+X_nat),1/4*(1-X_nat)])         # with respect to alpha and beta
-        # X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
-        # X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
-        # Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
-        # Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
-
-        # ##################################    NON-AXIAL STRAIN (Epsilon_yz)   ###########################################
-
-        # #_____________________ Derivative of y_displacement w.r.t to z (U_y,z)_________________________#
-        # U_yz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Y_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Y_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Y_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Y_disp[3] 
-        # # print("U_yz",U_yz)
-        # #_____________________ Derivative of z_displacement w.r.t to z (U_z,y)_________________________#
-        # U_zy = Lag_poly[0]*1/2*(1/J_Length)*Req_Z_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Z_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Z_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Z_disp[3] 
-
-        # Epsilon_yz = 1/2*(U_yz + U_zy)
-        # epsilon_yz = np.append(epsilon_yz,Epsilon_yz)
-
-        # print("Epsilon_yz",Epsilon_yz)
-        # print(Epsilon_yz.shape)
-        
-
         
 
 
 
 h = np.linspace(-0.1,0.1,10)
 a = 0.2
-exact_epsilon_yy = (50*2*h*12)/(2*75e9*a**4)    #Axial strain (Epsilon_yy)
+exact_epsilon_yy = (50*L*h*12)/(E*a**4)    #Axial strain (Epsilon_yy)
 
-# P = 50
-# exact_sigma_yz = 4.8077*P/(h**2)                #Non_axial strain(Epsilon_yz)
-
-
-# print(exact_epsilon_yy)
-# print("Epsilon_yy",Epsilon_yy)
 
 
 ##################### PLOTS Z DISPLACEMENT OF THE CENTRAL POINT OF TIP CROSS SECTION(B2,B3,B4) AND EXACT SOLUTION ##############
 
 # fig,ax = plt.subplots()
-# ax.plot(n_elem,z_end[: len(n_elem)]*10**5,marker='o',label='Linear')
-# ax.plot(n_elem,z_end[len(n_elem) : len(n_elem)*2]*10**5,marker='*',label='Quadratic')
-# ax.plot(n_elem,z_end[len(n_elem)*2 : len(n_elem)*3]*10**5,marker='x',label='Cubic')
+# ax.plot(n_elem,z_end[: len(n_elem)]*10**2,marker='o',label='Linear')
+# ax.plot(n_elem,z_end[len(n_elem) : len(n_elem)*2]*10**2,marker='*',label='Quadratic')
+# ax.plot(n_elem,z_end[len(n_elem)*2 : len(n_elem)*3]*10**2,marker='x',label='Cubic')
 # ax.plot(n_elem,np.full((len(n_elem)),-1.33),marker='+',label='Exact')
 # ax.set_title("Displacement of the central point of tip cross section")
 # ax.set_xlabel('Number of elements')
-# ax.set_ylabel('$u_{z}[10^{-5}m]$')
+# ax.set_ylabel('$u_{z}[10^{-2}m]$')
 # ax.legend()
 # plt.savefig('Displacement_center.png')
 
@@ -455,38 +334,33 @@ exact_epsilon_yy = (50*2*h*12)/(2*75e9*a**4)    #Axial strain (Epsilon_yy)
 
 ##################### PLOTS THE AXIAL STRAIN(EPSILON_YY) VS Z AT X=0,Y=O (GIVES STRAIN LIMIT AT FIXED CROSS SECTION) ####################
 
-# fig,ax = plt.subplots()
-# ax.plot(h,epsilon_yy[: 10],marker='o',label='Linear(B2)')
-# ax.plot(h,epsilon_yy[10 : 20],marker='*',label='Quadratic(B3)')
-# ax.plot(h,epsilon_yy[20 : 30],marker='x',label='Cubic(B4)')
-# ax.plot(h,exact_epsilon_yy,marker='+',label='Exact')
-# ax.set(xlabel='Z [m]',ylabel='$\epsilon_{yy}[10^{-7}]$',title='Axial strain ($\epsilon_{yy}$) vs Z')
-# ax.legend()
-# plt.savefig('Strain_limit.png')
+fig,ax = plt.subplots()
+ax.plot(h,epsilon_yy[: 10]*10**6,marker='o',label='Linear(B2)')
+ax.plot(h,epsilon_yy[10 : 20]*10**6,marker='*',label='Quadratic(B3)')
+ax.plot(h,epsilon_yy[20 : 30]*10**6,marker='x',label='Cubic(B4)')
+ax.plot(h,exact_epsilon_yy*10**6,marker='+',label='Exact')
+ax.set(xlabel='Z [m]',ylabel='$\epsilon_{yy}$[$10^{-6}$]',title='Axial strain ($\epsilon_{yy}$) vs Z')
+ax.legend()
+plt.savefig('Strain_limit.png')
 
 
 
-# ##################### PLOTS THE AXIAL STRESS(SIGMA_YY) VS Z AT X=0,Y=O (GIVES STRESS LIMIT AT FIXED CROSS SECTION) ####################
-
-# fig,ax = plt.subplots()
-# ax.plot(h,E*epsilon_yy[: 10],marker='o',label='Linear(B2)')
-# ax.plot(h,E*epsilon_yy[10 : 20],marker='*',label='Quadratic(B3)')
-# ax.plot(h,E*epsilon_yy[20 : 30],marker='x',label='Cubic(B4)')
-# ax.plot(h,E*exact_epsilon_yy,marker='+',label='Exact')
-# ax.set(xlabel='Z [m]',ylabel='$\sigma_{yy}[pa]$',title='Axial stress ($\sigma_{yy}$) vs Z')
-# ax.legend()
-# plt.savefig('Stress_limit.png')
 
 
-##################### PLOTS THE NON-AXIAL STRESS(SIGMA_YZ) VS Z AT X=-b/2,Y=L (GIVES STRESS LIMIT AT TIP CROSS SECTION) ####################
 
-# fig,ax = plt.subplots()
-# ax.plot(h,E*epsilon_yz[: 10],marker='o',label='Linear(B2)')
-# ax.plot(h,E*epsilon_yz[10 : 20],marker='*',label='Quadratic(B3)')
-# ax.plot(h,E*epsilon_yz[20 : 30],marker='x',label='Cubic(B4)')
-# ax.plot(h,exact_sigma_yz,marker='+',label='Exact')
-# ax.set(xlabel='Z [m]',ylabel='$\sigma_{yy}[pa]$',title='Axial stress ($\sigma_{yy}$) vs Z')
-# ax.legend()
-# plt.savefig('Stress_limit_yz.png')
+
+##################### PLOTS THE AXIAL STRESS(SIGMA_YY) VS Z AT X=0,Y=O (GIVES STRESS LIMIT AT FIXED CROSS SECTION) ####################
+
+fig,ax = plt.subplots()
+ax.plot(h,E*epsilon_yy[: 10]*10**-6,marker='o',label='Linear(B2)')
+ax.plot(h,E*epsilon_yy[10 : 20]*10**-6,marker='*',label='Quadratic(B3)')
+ax.plot(h,E*epsilon_yy[20 : 30]*10**-6,marker='x',label='Cubic(B4)')
+ax.plot(h,E*exact_epsilon_yy*10**-6,marker='+',label='Exact')
+ax.set(xlabel='Z [m]',ylabel='$\sigma_{yy}[Mpa]$',title='Axial stress ($\sigma_{yy}$) vs Z')
+ax.legend()
+plt.savefig('Stress_limit.png')
+
+
+
 
 
