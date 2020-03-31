@@ -5,6 +5,11 @@ from sympy import *
 from sympy.solvers.solveset import linsolve
 from mpl_toolkits.mplot3d import Axes3D
 
+
+
+
+###########################  TO GET INPUT FROM USER (Type of cross-section to be analyzed) #######################
+
 print("-------------------------------------------------------------------------")
 print("Enter the type of cross section to be analysed")
 print("For Square cross section beam -type (1)")
@@ -13,11 +18,17 @@ cross_section = int(input("Enter the number here: "))
 print("-------------------------------------------------------------------------")
 
 
+############################ MATERIAL AND GEOMETRY PARAMETERS  #############################
+
+
+#___________________________________SQUARE CROSS SECTION______________________________#
+
 if (cross_section == 1):
     a = 0.2            #[m] Square cross section
     L = 2              #[m] Length of the beam
 
-    #Coordinates of the cross section
+
+#### Coordinates of the cross section  ####
     X1 = -0.1
     Z1 = -0.1
     X2 =  0.1
@@ -27,9 +38,12 @@ if (cross_section == 1):
     X4 = -0.1
     Z4 =  0.1
 
+
+#___________________________________ELLIPTICAL CROSS SECTION______________________________#
+
 elif(cross_section==2):
     
-    #PARAMETERS
+    
     sma = 0.4          #Semi major axis for the ellipse
     smi = 0.2          #Semi minor axis for the ellipse
     L = 4              #[m] Length of the beam
@@ -43,21 +57,19 @@ elif(cross_section==2):
     X4 = -sma
     Z4 =  sma
 
-    # X1 = -sma
-    # Z1 = -smi
-    # X2 =  sma
-    # Z2 = -smi
-    # X3 =  sma
-    # Z3 =  smi
-    # X4 = -sma
-    # Z4 =  smi
+
 
 
 
 #_______________________________________MATERIAL PARAMETERS___________________________________#
+
+
 E = 75e9           #[Pa] Young's Modulus
 v = 0.33           #Poissons Ratio
-G = E/(2*(1+v))
+G = E/(2*(1+v))    #Shear modulus
+
+####  ELASTIC CONSTANTS  ####
+
 First  = (E*(1-v))/((1+v)*(1-2*v))
 Second = v*E/((1+v)*(1-2*v))
 C_11 = First
@@ -73,7 +85,7 @@ C_66 = G
 
 
 
-#______________________________________ELEMENT TYPE_________________________________#
+#######################     NUMBER AND TYPE OF ELEMENTS     ########################
 
 print(" ")
 print(" ")
@@ -86,47 +98,57 @@ Free_point  = L
 
 
 
-# _________________________________________MESH GENERATION ALONG BEAM AXIS(Y)_________________________________________________
-
-coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
-# print(coordinate)
-# mrf = 2
-# q=mrf**(1/(n_elem-1))
-# l=(Fixed_point-Free_point)*(1-q)/(1-mrf*q)
-# rnode=Free_point
-# c=np.array([Free_point])
-# for i in range(n_elem):
-#     rnode=rnode+l
-#     c=np.append(c,rnode)
-#     l=l*q
-# coordinate = np.flip(c)
+#############################      MESH GENERATION ALONG BEAM AXIS(Y)      #######################################
 
 
+if(n_elem==1):
+    coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+
+#/  Refines mesh such that more number of elements are present close to the loading point  /#
+else:
+    mrf = 2                                           
+    q=mrf**(1/(n_elem-1))
+    l=(Fixed_point-Free_point)*(1-q)/(1-mrf*q)
+    rnode=Free_point
+    c=np.array([Free_point])
+    for i in range(n_elem):
+        rnode=rnode+l
+        c=np.append(c,rnode)
+        l=l*q
+    coordinate = np.flip(c)
 
 
 
-#________________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT______________________________________#
+
+
+##########################    SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT       ################################
+
+
 
 if (per_elem==2):
     
-    #Along the beam axis(Y)
+    # For Linear(B2) Element
     xi         = 0                                                 # Gauss points
-    W_Length   = 2
+    W_Length   = 2                                                 # Gauss Weights
     Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])                 # Shape functions of a linear element
     N_Der_xi   = np.array([-1/2,1/2])                              # Derivative of the shape function (N,xi)  
 
+
+
 elif (per_elem==3):
     
-    #Along the beam axis(Y)
+    # For Quadratic(B3) Element
     xi = np.array([0.339981,-0.339981,0.861136,0.861136])                                # Gauss points
     W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])                         # Gauss weights
     Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
     N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
     N_Der_xi_m = np.array([-1/2,1/2])                                                    # Taking just numerical values from shape function for easily computing jacobian
 
+
+
 elif (per_elem==4):
     
-    #Along the beam axis(Y)
+    # For Cubic(B4) Element
     xi = np.array([0,0.5384693101056831,-0.5384693101056831,0.9061798459386640,-0.9061798459386640])                                                                     # Gauss points
     W_Length   =   np.array([0.5688888888888889,0.4786286704993665,0.4786286704993665,0.2369268850561891,0.2369268850561891])           
     Shape_func = np.array([-9/16*(xi+1/3)*(xi-1/3)*(xi-1), 27/16*(xi+1)*(xi-1/3)*(xi-1),-27/16*(xi+1)*(xi+1/3)*(xi-1),9/16*(xi+1/3)*(xi-1/3)*(xi+1)])                       # Shape functions
@@ -137,22 +159,27 @@ elif (per_elem==4):
 
 
 
-#_______________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR CROSS SECTIONAL ELEMENT________________________________#
+#############################   SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR CROSS SECTIONAL ELEMENT      ####################################
 
 
+    #################  ALONG BEAM CROSS SECTION(X,Z) ################
 
-#Along the Beam cross section (X,Z)
-#Lagrange polynomials
-alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])           # Gauss points 
+alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])                    # Gauss points 
 beta  = np.array([0.57735,-0.57735,0.57735,-0.57735]) 
-W_Cs  = 1                                                                             # WeightS for gauss quadrature in the cross section
+W_Cs  = 1                                                                # Weights for gauss quadrature in the cross section
+
+#Lagrange polynomials
 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
 n_cross_nodes = len(Lag_poly)                                                         # No of lagrange nodes per node
 DOF = 3                                                                               # Degree of freedom of each lagrange node
 
-#Lagrange Derivatives
+
+
+#/  Derivatives of the Lagrange polynomials with respect to alpha and beta(natural coordinates of the cross-section)  /#
+
 alpha_der = np.array([-1/4*(1-beta),1/4*(1-beta),1/4*(1+beta),-1/4*(1+beta)])         # Derivatives of the lagrange polynomials
 beta_der  = np.array([-1/4*(1-alpha),-1/4*(1+alpha),1/4*(1+alpha),1/4*(1-alpha)])     # with respect to alpha and beta
+
 
 X_alpha = alpha_der[0]*X1 + alpha_der[1]*X2 + alpha_der[2]*X3 + alpha_der[3]*X4
 X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
@@ -160,37 +187,54 @@ Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
 Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
 
-J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                                               # Determinant of Jacobian matrix of the cross section
+
+###  Jacobian of the cross sectional element  ###
+
+J_Cs = (Z_beta*X_alpha - Z_alpha*X_beta)                   
 J_Cs = J_Cs[0]
 
 
 
 
 
-#__________________________________________STIFFNESS MATRIX COMPUTATION____________________________________________________#
+#################################         STIFFNESS MATRIX COMPUTATION         #################################      
 
 
 #Size of the global stiffness matrix computed using no of nodes and no of cross nodes on each node and DOF
+
 Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
 for l in range(n_elem):
-
+    
+    
+    # For Linear(B2) Element
     if (per_elem==2):
-        J_Length = N_Der_xi@np.array([[coordinate[l]],            # Jacobian of each element along beam axis
+        
+        ###  Jacobian of each element along beam axis ###
+        J_Length = N_Der_xi@np.array([[coordinate[l]],            
                                      [coordinate[l+1]]])
     
-        # Derivative of the shape functions with respect to physical coordinates (N,y)
+        
+        ###   Derivative of the shape functions with respect to physical coordinates (N,y)   ###
         N_Der    = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)]) 
 
 
+    
+    # For Quadratic(B3) Element
     elif (per_elem==3):
+        
+        ###  Jacobian of each element along beam axis ###
         X_coor     = np.array([[coordinate[l]],
                                [coordinate[l+1]]])                                                        
-        J_Length   = N_Der_xi_m@X_coor                             # Jacobian of each element along beam axis
+        J_Length   = N_Der_xi_m@X_coor                             
         
-        # Derivative of the shape function wrt to physical coordinates(N,y) 
+        ###   Derivative of the shape function wrt to physical coordinates(N,y)   ###
         N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)]) 
 
+    
+    
+    # For Cubic(B4) element
     elif (per_elem==4):
+        
         mid = (coordinate[l+1]+coordinate[l])/2
         mid_length = (coordinate[l+1]-coordinate[l])/2 
         X_coor = np.array([[coordinate[l]],
@@ -198,21 +242,26 @@ for l in range(n_elem):
                            [mid+(mid_length/3)],
                            [coordinate[l+1]]])                                                      
 
-                  
-        J_Length   = N_Der_xi_m@X_coor                                            # Jacobian for the length of the beam
+        ###  Jacobian of each element along beam axis ###         
+        J_Length   = N_Der_xi_m@X_coor                                            
         N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
 
                
      
     
 
-    # Element stiffness matrix created using no of nodes per element and cross node and DOF  
+    ###   Element stiffness matrix created using no of nodes per element and cross node and DOF   ### 
+    
     Elemental_stiffness_matrix = np.zeros((per_elem*n_cross_nodes*DOF,per_elem*n_cross_nodes*DOF)) 
     sep = int((per_elem*n_cross_nodes*DOF)/per_elem)                             # Seperation point for stacking element stiffness matrix                  
 
+    
+    
     for i in range(per_elem):
         for j in range(per_elem):
-            #Fundamental nucleus of the stiffness matrix K_tsij using two point gauss quadrature
+            
+            
+            
             Nodal_stiffness_matrix = np.zeros((n_cross_nodes*3,n_cross_nodes*3))
             for tau_en,tau in enumerate(range(n_cross_nodes)):
                 for s_en,s in enumerate(range(n_cross_nodes)):
@@ -226,7 +275,8 @@ for l in range(n_elem):
                     F_s_x = 1/J_Cs*((Z_beta*alpha_der[s])-(Z_alpha*beta_der[s]))
                     F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
                     
-                    #Fundamental nucleus of the stiffness matrix
+                    ####    Fundamental nucleus of the stiffness matrix  ####
+                    
                     K_xx =  C_22*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
                     K_xy =  C_23*np.sum(W_Cs*Lag_poly[tau]*F_s_x*J_Cs)*np.sum(W_Length*N_Der[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*F_tau_x*Lag_poly[s]*J_Cs)*np.sum(W_Length*Shape_func[i]*N_Der[j]*J_Length)
                     K_xz =  C_12*np.sum(W_Cs*F_tau_z*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_x*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length)     
@@ -242,15 +292,19 @@ for l in range(n_elem):
                     if (i==j==0) and (tau == s) and (l==0):
                         np.fill_diagonal(F_Nu,30e12)
                     
+                    
+                    ###3   For assembling  FN  into Nodal stiffness matrix   ####
                     Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                     
             
-                    
+            ####     For assembling Nodal stiffness matrix into element stiffness matrix  ####       
             Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
         
+    
+    
     if (per_elem==2):
         
-        #Assignment matix for arranging global stiffness matrix
+        #Assignment matix for assembling global stiffness matrix for B2 element
         A_fac = 12
         Ae = np.zeros((per_elem*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
         np.fill_diagonal( Ae[0:A_fac*2 , A_fac*l:A_fac*(l+2)] ,1)
@@ -258,9 +312,10 @@ for l in range(n_elem):
         K = AeT@Elemental_stiffness_matrix@Ae
         Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
+    
     elif (per_elem==3):
 
-        #Assignment matix for arranging global stiffness matrix
+        #Assignment matix for assembling global stiffness matrix for B3 element
         A_fac = 12
         Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))       
         np.fill_diagonal( Ae[A_fac*0:A_fac*3 , A_fac*2*l:A_fac*(3+(2*l))] , 1 )
@@ -268,9 +323,10 @@ for l in range(n_elem):
         K = AeT@Elemental_stiffness_matrix@Ae
         Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
+    
     elif (per_elem==4):
 
-        #Assignment matix for arranging global stiffness matrix
+        #Assignment matix for assembling global stiffness matrix for B4 element
         A_fac = 12
         Ae = np.zeros((len(Shape_func)*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))
         np.fill_diagonal( Ae[A_fac*0:A_fac*4 , A_fac*3*l:A_fac*(4+(3*l))] , 1 )
@@ -279,7 +335,12 @@ for l in range(n_elem):
         Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
 
-#____________________________________________LOAD VECTOR____________________________________________________#
+
+
+
+##########################         LOAD VECTOR         ##########################
+
+######   Load vector for Square cross section (-50[N])  ###### 
 
 if(cross_section==1):
     
@@ -290,6 +351,7 @@ if(cross_section==1):
     Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
+######   Load vector for Elliptical cross section (-100[N])  ###### 
 elif(cross_section==2):
 
     Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
@@ -299,6 +361,9 @@ elif(cross_section==2):
     Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -25
 
 
+
+
+#############  Equation for solving Fundamental equation of FEA  ############
 Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
 
 
@@ -306,52 +371,62 @@ Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
 
 
 
-#____________________________________________POST PROCESSING PHASE______________________________________________________#
+############################          POST PROCESSING PHASE          #############################
+
 
 #To extract the displacement of our interest 
-
-#X displacements of all the lagrange nodes
 Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
 Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
 Displacement[13] =  -Displacement[13] 
 Displacement[19] =  -Displacement[19]
 
+
+
+#X displacements of all the lagrange nodes
 X_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
+Req_X_disp_tip = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross-section
+Req_X_disp_fix = X_disp[4:8]                        #Displacement of the lagrange nodes at fixed cross-section
 
-# Req_X_disp = X_disp[-4::]                       #Displacement of the lagrange nodes at end cross section
-Req_X_disp = X_disp[4:8]
 
 
 #Y displacements of all the lagrange nodes
 Y_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
+Req_Y_disp_tip = Y_disp[-4::]                      #Displacement of the lagrange nodes at end cross-section
+Req_Y_disp_fix = Y_disp[4:8]                       #Displacement of the lagrange nodes at fixed cross-section
 
-# Req_Y_disp = Y_disp[-4::]
-Req_Y_disp = Y_disp[4:8]
 
 
 #Z displacements of all the lagrange nodes
 Z_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+Req_Z_disp_tip = Z_disp[-4::]                      #Displacement of the lagrange nodes at end cross-section
+Req_Z_disp_fix = Z_disp[4:8]                       #Displacement of the lagrange nodes at fixed cross-section
 
-# Req_Z_disp = Z_disp[-4::]
-Req_Z_disp = Z_disp[4:8]
+
 
 #Z_displacement of the center point of all cross section
 Z_disp_cen = np.array([])
 for k in range(n_nodes):
     Z_disp_cen = np.append(Z_disp_cen,Z_disp[4*(k+1)-3])
 
+
+####   Lagrange Polynomials   ####
 alpha,beta = symbols('alpha,beta')
 F1 = 1/4*(1-alpha)*(1-beta)
 F2 = 1/4*(1+alpha)*(1-beta)
 F3 = 1/4*(1+alpha)*(1+beta)
 F4 = 1/4*(1-alpha)*(1+beta)
 
+
+
+
+
+######     FOR CREATING THE CROSS-SECTION OF SQUARE BEAM    ######
 
 if(cross_section==1):
     
@@ -364,13 +439,14 @@ if(cross_section==1):
     X4 = -0.1
     Z4 =  0.1
 
-    X = np.linspace(-0.1,0.1,15)
-    Z = np.linspace(-0.1,0.1,15)
-
-    XX,ZZ = np.meshgrid(X,Z)                  #Mesh grid for getting coordinates of the cross section
-
+    ######  Mesh grid(50*50) for getting coordinates of the cross section  ######
+    X = np.linspace(-0.1,0.1,50)
+    Z = np.linspace(-0.1,0.1,20)
+    XX,ZZ = np.meshgrid(X,Z)                  
+    
+    
+    ########### Sympy equation to find natural coordinates of the physical domain #############
     coor = np.array([])
-    #Loop for finding the natural coordinates of the physical domain
     for i in range(len(X)):
         for j in range(len(Z)):
             eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - XX[i,j]
@@ -379,16 +455,23 @@ if(cross_section==1):
             coor=np.append(coor,a)
 
 
+
+
+######     FOR CREATING THE CROSS-SECTION OF SQUARE BEAM    ######
+
 elif(cross_section==2):
     
-    #Creating a mesh grid of major axis to create coordinates inside an ellipse
+    
+    ######  Mesh grid(100*100) for getting coordinates of the cross section  ######
     a = np.linspace(-sma,sma,50)
     b = np.linspace(-sma,sma,50)
 
-    aa,bb = np.meshgrid(a,b)    #Mesh grid 
+    aa,bb = np.meshgrid(a,b)                #Mesh grid 
     ell = (aa**2/sma**2) + (bb**2/smi**2)   #Ellipse equation to get points inside the ellipse
 
 
+    
+    ####  For getting the points inside the ellipse  ####
     rows,col = ell.shape
     ell_x = np.array([])
     ell_y = np.array([])
@@ -407,16 +490,7 @@ elif(cross_section==2):
     Z3 =  sma
     X4 = -sma
     Z4 =  sma
-    
 
-    # X1 = -sma
-    # Z1 = -smi
-    # X2 =  sma
-    # Z2 = -smi
-    # X3 =  sma
-    # Z3 =  smi
-    # X4 = -sma
-    # Z4 =  smi
 
     ########### Sympy equation to find natural coordinates of the physical domain #############
     coor = np.array([])
@@ -427,7 +501,10 @@ elif(cross_section==2):
         coor=np.append(coor,a)
 
 
-#Natural coordinates of the points in the physical domain
+
+
+
+#########   Natural coordinates of the cross-sectional points in the physical domain    ##########
 X_nat = np.array([])
 Y_nat = np.array([])
 
@@ -440,11 +517,23 @@ for i in range(len(coor)):
 Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
 
 
+
+
+
 ########################  REQUIRED DISPLACEMENTS (X,Y AND Z) OF THE MESH GRID (CROSS SECTION) #########################
-X_Req = Lag_poly[0]*Req_X_disp[0] + Lag_poly[1]*Req_X_disp[1] + Lag_poly[2]*Req_X_disp[2]  + Lag_poly[3]*Req_X_disp[3]
-Y_Req = Lag_poly[0]*Req_Y_disp[0] + Lag_poly[1]*Req_Y_disp[1] + Lag_poly[2]*Req_Y_disp[2]  + Lag_poly[3]*Req_Y_disp[3]
-Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_Z_disp[2]  + Lag_poly[3]*Req_Z_disp[3]
-# print(Y_Req)
+
+
+#_______________________________X,Y and Z displacements of the cross-section near fixed end___________________________#
+
+X_Req_fix = Lag_poly[0]*Req_X_disp_fix[0] + Lag_poly[1]*Req_X_disp_fix[1] + Lag_poly[2]*Req_X_disp_fix[2]  + Lag_poly[3]*Req_X_disp_fix[3]
+Y_Req_fix = Lag_poly[0]*Req_Y_disp_fix[0] + Lag_poly[1]*Req_Y_disp_fix[1] + Lag_poly[2]*Req_Y_disp_fix[2]  + Lag_poly[3]*Req_Y_disp_fix[3]
+Z_Req_fix = Lag_poly[0]*Req_Z_disp_fix[0] + Lag_poly[1]*Req_Z_disp_fix[1] + Lag_poly[2]*Req_Z_disp_fix[2]  + Lag_poly[3]*Req_Z_disp_fix[3]
+
+#_______________________________X,Y and Z displacements of the end cross-section ___________________________#
+X_Req_tip = Lag_poly[0]*Req_X_disp_tip[0] + Lag_poly[1]*Req_X_disp_tip[1] + Lag_poly[2]*Req_X_disp_tip[2]  + Lag_poly[3]*Req_X_disp_tip[3]
+Y_Req_tip = Lag_poly[0]*Req_Y_disp_tip[0] + Lag_poly[1]*Req_Y_disp_tip[1] + Lag_poly[2]*Req_Y_disp_tip[2]  + Lag_poly[3]*Req_Y_disp_tip[3]
+Z_Req_tip = Lag_poly[0]*Req_Z_disp_tip[0] + Lag_poly[1]*Req_Z_disp_tip[1] + Lag_poly[2]*Req_Z_disp_tip[2]  + Lag_poly[3]*Req_Z_disp_tip[3]
+
 
 
 
@@ -452,8 +541,9 @@ Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_
 ############################   AXIAL STRAINS (Epsilon_xx, Epsilon_yy and Epsilon_zz)  #################################
 
 #____________________Strains in Y axis (Epsilon_yy)____________________#
-Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-print("Epsilon_yy",E*Epsilon_yy)
+Epsilon_yy =  (Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp_fix[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp_fix[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp_fix[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp_fix[3])*2
+
+
 
 
 #_____________Strains in X and Z axis (Epsilon_xx and Epsilon_zz)_____________#
@@ -466,38 +556,49 @@ X_beta  = beta_der[0] *X1 + beta_der[1]*X2  + beta_der[2] *X3 + beta_der[3] *X4
 Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
 Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
+
+#_____________Strains in X and Z axis (Epsilon_xx and Epsilon_zz)_____________#
 Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
 Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
 
-#_________________________________________________________________________________________________________________________#
 
 
 
+
+
+######################################         PLOTS       ######################################
+
+
+
+###############    SQUARE CROSS-SECTION    #############
 
 if(cross_section==1):
     
-# #___________Z_displacement of the central point of all the cross sections________#
-#     fig,ax = plt.subplots()
-#     co=np.linspace(Fixed_point,Free_point,n_nodes)
-#     ax.plot(co,Z_disp_cen*10**2)
-#     ax.scatter(co,Z_disp_cen*10**2)
-#     ax.set_title("Z_displacement of the central point of all cross sections")
-#     ax.set_xlabel('Coordinates of the beam along beam axis[Y]')
-#     ax.set_ylabel('$u_{z}[10^{-2}m]$')
-#     plt.savefig('B'+str(per_elem)+'Z_Displacement.png')
+###############     Z_displacement of the central point of all the cross sections       #################
+    
+    fig,ax = plt.subplots()
+    co=np.linspace(Fixed_point,Free_point,n_nodes)
+    ax.plot(co,Z_disp_cen*10**2)
+    ax.scatter(co,Z_disp_cen*10**2)
+    ax.set_title("Z_displacement of the central point of all cross sections")
+    ax.set_xlabel('Coordinates of the beam along beam axis[Y]')
+    ax.set_ylabel('$u_{z}[10^{-2}m]$')
+    plt.savefig('B'+str(per_elem)+'Z_Displacement.png')
 
 
-# # #___________Plots Y displacment of the end cross section(shows bending behaviour)________#
-#     print(Y_Req)
-#     Y_Req = np.reshape(Y_Req,XX.shape)
-#     fig,ax = plt.subplots()
-#     ax = plt.axes(projection='3d')
-#     ax.plot_wireframe(XX,ZZ,Y_Req*10**6)
-#     ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$u_{y}[10^{-6}m]$", title='(B'+ str(per_elem)+')element along beam axis(Y)')
-#     plt.savefig('B'+str(per_elem)+'_Y_Displacement.png')
+
+#################    Plots Y displacment of the end cross section(shows bending behaviour)    ################# 
+    
+    Y_Req = np.reshape(Y_Req,XX.shape)
+    fig,ax = plt.subplots()
+    ax = plt.axes(projection='3d')
+    ax.plot_wireframe(XX,ZZ,Y_Req*10**6)
+    ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$u_{y}[10^{-6}m]$", title='(B'+ str(per_elem)+')element along beam axis(Y)')
+    plt.savefig('B'+str(per_elem)+'_Y_Displacement.png')
     
 
-#____________Plots the axial strain(Epsilon_yy) of the cross section close to fixed end_________#
+###############    Plots the axial strain(Epsilon_yy) of the cross section close to fixed end      ############### 
+    
     fig,ax = plt.subplots()
     Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
     cb=ax.contourf(XX,ZZ,Epsilon_yy*10**6)
@@ -505,17 +606,23 @@ if(cross_section==1):
     plt.colorbar(cb,label='$\epsilon_{yy}[10^{-6}]$')
     plt.savefig('Strain.png')
 
-#____________Plots the axial strain(Sigma_yy) of the cross section close to fixed end_________#
+###############    Plots the axial strain(Sigma_yy) of the cross section close to fixed end     ###############
+    
     fig,ax = plt.subplots()
     cb=ax.contourf(XX,ZZ,E*Epsilon_yy,cmap='RdBu')
     ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress ($\sigma_{yy}$) of the end cross section')
     plt.colorbar(cb,label='$\sigma_{yy}[pa]$')
     plt.savefig('Stress.png')
-    # np.savetxt("stress.txt",E*Epsilon_yy,delimiter=',')
-    # print("done")
+   
 
+
+
+
+###############    ELLIPTICAL CROSS-SECTION    #############
 
 elif(cross_section==2):
+    
+    
     N_Epsilon_yy = np.array([])
     for i in Epsilon_yy:
         N_Epsilon_yy = np.append(N_Epsilon_yy,round(i*10**9,5))
@@ -524,8 +631,10 @@ elif(cross_section==2):
     for i in Y_Req:
         N_Y_Req = np.append(N_Y_Req,round(i*10**8,5))
 
-#___________Z_displacement of the center of all the nodes________#
-    fig,ax = plt.subplots()
+
+########    Z_displacement of the center of all the nodes     ########       
+    f
+    ig,ax = plt.subplots()
     co=np.linspace(Fixed_point,Free_point,n_nodes)
     ax.plot(co,Z_disp_cen*10**5,marker='o')
     ax.set_title("Z_displacement of the central point of all cross sections")
@@ -534,7 +643,8 @@ elif(cross_section==2):
     plt.savefig('Z_Displacement_ell.png')
     
     
-# #___________Plots Y displacment of the end cross section(shows bending behaviour)________#    
+########  Plots Y displacment of the end cross section(shows bending behaviour)   #########    
+    
     fig,ax = plt.subplots()
     ax = plt.axes(projection='3d')
     ax.scatter(ell_x,ell_y,N_Y_Req)
@@ -544,14 +654,16 @@ elif(cross_section==2):
     plt.colorbar(cb)
 
 
-# #____________Plots the axial strain(Epsilon_yy) of the end cross section_________#
+#########    Plots the axial strain(Epsilon_yy) of the end cross section    #########
+   
     fig,ax = plt.subplots()
     cb=ax.scatter(ell_x,ell_y,c=N_Epsilon_yy)
     ax.set(xlabel='X[m]',ylabel='Z[m]',title='Strain ($\epsilon_{yy}$) of the end cross section')
     plt.colorbar(cb,label='$\epsilon_{yy}[10^{-9}]$')
     plt.savefig('Strain_ell.png')
 
-# #____________Plots the axial strain(Sigma_yy) of the end cross section_________#
+#########    Plots the axial strain(Sigma_yy) of the end cross section     #########
+    
     fig,ax = plt.subplots()
     cb=ax.scatter(ell_x,ell_y,c=E*Epsilon_yy,cmap='RdBu')
     ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress ($\sigma_{yy}$) of the end cross section')

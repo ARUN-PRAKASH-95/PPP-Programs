@@ -172,12 +172,12 @@ for l in range(n_elem):
 
 
 #Stiffness matrix checkers
-print("Transpose",np.allclose(Global_stiffness_matrix,Global_stiffness_matrix.T))
+# print("Transpose",np.allclose(Global_stiffness_matrix,Global_stiffness_matrix.T))
 
-inv = np.linalg.inv(Global_stiffness_matrix)
-# print("Determinant",np.linalg.det(Global_stiffness_matrix))
-EV,EVector = np.linalg.eig(Global_stiffness_matrix)
-print("Eigen_value",EV)
+# inv = np.linalg.inv(Global_stiffness_matrix)
+# # print("Determinant",np.linalg.det(Global_stiffness_matrix))
+# EV,EVector = np.linalg.eig(Global_stiffness_matrix)
+# print("Eigen_value",EV)
 
 
 

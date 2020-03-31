@@ -266,7 +266,7 @@ Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -25
 
 
 Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
-
+print(Displacement)
 
 #____________________________________________POST PROCESSING PHASE______________________________________________________#
 
@@ -317,8 +317,8 @@ F4 = 1/4*(1-alpha)*(1+beta)
 
 
 #Creating a mesh grid of major axis to create coordinates inside an ellipse
-a = np.linspace(-sma,sma,50)
-b = np.linspace(-sma,sma,50)
+a = np.linspace(-sma,sma,100)
+b = np.linspace(-sma,sma,100)
 
 aa,bb = np.meshgrid(a,b)    #Mesh grid 
 ell = (aa**2/sma**2) + (bb**2/smi**2)   #Ellipse equation to get points inside the ellipse
@@ -334,24 +334,24 @@ for i in range(rows):
             ell_y = np.append(ell_y,bb[i,j])
 
 
-X1 = -sma
-Z1 = -sma
-X2 =  sma
-Z2 = -sma
-X3 =  sma
-Z3 =  sma
-X4 = -sma
-Z4 =  sma
-
-
 # X1 = -sma
-# Z1 = -smi
+# Z1 = -sma
 # X2 =  sma
-# Z2 = -smi
+# Z2 = -sma
 # X3 =  sma
-# Z3 =  smi
+# Z3 =  sma
 # X4 = -sma
-# Z4 =  smi
+# Z4 =  sma
+
+
+X1 = -sma
+Z1 = -smi
+X2 =  sma
+Z2 = -smi
+X3 =  sma
+Z3 =  smi
+X4 = -sma
+Z4 =  smi
 
 ########### Sympy equation to find natural coordinates of the physical domain #############
 coor = np.array([])
@@ -388,8 +388,8 @@ Z_Req = Lag_poly[0]*Req_Z_disp[0] + Lag_poly[1]*Req_Z_disp[1] + Lag_poly[2]*Req_
 ############################   AXIAL STRAINS (Epsilon_xx, Epsilon_yy and Epsilon_zz)  #################################
 
 #____________________Strains in Y axis (Epsilon_yy)____________________#
-Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
-print("Epsilon_yy",E*Epsilon_yy)
+Epsilon_yy =  (Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3])*2
+# print("Epsilon_yy",E*Epsilon_yy)
 
 
 #_____________Strains in X and Z axis (Epsilon_xx and Epsilon_zz)_____________#
@@ -417,36 +417,44 @@ N_Y_Req = np.array([])
 for i in Y_Req:
     N_Y_Req = np.append(N_Y_Req,round(i*10**8,5))
 
+
+
 #___________Z_displacement of the center of all the nodes________#
-fig,ax = plt.subplots()
-co=np.linspace(Fixed_point,Free_point,n_nodes)
-ax.plot(co,Z_disp_cen*10**5,marker='o')
-ax.set_title("Z_displacement of the central point of all cross sections")
-ax.set_xlabel('Coordinates of the beam along beam axis[Y]')
-ax.set_ylabel('$u_{z}[10^{-5}m]$')
-plt.savefig('Z_Displacement_ell.png')
+# fig,ax = plt.subplots()
+# co=np.linspace(Fixed_point,Free_point,n_nodes)
+# ax.plot(co,Z_disp_cen*10**7,marker='o')
+# ax.set_title("Z_displacement of the central point of all cross sections")
+# ax.set_xlabel('Coordinates of the beam along beam axis[Y]')
+# ax.set_ylabel('$u_{z}[10^{-7}m]$')
+# plt.savefig('Z_Displacement_ell.png')
+
+
 
 
 #___________Plots Y displacment of the end cross section(shows bending behaviour)________#    
-fig,ax = plt.subplots()
-ax = plt.axes(projection='3d')
-ax.scatter(ell_x,ell_y,N_Y_Req)
-ax.set(xlabel = "X", ylabel = "Z", zlabel="$u_{y}[10^{-8}m]$", title='(B'+ str(per_elem)+')element along beam axis(Y)')
-plt.savefig('B'+str(per_elem)+'_Y_Displacement_ell.png')
-cb = ax.contour(ell_x,ell_y,Epsilon_yy)
-plt.colorbar(cb)
+# fig,ax = plt.subplots()
+# ax = plt.axes(projection='3d')
+# ax.scatter(ell_x,ell_y,N_Y_Req)
+# ax.set(xlabel = "X", ylabel = "Z", zlabel="$u_{y}[10^{-8}m]$", title='(B'+ str(per_elem)+')element along beam axis(Y)')
+# plt.savefig('B'+str(per_elem)+'_Y_Displacement_ell.png')
+
+
+
 
 
 #____________Plots the axial strain(Epsilon_yy) of the end cross section_________#
-fig,ax = plt.subplots()
-cb=ax.scatter(ell_x,ell_y,c=N_Epsilon_yy)
-ax.set(xlabel='X[m]',ylabel='Z[m]',title='Strain ($\epsilon_{yy}$) of the end cross section')
-plt.colorbar(cb,label='$\epsilon_{yy}[10^{-9}]$')
-plt.savefig('Strain_ell.png')
+# fig,ax = plt.subplots()
+# cb=ax.scatter(ell_x,ell_y,c=N_Epsilon_yy)
+# ax.set(xlabel='X[m]',ylabel='Z[m]',title='Strain ($\epsilon_{yy}$) of the end cross section')
+# plt.colorbar(cb,label='$\epsilon_{yy}[10^{-9}]$')
+# plt.savefig('Strain_ell.png')
+
+
+
 
 #____________Plots the axial strain(Sigma_yy) of the end cross section_________#
 fig,ax = plt.subplots()
-cb=ax.scatter(ell_x,ell_y,c=E*Epsilon_yy,cmap='RdBu')
+cb=ax.scatter(ell_x,ell_y,c=E*Epsilon_yy*10**-6,cmap='RdBu')
 ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress ($\sigma_{yy}$) of the end cross section')
-plt.colorbar(cb,label='$\sigma_{yy}[pa]$')
+plt.colorbar(cb,label='$\sigma_{yy}[MPa]$')
 plt.savefig('Stress_ell.png')

@@ -351,7 +351,7 @@ X_Req_fix = Lag_poly[0]*Req_X_disp_fix[0] + Lag_poly[1]*Req_X_disp_fix[1] + Lag_
 Y_Req_fix = Lag_poly[0]*Req_Y_disp_fix[0] + Lag_poly[1]*Req_Y_disp_fix[1] + Lag_poly[2]*Req_Y_disp_fix[2]  + Lag_poly[3]*Req_Y_disp_fix[3]
 Z_Req_fix = Lag_poly[0]*Req_Z_disp_fix[0] + Lag_poly[1]*Req_Z_disp_fix[1] + Lag_poly[2]*Req_Z_disp_fix[2]  + Lag_poly[3]*Req_Z_disp_fix[3]
 
-#_______________________________X,Y and Z displacements of the cross-section near fixed end___________________________#
+#_______________________________X,Y and Z displacements of the end cross-section ___________________________#
 X_Req_tip = Lag_poly[0]*Req_X_disp_tip[0] + Lag_poly[1]*Req_X_disp_tip[1] + Lag_poly[2]*Req_X_disp_tip[2]  + Lag_poly[3]*Req_X_disp_tip[3]
 Y_Req_tip = Lag_poly[0]*Req_Y_disp_tip[0] + Lag_poly[1]*Req_Y_disp_tip[1] + Lag_poly[2]*Req_Y_disp_tip[2]  + Lag_poly[3]*Req_Y_disp_tip[3]
 Z_Req_tip = Lag_poly[0]*Req_Z_disp_tip[0] + Lag_poly[1]*Req_Z_disp_tip[1] + Lag_poly[2]*Req_Z_disp_tip[2]  + Lag_poly[3]*Req_Z_disp_tip[3]
@@ -390,7 +390,7 @@ Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp_fi
 
 
 
-
+Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
 ######################################         PLOTS       ######################################
 
 #___________Z_displacement of the central point of all the cross sections________#
@@ -407,24 +407,28 @@ Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp_fi
 
 
 #___________Plots Y displacment of the end cross section(shows bending behaviour)________#
-      
-# Y_Req_tip = np.reshape(Y_Req_tip,XX.shape)
-# fig,ax = plt.subplots()
-# ax = plt.axes(projection='3d')
-# ax.plot_wireframe(XX,ZZ,Y_Req_tip*10**6)
-# ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$u_{y}[10^{-6}m]$", title='(B'+ str(per_elem)+')element along beam axis(Y)')
-# plt.savefig('B'+str(per_elem)+'_Y_Displacement.png')
+
+zeros = np.full((len(Y_Req_tip)),0)      
+Y_Req_tip = np.reshape(Y_Req_tip,XX.shape)
+zeros = np.reshape(zeros,XX.shape)
+
+fig,ax = plt.subplots()
+ax = plt.axes(projection='3d')
+ax.plot_wireframe(XX,ZZ,zeros,label='Undeformed cross section')
+ax.plot_wireframe(XX,ZZ,Y_Req_tip*10**6,label='Deformed cross section')
+ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$u_{y}[10^{-6}m]$", title='B'+str(per_elem) +'\telement along (Y) axis')
+plt.savefig('B'+str(per_elem)+'_Y_Displacement.png')
     
 
 
 #____________3D Plots the axial strain(Epsilon_yy) of the cross section close to fixed end_________#
       
-Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
-fig,ax = plt.subplots()
-ax = plt.axes(projection='3d')
-ax.plot_wireframe(XX,ZZ,Epsilon_yy*10**6)
-ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$\epsilon_{yy}[10^{-6}]$", title='Strain ($\epsilon_{yy}$) of the end cross section')
-plt.savefig('B'+str(per_elem)+'_Y_axial_strain.png')
+
+# fig,ax = plt.subplots()
+# ax = plt.axes(projection='3d')
+# ax.plot_wireframe(XX,ZZ,Epsilon_yy*10**6)
+# ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$\epsilon_{yy}[10^{-6}]$", title='Strain ($\epsilon_{yy}$) of the end cross section')
+# plt.savefig('B'+str(per_elem)+'_Y_axial_strain.png')
 
 
 
@@ -432,7 +436,7 @@ plt.savefig('B'+str(per_elem)+'_Y_axial_strain.png')
     
 # fig,ax = plt.subplots()
 # cb=ax.contourf(XX,ZZ,Epsilon_yy*10**6)
-# ax.set(xlabel='X[m]',ylabel='Z[m]',title='Strain ($\epsilon_{yy}$) of the end cross section')
+# ax.set(xlabel='X[m]',ylabel='Z[m]',title='Strain distribution ($\epsilon_{yy}$)')
 # plt.colorbar(cb,label='$\epsilon_{yy}[10^{-6}]$')
 # plt.savefig('Strain.png')
 
@@ -441,7 +445,7 @@ plt.savefig('B'+str(per_elem)+'_Y_axial_strain.png')
 #____________Plots the axial strain(Sigma_yy) of the cross section close to fixed end_________#
     
 # fig,ax = plt.subplots()
-# cb=ax.contourf(XX,ZZ,E*Epsilon_yy,cmap='RdBu')
-# ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress ($\sigma_{yy}$) of the end cross section')
-# plt.colorbar(cb,label='$\sigma_{yy}[pa]$')
+# cb=ax.contourf(XX,ZZ,E*Epsilon_yy*10**-6,cmap='RdBu')
+# ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress distribution ($\sigma_{yy}$)')
+# plt.colorbar(cb,label='$\sigma_{yy}[MPa]$')
 # plt.savefig('Stress.png')
