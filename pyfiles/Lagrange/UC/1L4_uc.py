@@ -1,3 +1,14 @@
+
+############################      PERSONAL PROGRAMMING PROJECT (PPP)     ############################ 
+
+###################     TOPIC:  STATIC ANALYSIS OF BEAM STRUCTURES USING REFINED 1D BEAM MODEL     ################### 
+
+###################    NAME: ARUN PRAKASH GANAPATHY      MAT.NO:63876     ###################
+
+
+
+########    REQUIRED LIBRARIES    ########
+
 import numpy as np
 import matplotlib.pyplot as plt  
 import sympy as sp  
@@ -11,11 +22,15 @@ from mpl_toolkits.mplot3d import Axes3D
 ###########################  TO GET INPUT FROM USER (Type of cross-section to be analyzed) #######################
 
 print("-------------------------------------------------------------------------")
-print("Enter the type of cross section to be analysed")
-print("For Square cross section beam -type (1)")
-print("For Elliptical cross section beam -type (2)")
+print("__________Choose the type of cross-section to be analysed__________")
+print(" ")
+print("For Square cross-section beam      -  Type the number (1)")
+print("For Elliptical cross-section beam  -  Type the number (2)")
+print(" ")
 cross_section = int(input("Enter the number here: ")) 
 print("-------------------------------------------------------------------------")
+
+
 
 
 ############################ MATERIAL AND GEOMETRY PARAMETERS  #############################
@@ -60,7 +75,6 @@ elif(cross_section==2):
 
 
 
-
 #_______________________________________MATERIAL PARAMETERS___________________________________#
 
 
@@ -89,8 +103,15 @@ C_66 = G
 
 print(" ")
 print(" ")
-print("Choose the type of element: Linear type (2), Quadratic type (3), Cubic type(4) as input")
+print("________Choose the type of element_______")
+print(" ")
+print("For Linear element type the number (2)")
+print("For Quadratic element type the number (3)")
+print("For Cubic element type the number (4)")
+print(" ")
+
 per_elem    = int(input("Enter the type of element: "))        # Type of the element
+print(" ")
 n_elem      = int(input("Enter the number of elements: "))     # No of elements
 n_nodes     = (per_elem-1)*n_elem  + 1                         # Total number of nodes 
 Fixed_point = 0                                                # Coordinates of the beam
@@ -162,7 +183,7 @@ elif (per_elem==4):
 #############################   SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR CROSS SECTIONAL ELEMENT      ####################################
 
 
-    #################  ALONG BEAM CROSS SECTION(X,Z) ################
+#################  ALONG BEAM CROSS SECTION(X,Z) ################
 
 alpha = np.array([0.57735,0.57735,-0.57735,-0.57735])                    # Gauss points 
 beta  = np.array([0.57735,-0.57735,0.57735,-0.57735]) 
@@ -172,7 +193,7 @@ W_Cs  = 1                                                                # Weigh
 Lag_poly = np.array([1/4*(1-alpha)*(1-beta),1/4*(1+alpha)*(1-beta),1/4*(1+alpha)*(1+beta),1/4*(1-alpha)*(1+beta)])
 n_cross_nodes = len(Lag_poly)                                                         # No of lagrange nodes per node
 DOF = 3                                                                               # Degree of freedom of each lagrange node
-
+print(n_nodes*n_cross_nodes)
 
 
 #/  Derivatives of the Lagrange polynomials with respect to alpha and beta(natural coordinates of the cross-section)  /#
@@ -219,6 +240,7 @@ for l in range(n_elem):
 
 
     
+    
     # For Quadratic(B3) Element
     elif (per_elem==3):
         
@@ -230,6 +252,7 @@ for l in range(n_elem):
         ###   Derivative of the shape function wrt to physical coordinates(N,y)   ###
         N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)]) 
 
+    
     
     
     # For Cubic(B4) element
@@ -267,6 +290,7 @@ for l in range(n_elem):
                 for s_en,s in enumerate(range(n_cross_nodes)):
                     
                     
+                    
                     #Derivative of F wrt to x and z for tau
                     F_tau_x = 1/J_Cs*((Z_beta*alpha_der[tau])-(Z_alpha*beta_der[tau]))
                     F_tau_z = 1/J_Cs*((-X_alpha*alpha_der[tau])+(X_beta*beta_der[tau]))
@@ -275,6 +299,8 @@ for l in range(n_elem):
                     F_s_x = 1/J_Cs*((Z_beta*alpha_der[s])-(Z_alpha*beta_der[s]))
                     F_s_z = 1/J_Cs*((-X_alpha*alpha_der[s])+(X_beta*beta_der[s]))
                     
+                   
+                   
                     ####    Fundamental nucleus of the stiffness matrix  ####
                     
                     K_xx =  C_22*np.sum(W_Cs*F_tau_x*F_s_x*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_66*np.sum(W_Cs*F_tau_z*F_s_z*J_Cs)*np.sum(W_Length*Shape_func[i]*Shape_func[j]*J_Length) + C_44*np.sum(W_Cs*Lag_poly[tau]*Lag_poly[s]*J_Cs)*np.sum(W_Length*N_Der[i]*N_Der[j]*J_Length)
@@ -289,10 +315,12 @@ for l in range(n_elem):
                     F_Nu = np.array([[K_xx,K_xy,K_xz],[K_yx,K_yy,K_yz],[K_zx,K_zy,K_zz]])
                     
                     
+                    
                     if (i==j==0) and (tau == s) and (l==0):
                         np.fill_diagonal(F_Nu,30e12)
                     
                     
+                   
                     ###3   For assembling  FN  into Nodal stiffness matrix   ####
                     Nodal_stiffness_matrix[3*s:3*(s+1) , 3*tau:3*(tau+1)]  = F_Nu
                     
@@ -300,6 +328,7 @@ for l in range(n_elem):
             ####     For assembling Nodal stiffness matrix into element stiffness matrix  ####       
             Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
         
+    
     
     
     if (per_elem==2):
@@ -340,7 +369,8 @@ for l in range(n_elem):
 
 ##########################         LOAD VECTOR         ##########################
 
-######   Load vector for Square cross section (-50[N])  ###### 
+
+######   Load vector for Square cross section (-50[N]) (BENDING) ###### 
 
 if(cross_section==1):
     
@@ -351,7 +381,8 @@ if(cross_section==1):
     Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
 
-######   Load vector for Elliptical cross section (-100[N])  ###### 
+######   Load vector for Elliptical cross section (-100[N]) (BENDING)  ###### 
+
 elif(cross_section==2):
 
     Load_vector = np.zeros((n_nodes*n_cross_nodes*DOF,1))
@@ -364,6 +395,7 @@ elif(cross_section==2):
 
 
 #############  Equation for solving Fundamental equation of FEA  ############
+
 Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
 
 
@@ -457,7 +489,7 @@ if(cross_section==1):
 
 
 
-######     FOR CREATING THE CROSS-SECTION OF SQUARE BEAM    ######
+######     FOR CREATING THE CROSS-SECTION OF ELLIPTICAL BEAM    ######
 
 elif(cross_section==2):
     
@@ -505,6 +537,7 @@ elif(cross_section==2):
 
 
 #########   Natural coordinates of the cross-sectional points in the physical domain    ##########
+
 X_nat = np.array([])
 Y_nat = np.array([])
 
@@ -514,6 +547,7 @@ for i in range(len(coor)):
     X_nat = np.append(X_nat,x_nat)
     Y_nat = np.append(Y_nat,y_nat)
 
+##########   LAGRANGE POLYNOMIALS WITH NATURAL COORDINATES   ##########
 Lag_poly = np.array([1/4*(1-X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1-Y_nat),1/4*(1+X_nat)*(1+Y_nat),1/4*(1-X_nat)*(1+Y_nat)])
 
 
@@ -529,6 +563,7 @@ X_Req_fix = Lag_poly[0]*Req_X_disp_fix[0] + Lag_poly[1]*Req_X_disp_fix[1] + Lag_
 Y_Req_fix = Lag_poly[0]*Req_Y_disp_fix[0] + Lag_poly[1]*Req_Y_disp_fix[1] + Lag_poly[2]*Req_Y_disp_fix[2]  + Lag_poly[3]*Req_Y_disp_fix[3]
 Z_Req_fix = Lag_poly[0]*Req_Z_disp_fix[0] + Lag_poly[1]*Req_Z_disp_fix[1] + Lag_poly[2]*Req_Z_disp_fix[2]  + Lag_poly[3]*Req_Z_disp_fix[3]
 
+
 #_______________________________X,Y and Z displacements of the end cross-section ___________________________#
 X_Req_tip = Lag_poly[0]*Req_X_disp_tip[0] + Lag_poly[1]*Req_X_disp_tip[1] + Lag_poly[2]*Req_X_disp_tip[2]  + Lag_poly[3]*Req_X_disp_tip[3]
 Y_Req_tip = Lag_poly[0]*Req_Y_disp_tip[0] + Lag_poly[1]*Req_Y_disp_tip[1] + Lag_poly[2]*Req_Y_disp_tip[2]  + Lag_poly[3]*Req_Y_disp_tip[3]
@@ -540,9 +575,9 @@ Z_Req_tip = Lag_poly[0]*Req_Z_disp_tip[0] + Lag_poly[1]*Req_Z_disp_tip[1] + Lag_
 
 ############################   AXIAL STRAINS (Epsilon_xx, Epsilon_yy and Epsilon_zz)  #################################
 
+
 #____________________Strains in Y axis (Epsilon_yy)____________________#
 Epsilon_yy =  (Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp_fix[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp_fix[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp_fix[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp_fix[3])*2
-
 
 
 
@@ -557,8 +592,10 @@ Z_alpha = alpha_der[0]*Z1 + alpha_der[1]*Z2 + alpha_der[2]*Z3 + alpha_der[3]*Z4
 Z_beta  = beta_der[0] *Z1 + beta_der[1]*Z2  + beta_der[2] *Z3 + beta_der[3] *Z4
 
 
+
 #_____________Strains in X and Z axis (Epsilon_xx and Epsilon_zz)_____________#
 Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp[3] 
+
 Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp[3] 
 
 
@@ -571,6 +608,7 @@ Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp[0]
 
 
 ###############    SQUARE CROSS-SECTION    #############
+
 
 if(cross_section==1):
     
@@ -633,8 +671,8 @@ elif(cross_section==2):
 
 
 ########    Z_displacement of the center of all the nodes     ########       
-    f
-    ig,ax = plt.subplots()
+    
+    fig,ax = plt.subplots()
     co=np.linspace(Fixed_point,Free_point,n_nodes)
     ax.plot(co,Z_disp_cen*10**5,marker='o')
     ax.set_title("Z_displacement of the central point of all cross sections")
@@ -661,6 +699,7 @@ elif(cross_section==2):
     ax.set(xlabel='X[m]',ylabel='Z[m]',title='Strain ($\epsilon_{yy}$) of the end cross section')
     plt.colorbar(cb,label='$\epsilon_{yy}[10^{-9}]$')
     plt.savefig('Strain_ell.png')
+
 
 #########    Plots the axial strain(Sigma_yy) of the end cross section     #########
     

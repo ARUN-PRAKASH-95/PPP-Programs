@@ -1,3 +1,9 @@
+                                                 ########## TEST CASE 3  ########
+
+# OBJECTIVE
+# To compare the Z displacement of the tip cross-section computed by our model with reference solution # 
+
+
 import numpy as np
 import matplotlib.pyplot as plt  
 import sympy as sp  
@@ -31,6 +37,7 @@ C_66 = G
 
 
 #____________Coordinates of the cross section____________#
+
 X1 = -0.1
 Z1 = -0.1
 X2 =  0.1
@@ -58,21 +65,25 @@ for per_elem in per_element:
         Free_point  = L
 
 
-        # _________________________________________MESH GENERATION ALONG BEAM AXIS(Y)_________________________________________________
+        
+       #############################      MESH GENERATION ALONG BEAM AXIS(Y)      #######################################
 
-        coordinate = np.linspace(Fixed_point,Free_point,i+1)
-        # print(coordinate)
-        # meshrefinementfactor = 2
-        # q=meshrefinementfactor**(1/(i-1))
-        # l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-        # rnode=Free_point
-        # c=np.array([Free_point])
-        # for i in range(i):
-        #     rnode=rnode+l
-        #     c=np.append(c,rnode)
-        #     l=l*q
-        # coordinate = np.flip(c)
 
+        if(n_elem==1):
+            coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+
+        #/  Refines mesh such that more number of elements are present close to the loading point  /#
+        else:
+            mrf = 2                                           
+            q=mrf**(1/(n_elem-1))
+            l=(Fixed_point-Free_point)*(1-q)/(1-mrf*q)
+            rnode=Free_point
+            c=np.array([Free_point])
+            for i in range(n_elem):
+                rnode=rnode+l
+                c=np.append(c,rnode)
+                l=l*q
+            coordinate = np.flip(c)
 
         #________________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT______________________________________#
 

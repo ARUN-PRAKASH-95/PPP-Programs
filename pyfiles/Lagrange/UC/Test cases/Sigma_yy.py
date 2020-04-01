@@ -1,3 +1,12 @@
+                                                ########## TEST CASE 4  ########
+
+
+# OBJECTIVE
+# To compare the maximum and minimum limit of the Axial stress(Sigma_yy) with the reference solution #
+
+
+
+
 import numpy as np
 import matplotlib.pyplot as plt  
 import sympy as sp  
@@ -56,21 +65,24 @@ for per_elem in per_element:
         Free_point  = L
 
 
-        # _________________________________________MESH GENERATION ALONG BEAM AXIS(Y)_________________________________________________
+        #############################      MESH GENERATION ALONG BEAM AXIS(Y)      #######################################
 
-        coordinate = np.linspace(Fixed_point,Free_point,i+1)
-        # print(coordinate)
-        # meshrefinementfactor = 2
-        # q=meshrefinementfactor**(1/(i-1))
-        # l=(Fixed_point-Free_point)*(1-q)/(1-meshrefinementfactor*q)
-        # rnode=Free_point
-        # c=np.array([Free_point])
-        # for i in range(i):
-        #     rnode=rnode+l
-        #     c=np.append(c,rnode)
-        #     l=l*q
-        # coordinate = np.flip(c)
 
+        if(n_elem==1):
+            coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+
+        #/  Refines mesh such that more number of elements are present close to the loading point  /#
+        else:
+            mrf = 2                                           
+            q=mrf**(1/(n_elem-1))
+            l=(Fixed_point-Free_point)*(1-q)/(1-mrf*q)
+            rnode=Free_point
+            c=np.array([Free_point])
+            for i in range(n_elem):
+                rnode=rnode+l
+                c=np.append(c,rnode)
+                l=l*q
+            coordinate = np.flip(c)
 
         #________________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT______________________________________#
 
@@ -141,6 +153,7 @@ for per_elem in per_element:
         Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
         for l in range(i):
             
+            
             # For Linear(B2) Element
             if (per_elem==2):
                 J_Length = N_Der_xi@np.array([[coordinate[l]],            # Jacobian of each element along beam axis
@@ -149,6 +162,8 @@ for per_elem in per_element:
                 ### Derivative of the shape functions with respect to physical coordinates (N,y) ###
                 N_Der    = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)]) 
 
+            
+            
             # For Quadratic(B3) Element
             elif (per_elem==3):
                 X_coor     = np.array([[coordinate[l]],
@@ -158,6 +173,8 @@ for per_elem in per_element:
                 ###### Derivative of the shape function wrt to physical coordinates(N,y) #####
                 N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)]) 
 
+            
+            # For Cubic(B4) element
             elif (per_elem==4):
                 mid = (coordinate[l+1]+coordinate[l])/2
                 mid_length = (coordinate[l+1]-coordinate[l])/2 
@@ -218,6 +235,7 @@ for per_elem in per_element:
                             
                     Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
                 
+            
             if (per_elem==2):
                 
                 #Assignment matix for arranging global stiffness matrix for B2 element
@@ -228,6 +246,7 @@ for per_elem in per_element:
                 K = AeT@Elemental_stiffness_matrix@Ae
                 Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
+            
             elif (per_elem==3):
 
                 #Assignment matix for arranging global stiffness matrix for B3 element
@@ -238,6 +257,7 @@ for per_elem in per_element:
                 K = AeT@Elemental_stiffness_matrix@Ae
                 Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
+            
             elif (per_elem==4):
 
                 #Assignment matix for arranging global stiffness matrix for B4 element
@@ -315,6 +335,7 @@ for per_elem in per_element:
 h = np.linspace(-0.1,0.1,10)
 a = 0.2
 exact_epsilon_yy = (50*2*h*12)/(2*75e9*a**4)    
+
 
 
 ##################### PLOTS THE AXIAL STRESS(SIGMA_YY) VS Z AT X=0,Y=O (GIVES STRESS LIMIT AT FIXED CROSS SECTION) ####################

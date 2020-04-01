@@ -310,8 +310,8 @@ Z3 =  0.1
 X4 = -0.1
 Z4 =  0.1
 
-X = np.linspace(-0.1,0.1,50)
-Z = np.linspace(-0.1,0.1,50)
+X = np.linspace(-0.1,0.1,10)
+Z = np.linspace(-0.1,0.1,10)
 XX,ZZ = np.meshgrid(X,Z)                  #Mesh grid for getting coordinates of the cross section
 
 
@@ -379,7 +379,9 @@ Z_beta  = beta_der[0] *Z1 + beta_der[1] *Z2 + beta_der[2] *Z3 + beta_der[3] *Z4
 
 #_____________Strains in X and Z axis (Epsilon_xx and Epsilon_zz)_____________#
 Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp_fix[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp_fix[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp_fix[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp_fix[3] 
-Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp_fix[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp_fix[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp_fix[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp_fix[3] 
+Epsilon_zz = (1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp_fix[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp_fix[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp_fix[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp_fix[3])*2 
+print(Epsilon_zz)
+
 
 #_________________________________________________________________________________________________________________________#
 
@@ -391,6 +393,8 @@ Epsilon_zz = 1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp_fi
 
 
 Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
+Epsilon_zz = np.reshape(Epsilon_zz,XX.shape)
+
 ######################################         PLOTS       ######################################
 
 #___________Z_displacement of the central point of all the cross sections________#
@@ -408,16 +412,16 @@ Epsilon_yy = np.reshape(Epsilon_yy,XX.shape)
 
 #___________Plots Y displacment of the end cross section(shows bending behaviour)________#
 
-zeros = np.full((len(Y_Req_tip)),0)      
-Y_Req_tip = np.reshape(Y_Req_tip,XX.shape)
-zeros = np.reshape(zeros,XX.shape)
+# zeros = np.full((len(Y_Req_tip)),0)      
+# Y_Req_tip = np.reshape(Y_Req_tip,XX.shape)
+# zeros = np.reshape(zeros,XX.shape)
 
-fig,ax = plt.subplots()
-ax = plt.axes(projection='3d')
-ax.plot_wireframe(XX,ZZ,zeros,label='Undeformed cross section')
-ax.plot_wireframe(XX,ZZ,Y_Req_tip*10**6,label='Deformed cross section')
-ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$u_{y}[10^{-6}m]$", title='B'+str(per_elem) +'\telement along (Y) axis')
-plt.savefig('B'+str(per_elem)+'_Y_Displacement.png')
+# fig,ax = plt.subplots()
+# ax = plt.axes(projection='3d')
+# ax.plot_wireframe(XX,ZZ,zeros,label='Undeformed cross section')
+# ax.plot_wireframe(XX,ZZ,Y_Req_tip*10**6,label='Deformed cross section')
+# ax.set(xlabel = "X [m]", ylabel = "Z [m]", zlabel="$u_{y}[10^{-6}m]$", title='B'+str(per_elem) +'\telement along (Y) axis')
+# plt.savefig('B'+str(per_elem)+'_Y_Displacement.png')
     
 
 
@@ -449,3 +453,12 @@ plt.savefig('B'+str(per_elem)+'_Y_Displacement.png')
 # ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress distribution ($\sigma_{yy}$)')
 # plt.colorbar(cb,label='$\sigma_{yy}[MPa]$')
 # plt.savefig('Stress.png')
+
+
+#____________Plots the axial strain(Sigma_zz) of the cross section close to fixed end_________#
+    
+fig,ax = plt.subplots()
+cb=ax.contourf(XX,ZZ,E*Epsilon_zz*10**-6,cmap='RdBu')
+ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress distribution ($\sigma_{yy}$)')
+plt.colorbar(cb,label='$\sigma_{yy}[MPa]$')
+plt.savefig('Stress.png')

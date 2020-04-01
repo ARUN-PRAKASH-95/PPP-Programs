@@ -1,6 +1,6 @@
                                           ########## TEST CASE 2  ########
 
-#OBJECTIVE
+# OBJECTIVE
 # To check whether the model works by performing simple tension test 
 
 
@@ -18,6 +18,8 @@ v = 0.33           #Poissons Ratio
 G = E/(2*(1+v))
 First  = (E*(1-v))/((1+v)*(1-2*v))
 Second = v*E/((1+v)*(1-2*v))
+
+
 
 #____Elastic constants____#
 C_11 = First

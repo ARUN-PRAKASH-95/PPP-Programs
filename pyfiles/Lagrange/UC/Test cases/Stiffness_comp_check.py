@@ -1,5 +1,5 @@
                                            
-                                                ####### TEST CASE 1 #######
+                                                ####### TEST CASE 2 #######
 
 # OBJECTIVE:
 # To Compare one of the components(15*3) of the Element stiffness matrix with the analytical solution given in the literature #
