@@ -1,7 +1,10 @@
-                                                 ########## TEST CASE 3  ########
+                                             ########## TEST CASE 5  ########
+
 
 # OBJECTIVE
-# To compare the Z displacement of the tip cross-section computed by our model with reference solution # 
+# To compare the maximum and minimum limit of the Axial strain(Epsilon_yy) with the reference solution #
+
+
 
 
 import numpy as np
@@ -23,7 +26,6 @@ G = E/(2*(1+v))
 First  = (E*(1-v))/((1+v)*(1-2*v))
 Second = v*E/((1+v)*(1-2*v))
 
-
 #____Elastic constants____#
 C_11 = First
 C_22 = First
@@ -34,6 +36,7 @@ C_23 = Second
 C_44 = G
 C_55 = G
 C_66 = G
+
 
 
 #____________Coordinates of the cross section____________#
@@ -47,13 +50,11 @@ Z3 =  0.1
 X4 = -0.1
 Z4 =  0.1
 
-
-
 #############  NUMBER AND TYPE OF ELEMENT ALONG BEAM AXIS(Y) ############
 
-per_element = np.array([2,3,4])           # Type of the element
-n_elem = np.array([1,2,10,20,40])         # No of elements
-z_end = np.array([])                      # Array for storing the z displacement of central point of tip cross section
+per_element = np.array([2,3,4])    # Type of the element
+n_elem = np.array([40])            # No of elements
+epsilon_yy = np.array([])          # Array for storing the z displacement of central point of tip cross section
 
 
 
@@ -65,25 +66,13 @@ for per_elem in per_element:
         Free_point  = L
 
 
-        
-       #############################      MESH GENERATION ALONG BEAM AXIS(Y)      #######################################
+        #############################      MESH GENERATION ALONG BEAM AXIS(Y)      #######################################
 
 
-        if(n_elem==1):
-            coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+        coordinate = np.linspace(Fixed_point,Free_point,i+1)
 
-        #/  Refines mesh such that more number of elements are present close to the loading point  /#
-        else:
-            mrf = 2                                           
-            q=mrf**(1/(n_elem-1))
-            l=(Fixed_point-Free_point)*(1-q)/(1-mrf*q)
-            rnode=Free_point
-            c=np.array([Free_point])
-            for i in range(n_elem):
-                rnode=rnode+l
-                c=np.append(c,rnode)
-                l=l*q
-            coordinate = np.flip(c)
+
+
 
         #________________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT______________________________________#
 
@@ -91,7 +80,7 @@ for per_elem in per_element:
             
             # For Linear(B2) Element
             xi         = 0                                                 # Gauss points
-            W_Length   = 2                                                 # Gauss Weight
+            W_Length   = 2                                                 # Gauss Weights
             Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])                 # Shape functions of a linear element
             N_Der_xi   = np.array([-1/2,1/2])                              # Derivative of the shape function (N,xi)  
 
@@ -99,7 +88,7 @@ for per_elem in per_element:
             
             # For Quadratic(B3) Element
             xi = np.array([0.339981,-0.339981,0.861136,0.861136])                                # Gauss points
-            W_Length   = np.array([0.652145,0.652145,0.347855,0.347855]) 
+            W_Length   = np.array([0.652145,0.652145,0.347855,0.347855])  
             Shape_func = np.array([1/2*(xi**2-xi),1-xi**2,1/2*(xi**2+xi)])                       # Shape functions
             N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
             N_Der_xi_m = np.array([-1/2,1/2])                                                    # Taking just numerical values from shape function for easily computing jacobian
@@ -153,7 +142,7 @@ for per_elem in per_element:
         #Size of the global stiffness matrix computed using no of nodes and no of cross nodes on each node and DOF
         Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
         for l in range(i):
-
+            
             
             # For Linear(B2) Element
             if (per_elem==2):
@@ -163,7 +152,8 @@ for per_elem in per_element:
                 ### Derivative of the shape functions with respect to physical coordinates (N,y) ###
                 N_Der    = np.array([-1/2*(1/J_Length),1/2*(1/J_Length)]) 
 
-
+            
+            
             # For Quadratic(B3) Element
             elif (per_elem==3):
                 X_coor     = np.array([[coordinate[l]],
@@ -173,7 +163,9 @@ for per_elem in per_element:
                 ###### Derivative of the shape function wrt to physical coordinates(N,y) #####
                 N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)]) 
 
-            # For Cubic(B4) Element
+            
+            
+            # For Cubic(B4) element
             elif (per_elem==4):
                 mid = (coordinate[l+1]+coordinate[l])/2
                 mid_length = (coordinate[l+1]-coordinate[l])/2 
@@ -182,8 +174,8 @@ for per_elem in per_element:
                                 [mid+(mid_length/3)],
                                 [coordinate[l+1]]])                                                      
 
-                ###### Derivative of the shape function wrt to physical coordinates(N,y) #####       
-                J_Length   = N_Der_xi_m@X_coor                             # Jacobian of each element along beam axis               
+                        
+                J_Length   = N_Der_xi_m@X_coor                             # Jacobian of each element along beam axis
                 N_Der      = np.array([(-1.6875*xi**2 + 1.125*xi + 0.0625)*(1/J_Length),(5.0625*xi**2 - 1.125*xi - 1.6875)*(1/J_Length),(-5.0625*xi**2 - 1.125*xi + 1.6875)*(1/J_Length),(1.6875*xi**2 + 1.125*xi - 0.0625)*(1/J_Length)])        # Derivative of the shape function wrt to physical coordinates(N,y)
 
                     
@@ -234,6 +226,7 @@ for per_elem in per_element:
                             
                     Elemental_stiffness_matrix[sep*j:sep*(j+1) , sep*i:sep*(i+1)] = Nodal_stiffness_matrix
                 
+            
             if (per_elem==2):
                 
                 #Assignment matix for arranging global stiffness matrix for B2 element
@@ -244,6 +237,7 @@ for per_elem in per_element:
                 K = AeT@Elemental_stiffness_matrix@Ae
                 Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
+            
             elif (per_elem==3):
 
                 #Assignment matix for arranging global stiffness matrix for B3 element
@@ -254,6 +248,7 @@ for per_elem in per_element:
                 K = AeT@Elemental_stiffness_matrix@Ae
                 Global_stiffness_matrix = np.add(Global_stiffness_matrix,K)
 
+            
             elif (per_elem==4):
 
                 #Assignment matix for arranging global stiffness matrix for B4 element
@@ -275,24 +270,71 @@ for per_elem in per_element:
         Load_vector[n_nodes*n_cross_nodes*DOF-4]  = -12.5
         Load_vector[n_nodes*n_cross_nodes*DOF-1]  = -12.5
 
-        
         ############## SOLVES FUNDAMENTAL EQUATION OF FEA ##############
         Displacement = np.linalg.solve(Global_stiffness_matrix,Load_vector)
         
 
-        #######  Appends Z_displacement of the central point of the tip cross section ##########
-        z_end = np.append(z_end,Displacement[n_nodes*n_cross_nodes*DOF-1])
+
+        #____________________________________________POST PROCESSING PHASE______________________________________________________#
+
+        #To extract the displacement of our interest 
+        Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
+        Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
+        Displacement[13] =  -Displacement[13] 
+        Displacement[19] =  -Displacement[19]
+        
+
+        
+        #X displacements of all the lagrange nodes
+        X_disp = np.array([])
+        for k in range(n_nodes*n_cross_nodes):
+            X_disp = np.append(X_disp,Displacement[3*(k+1)-3])
+        Req_X_disp = X_disp[4:8]     # X Displacements of the lagrange nodes at the cross section close to fixed end
+
+        
+        #Y displacements of all the lagrange nodes
+        Y_disp = np.array([])
+        for k in range(n_nodes*n_cross_nodes):
+            Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
+        Req_Y_disp = Y_disp[4:8]     # Y Displacements of the lagrange nodes at the cross section close to fixed end
+        
+
+        #Z displacements of all the lagrange nodes
+        Z_disp = np.array([])
+        for k in range(n_nodes*n_cross_nodes):
+            Z_disp = np.append(Z_disp,Displacement[3*(k+1)-1])
+        Req_Z_disp = Z_disp[4:8]      # Z Displacements of the lagrange nodes at the cross section close to fixed end
 
 
-##################### PLOTS Z DISPLACEMENT OF THE CENTRAL POINT OF TIP CROSS SECTION(B2,B3,B4) AND EXACT SOLUTION ##############
+
+        
+        
+        #############   Calculates Axial Strain(Epsilon_yy) at X=0,Y=O and along Z   ###########
+        X_nat = np.full((10),0)
+        z_nat = np.linspace(-1,1,10)
+        Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
+        
+        Epsilon_yy =  (Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3])*2
+        epsilon_yy = np.append(epsilon_yy,Epsilon_yy)
+        
+        
+
+        
+
+
+################ Exact solution for the maximum and minimum limit of the Axial strain(Epsilon_yy) ###########
+h = np.linspace(-0.1,0.1,10)
+a = 0.2
+exact_epsilon_yy = (50*2*h*12)/(E*a**4)    
+
+
+##################### PLOTS THE AXIAL STRAIN(EPSILON_YY) VS Z AT X=0,Y=O (GIVES STRAIN LIMIT AT FIXED CROSS SECTION) ####################
 
 fig,ax = plt.subplots()
-ax.plot(n_elem,z_end[: len(n_elem)]*10**5,marker='o',label='Linear')                     # Plots Z displacement of B2 element
-ax.plot(n_elem,z_end[len(n_elem) : len(n_elem)*2]*10**5,marker='*',label='Quadratic')    # Plots Z displacement of B3 element
-ax.plot(n_elem,z_end[len(n_elem)*2 : len(n_elem)*3]*10**5,marker='x',label='Cubic')      # Plots Z displacement of B4 element
-ax.plot(n_elem,np.full((len(n_elem)),-1.33),marker='+',label='Exact')
-ax.set_title("Displacement of the central point of tip cross section")
-ax.set_xlabel('Number of elements')
-ax.set_ylabel('$u_{z}[10^{-5}m]$')
+ax.plot(h,epsilon_yy[: 10]*10**6,marker='o',label='Linear(B2)')           # Plots Axial strain(Epsilon_yy) of B2 element
+ax.plot(h,epsilon_yy[10 : 20]*10**6,marker='*',label='Quadratic(B3)')     # Plots Axial strain(Epsilon_yy) of B3 element
+ax.plot(h,epsilon_yy[20 : 30]*10**6,marker='x',label='Cubic(B4)')         # Plots Axial strain(Epsilon_yy) of B4 element
+ax.plot(h,exact_epsilon_yy*10**6,marker='+',label='Exact')
+ax.set(xlabel='Z [m]',ylabel='$\epsilon_{yy}[10^{-6}]$',title='Axial strain ($\epsilon_{yy}$) vs Z')
 ax.legend()
-plt.savefig('Displacement_center.png')
+plt.savefig('Strain_limit.png')

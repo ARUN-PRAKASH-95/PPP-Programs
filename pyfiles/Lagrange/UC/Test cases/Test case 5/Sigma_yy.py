@@ -1,8 +1,8 @@
-                                             ########## TEST CASE 5  ########
+                                                ########## TEST CASE 5  ########
 
 
 # OBJECTIVE
-# To compare the maximum and minimum limit of the Axial strain(Epsilon_yy) with the reference solution #
+# To compare the maximum and minimum limit of the Axial stress (Sigma_yy) with the reference solution #
 
 
 
@@ -68,21 +68,8 @@ for per_elem in per_element:
         #############################      MESH GENERATION ALONG BEAM AXIS(Y)      #######################################
 
 
-        if(n_elem==1):
-            coordinate = np.linspace(Fixed_point,Free_point,n_elem+1)
+        coordinate = np.linspace(Fixed_point,Free_point, i+1)
 
-        #/  Refines mesh such that more number of elements are present close to the loading point  /#
-        else:
-            mrf = 2                                           
-            q=mrf**(1/(n_elem-1))
-            l=(Fixed_point-Free_point)*(1-q)/(1-mrf*q)
-            rnode=Free_point
-            c=np.array([Free_point])
-            for i in range(n_elem):
-                rnode=rnode+l
-                c=np.append(c,rnode)
-                l=l*q
-            coordinate = np.flip(c)
 
 
         #________________________________SHAPE FUNCTIONS AND GAUSS QUADRATURE FOR BEAM ELEMENT______________________________________#
@@ -95,6 +82,7 @@ for per_elem in per_element:
             Shape_func = np.array([1/2*(1-xi),1/2*(1+xi)])                 # Shape functions of a linear element
             N_Der_xi   = np.array([-1/2,1/2])                              # Derivative of the shape function (N,xi)  
 
+        
         elif (per_elem==3):
             
             # For Quadratic(B3) Element
@@ -104,6 +92,7 @@ for per_elem in per_element:
             N_Der_xi = np.array([sp.Symbol('xi')-1/2,-2*sp.Symbol('xi'),sp.Symbol('xi')+1/2])    # Derivative of the shape function 
             N_Der_xi_m = np.array([-1/2,1/2])                                                    # Taking just numerical values from shape function for easily computing jacobian
 
+        
         elif (per_elem==4):
             
             # For Cubic(B4) Element
@@ -174,7 +163,6 @@ for per_elem in per_element:
                 ###### Derivative of the shape function wrt to physical coordinates(N,y) #####
                 N_Der      = np.array([(xi-1/2)*(1/J_Length),-2*xi*(1/J_Length),(xi+1/2)*(1/J_Length)]) 
 
-            
             
             # For Cubic(B4) element
             elif (per_elem==4):
@@ -325,7 +313,7 @@ for per_elem in per_element:
         z_nat = np.linspace(-1,1,10)
         Lag_poly = np.array([1/4*(1-X_nat)*(1-z_nat),1/4*(1+X_nat)*(1-z_nat),1/4*(1+X_nat)*(1+z_nat),1/4*(1-X_nat)*(1+z_nat)])
         
-        Epsilon_yy =  Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3] 
+        Epsilon_yy =  (Lag_poly[0]*1/2*(1/J_Length)*Req_Y_disp[0] + Lag_poly[1]*1/2*(1/J_Length)*Req_Y_disp[1] + Lag_poly[2]*1/2*(1/J_Length)*Req_Y_disp[2] + Lag_poly[3]*1/2*(1/J_Length)*Req_Y_disp[3])*2 
         epsilon_yy = np.append(epsilon_yy,Epsilon_yy)
         
         
@@ -333,19 +321,20 @@ for per_elem in per_element:
         
 
 
-################ Exact solution for the maximum and minimum limit of the Axial strain(Epsilon_yy) ###########
+################ Exact solution for the maximum and minimum limit of the Axial stress (Sigma_yy) ###########
 h = np.linspace(-0.1,0.1,10)
 a = 0.2
-exact_epsilon_yy = (50*2*h*12)/(2*75e9*a**4)    
+exact_epsilon_yy = (50*2*h*12)/(E*a**4)    
 
 
-##################### PLOTS THE AXIAL STRAIN(EPSILON_YY) VS Z AT X=0,Y=O (GIVES STRAIN LIMIT AT FIXED CROSS SECTION) ####################
+
+##################### PLOTS THE AXIAL STRESS(SIGMA_YY) VS Z AT X=0,Y=O (GIVES STRESS LIMIT AT FIXED CROSS SECTION) ####################
 
 fig,ax = plt.subplots()
-ax.plot(h,epsilon_yy[: 10],marker='o',label='Linear(B2)')           # Plots Axial strain(Epsilon_yy) of B2 element
-ax.plot(h,epsilon_yy[10 : 20],marker='*',label='Quadratic(B3)')     # Plots Axial strain(Epsilon_yy) of B3 element
-ax.plot(h,epsilon_yy[20 : 30],marker='x',label='Cubic(B4)')         # Plots Axial strain(Epsilon_yy) of B4 element
-ax.plot(h,exact_epsilon_yy,marker='+',label='Exact')
-ax.set(xlabel='Z [m]',ylabel='$\epsilon_{yy}[10^{-7}]$',title='Axial strain ($\epsilon_{yy}$) vs Z')
+ax.plot(h,E*epsilon_yy[: 10]*10**-6,marker='o',label='Linear(B2)')           # Plots Axial strain(Sigma_yy) of B2 element
+ax.plot(h,E*epsilon_yy[10 : 20]*10**-6,marker='*',label='Quadratic(B3)')     # Plots Axial strain(Sigma_yy) of B3 element
+ax.plot(h,E*epsilon_yy[20 : 30]*10**-6,marker='x',label='Cubic(B4)')         # Plots Axial strain(Sigma_yy) of B4 element
+ax.plot(h,E*exact_epsilon_yy*10**-6,marker='+',label='Exact')
+ax.set(xlabel='Z [m]',ylabel='$\sigma_{yy} [MPa]$',title='Axial stress ($\sigma_{yy}$) vs Z')
 ax.legend()
-plt.savefig('Strain_limit.png')
+plt.savefig('Stress_limit.png')
