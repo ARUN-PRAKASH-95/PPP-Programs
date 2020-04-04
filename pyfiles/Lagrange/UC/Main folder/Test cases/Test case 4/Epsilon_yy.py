@@ -13,6 +13,7 @@ import sympy as sp
 from sympy import *
 from sympy.solvers.solveset import linsolve
 from mpl_toolkits.mplot3d import Axes3D
+from tqdm import tqdm
 
 
 
@@ -58,7 +59,7 @@ epsilon_yy = np.array([])          # Array for storing the z displacement of cen
 
 
 
-for per_elem in per_element: 
+for per_elem in tqdm(per_element): 
 
     for i in n_elem:
         n_nodes  = (per_elem-1)*i  + 1                       # Total number of nodes 
@@ -278,13 +279,7 @@ for per_elem in per_element:
         #____________________________________________POST PROCESSING PHASE______________________________________________________#
 
         #To extract the displacement of our interest 
-        Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
-        Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
-        Displacement[13] =  -Displacement[13] 
-        Displacement[19] =  -Displacement[19]
-        
-
-        
+      
         #X displacements of all the lagrange nodes
         X_disp = np.array([])
         for k in range(n_nodes*n_cross_nodes):
@@ -296,6 +291,9 @@ for per_elem in per_element:
         Y_disp = np.array([])
         for k in range(n_nodes*n_cross_nodes):
             Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
+        for i in range(len(Y_disp)):
+            if i%2==0:
+                Y_disp[i] = -Y_disp[i]
         Req_Y_disp = Y_disp[4:8]     # Y Displacements of the lagrange nodes at the cross section close to fixed end
         
 

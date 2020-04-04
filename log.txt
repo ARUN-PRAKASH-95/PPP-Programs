@@ -1,0 +1,275 @@
+commit 90bce779096dde17cc07dee8b23f414d75514708
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Fri Apr 3 23:30:21 2020 +0200
+
+    Main folder added
+
+commit e687b6c0414826fa11a15a673f1a5c114f2336fd
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Thu Apr 2 17:21:00 2020 +0200
+
+    Test case edited
+
+commit e2b5e4b0852868bab6f3e606d89cc09d99a7c316
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Apr 1 23:35:00 2020 +0200
+
+    Test case commented
+
+commit ae69ed5c4c61be0e6251ce635563f52572657750
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Tue Mar 31 22:53:08 2020 +0200
+
+    Comments added
+
+commit 58a0030653a5c170fcce0664c3cb50dd6ef27e0a
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sun Mar 29 03:31:14 2020 +0200
+
+    seperate files added
+
+commit 9105ade02b9a90001936683d55afe730e8a6bf0f
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Tue Mar 24 22:57:48 2020 +0100
+
+    Seperate test cases added
+
+commit c99f2e83bc2fa664ce91ea7ca9f219fdeb02fdd0
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Mon Mar 23 23:07:55 2020 +0100
+
+    Plots added
+
+commit ef033396778a4cfdb5b914981d2cf8639d7e2d38
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sat Mar 21 00:07:16 2020 +0100
+
+    plot added
+
+commit 2e019c6a610c1e5e2332881776dc2b9a82ff8b05
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Thu Mar 19 18:47:14 2020 +0100
+
+    generalised code added
+
+commit d43f836fe80bed7a41ce227f4c48875389caf5b9
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Mar 4 20:41:20 2020 +0100
+
+    New cross section
+
+commit 4cabb301743cf625ddd57c47f0d6ddd564ed29b8
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Fri Feb 28 15:01:56 2020 +0100
+
+    plot in uc added
+
+commit d9a62d5c3dfa0bcbcd5811d5a69a1f1edc3990e5
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Mon Feb 17 14:53:46 2020 +0100
+
+    B4 added to Universal code
+
+commit 98a3a29f97a9e193a1e05653044edddccbc34995
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Mon Feb 17 14:32:37 2020 +0100
+
+    Universal code added
+
+commit ed04bd7bbdeeb33b6ebb686dbe575cd9214d45ce
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Fri Jan 31 18:19:09 2020 +0100
+
+    Postprocessing added for n_B3 and 2L4
+
+commit 33a757ca2252fd3a1f74e9d945daf988a8ebcdf0
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Jan 29 13:44:37 2020 +0100
+
+    All points added
+
+commit 2e36ab30efc366e1ba2d949b4c3f4b98218a1be7
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Tue Jan 28 20:01:58 2020 +0100
+
+    Strains added
+
+commit 9e87821fc873cd6c298afc7bb58899a894e8bb42
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Tue Jan 28 18:19:50 2020 +0100
+
+    Post processing added
+
+commit 4348e12a555a510f7d8aac160a828137deb846c2
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Thu Jan 23 16:39:57 2020 +0100
+
+    Tensile Load Checked
+
+commit 95a7e407caacbd71dce8b4f0dbb674e144c47336
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sat Jan 11 14:15:28 2020 +0100
+
+    2L4 loadvector changed
+
+commit 5ded3b295b04670e8ebe5f28fdb50f7efcd0ffb6
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Fri Jan 3 19:36:13 2020 +0100
+
+    Loading vector changed
+
+commit 738f7707674e7fdc730a012e27f4d1bd39684b26
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Jan 1 19:57:59 2020 +0100
+
+    2L4 for all type of elements implemented
+
+commit 49297c4b5fb7bd7726ac807c27a5f59112e008c5
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Jan 1 17:53:13 2020 +0100
+
+    Program for 2L4 across cross section added
+
+commit b4b0a878898284391647f80a5e4aa2892e9d14e8
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sat Dec 28 14:27:15 2019 +0100
+
+    n_B4_elemets implemented
+
+commit 9160f1f09c144bf8ddad18f3e0fdecfe4dbe6cc8
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Fri Dec 27 20:24:38 2019 +0100
+
+    n_B4_implemented
+
+commit 126cab9dc0350ee7418e80d72a83215c2533df67
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Fri Dec 27 14:08:06 2019 +0100
+
+    B4 element added
+
+commit ff018424975c4d41edfda98cc87af58e5c819b1c
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Fri Dec 27 14:06:18 2019 +0100
+
+    B3_element added
+
+commit 6f38d7b45b4c021d9e38c741028493f10b4d82b7
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Thu Dec 26 15:13:38 2019 +0100
+
+    n_B3 Element implemented
+
+commit 27fea57b6def4fcc3a85547263a7c8624402465c
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Dec 25 18:53:56 2019 +0100
+
+    B3 n element created
+
+commit dec8065f326ada25fcb198738a72dae426998aad
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Dec 25 15:01:22 2019 +0100
+
+    Every program standardized
+
+commit 9f8af5b2b00e35e45d4aae69ae987c330575588b
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Mon Dec 23 17:38:53 2019 +0100
+
+    Txt file created
+
+commit 356e777aa3c2b45987f542f7ce2a9f96352e44f0
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sun Dec 22 19:28:14 2019 +0100
+
+    B3 Jacobian changed and standardized
+
+commit 2614a775893bd8d3540f20fcb3cd71fc752b581d
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sat Dec 21 21:01:36 2019 +0100
+
+    Program standardized and B3 element created
+
+commit 5a880533cafa8f9de1b20b093a2e758b4fe7ea06
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sat Dec 21 20:00:27 2019 +0100
+
+    Stiffness matrix changed and n_element programs jacobian updated
+
+commit a278fdbf19d34d2006d9b658008feb5c31138333
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Dec 18 13:27:46 2019 +0100
+
+    J_inv added
+
+commit cadc5c8a8f6e53990f28cf1bc7b067530118afb3
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sat Dec 14 14:46:28 2019 +0100
+
+    added beam element file
+
+commit 51093cc1878019596a9e465eb560499da49a9f4f
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sat Dec 7 12:06:54 2019 +0100
+
+    File for taylor created
+
+commit 8a4b27ac8afa9fd48d646db77facf725e2dd4c84
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Fri Dec 6 18:41:46 2019 +0100
+
+    Dec 6
+
+commit ba9212f6fef894e69c3e6c89bfd080ea85901fa2
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sun Nov 10 14:10:17 2019 +0100
+
+    n element implemented
+
+commit 3fe69e57d30b8fbf110c70ea909b7b62cb16dc39
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sun Nov 10 12:24:52 2019 +0100
+
+    n_element partially added
+
+commit ad674eaed5ea40e4689ed88661713bde0b01ace1
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Sun Nov 10 11:34:52 2019 +0100
+
+    n element added
+
+commit ed604b757ba97bb5db25242db750a9f6cb348bed
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Mon Nov 4 18:25:55 2019 +0100
+
+    check 04/11
+
+commit 5f36687cc3d2b3499534700888e0badb42f2c00c
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Oct 30 13:50:46 2019 +0100
+
+    Penalty
+
+commit 37a0009467d9f6218021e05e21f47311b6fcea90
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Tue Oct 29 15:26:06 2019 +0100
+
+    Element stiffness matrix implemented
+
+commit 997a342095e8b19b5135b906a68ad36fd97f1401
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Thu Oct 24 21:57:02 2019 +0200
+
+    Nodal stiffness matrix implemented
+
+commit ee9c963c5da2f02fbcae5b211c545d4491feddf7
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Oct 23 14:09:46 2019 +0200
+
+    FN-implemented
+
+commit 96932d0fe24b4cd351e701c310e7148f55e152b6
+Author: ARUN-PRAKASH-95 <arunprakash.fns@gmail.com>
+Date:   Wed Oct 23 12:49:56 2019 +0200
+
+    Simple case

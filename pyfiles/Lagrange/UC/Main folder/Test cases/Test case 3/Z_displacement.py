@@ -10,6 +10,7 @@ import sympy as sp
 from sympy import *
 from sympy.solvers.solveset import linsolve
 from mpl_toolkits.mplot3d import Axes3D
+from tqdm import tqdm
 
 
 
@@ -57,7 +58,7 @@ z_end = np.array([])                      # Array for storing the z displacement
 
 
 
-for per_elem in per_element: 
+for per_elem in tqdm(per_element): 
 
     for i in n_elem:
         n_nodes  = (per_elem-1)*i  + 1                       # Total number of nodes 

@@ -4,6 +4,7 @@ import sympy as sp
 from sympy import *
 from sympy.solvers.solveset import linsolve
 from mpl_toolkits.mplot3d import Axes3D
+from tqdm import tqdm
 
 
 
@@ -12,14 +13,14 @@ sma = 0.4          #Semi major axis for the ellipse
 smi = 0.2          #Semi minor axis for the ellipse
 L = 4              #[m] Length of the beam
 
-X1 = -sma
-Z1 = -sma
-X2 =  sma
-Z2 = -sma
-X3 =  sma
-Z3 =  sma
-X4 = -sma
-Z4 =  sma
+X1 = -smi
+Z1 = -smi
+X2 =  smi
+Z2 = -smi
+X3 =  smi
+Z3 =  smi
+X4 = -smi
+Z4 =  smi
 
 # X1 = -sma
 # Z1 = -smi
@@ -150,7 +151,7 @@ J_Cs = J_Cs[0]
 
 #Size of the global stiffness matrix computed using no of nodes and no of cross nodes on each node and DOF
 Global_stiffness_matrix = np.zeros((n_nodes*n_cross_nodes*DOF,n_nodes*n_cross_nodes*DOF))    
-for l in range(n_elem):
+for l in tqdm(range(n_elem)):
 
     if (per_elem==2):
         J_Length = N_Der_xi@np.array([[coordinate[l]],            # Jacobian of each element along beam axis
@@ -327,7 +328,7 @@ ell = (aa**2/sma**2) + (bb**2/smi**2)   #Ellipse equation to get points inside t
 rows,col = ell.shape
 ell_x = np.array([])
 ell_y = np.array([])
-for i in range(rows):
+for i in tqdm(range(rows)):
     for j in range(col):
         if(ell[i,j]<=1):
             ell_x = np.append(ell_x,aa[i,j])
@@ -344,18 +345,28 @@ for i in range(rows):
 # Z4 =  sma
 
 
-X1 = -sma
+# X1 = -sma
+# Z1 = -smi
+# X2 =  sma
+# Z2 = -smi
+# X3 =  sma
+# Z3 =  smi
+# X4 = -sma
+# Z4 =  smi
+
+
+X1 = -smi
 Z1 = -smi
-X2 =  sma
+X2 =  smi
 Z2 = -smi
-X3 =  sma
+X3 =  smi
 Z3 =  smi
-X4 = -sma
+X4 = -smi
 Z4 =  smi
 
 ########### Sympy equation to find natural coordinates of the physical domain #############
 coor = np.array([])
-for i in range(len(ell_x)):
+for i in tqdm(range(len(ell_x))):
     eq1 =  F1*X1 + F2 * X2 + F3 * X3 + F4 * X4 - ell_x[i]
     eq2 =  F1*Z1 + F2 * Z2 + F3 * Z3 + F4 * Z4 - ell_y[i]
     a = solve([eq1, eq2], (alpha,beta))
@@ -420,13 +431,13 @@ for i in Y_Req:
 
 
 #___________Z_displacement of the center of all the nodes________#
-fig,ax = plt.subplots()
-co=np.linspace(Fixed_point,Free_point,n_nodes)
-ax.plot(co,Z_disp_cen*10**7,marker='o')
-ax.set_title("Z_displacement of the central point of all cross sections")
-ax.set_xlabel('Coordinates of the beam along beam axis[Y]')
-ax.set_ylabel('$u_{z}[10^{-7}m]$')
-plt.savefig('Z_Displacement_ell.png')
+# fig,ax = plt.subplots()
+# co=np.linspace(Fixed_point,Free_point,n_nodes)
+# ax.plot(co,Z_disp_cen*10**7,marker='o')
+# ax.set_title("Z_displacement of the central point of all cross sections")
+# ax.set_xlabel('Coordinates of the beam along beam axis[Y]')
+# ax.set_ylabel('$u_{z}[10^{-7}m]$')
+# plt.savefig('Z_Displacement_ell.png')
 
 
 

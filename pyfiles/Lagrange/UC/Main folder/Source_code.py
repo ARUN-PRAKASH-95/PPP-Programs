@@ -408,11 +408,6 @@ np.savetxt('B'+str(per_elem)+'\t Displacement.txt',Displacement,delimiter=',')
 
 
 #To extract the displacement of our interest 
-Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
-Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
-Displacement[13] =  -Displacement[13] 
-Displacement[19] =  -Displacement[19]
-
 
 
 #X displacements of all the lagrange nodes
@@ -428,6 +423,9 @@ Req_X_disp_fix = X_disp[4:8]                        #Displacement of the lagrang
 Y_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
+for i in range(len(Y_disp)):
+    if i%2==0:
+        Y_disp[i] = -Y_disp[i]
 Req_Y_disp_tip = Y_disp[-4::]                      #Displacement of the lagrange nodes at end cross-section
 Req_Y_disp_fix = Y_disp[4:8]                       #Displacement of the lagrange nodes at fixed cross-section
 
@@ -655,7 +653,7 @@ if(cross_section==1):
 
 
 ###############    3D Plots the axial strain(Sigma_yy) of the cross section close to fixed end     ###############
-    Y displacement of the end cross-section            & B(*) Y\_displacement.png\\[5pt]
+
     fig,ax = plt.subplots()
     cb=ax.contourf(XX,ZZ,E*Epsilon_yy*10**-6,cmap='RdBu')
     ax.set(xlabel='X[m]',ylabel='Z[m]',title='Stress distribution ($\sigma_{yy}$)')

@@ -5,6 +5,7 @@ from sympy import *
 from sympy.solvers.solveset import linsolve
 from mpl_toolkits.mplot3d import Axes3D
 import time 
+from tqdm import tqdm
 
 start_time = time.time()
 
@@ -258,10 +259,10 @@ print(Displacement)
 #To extract the displacement of our interest 
 
 #X displacements of all the lagrange nodes
-Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
-Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
-Displacement[13] =  -Displacement[13] 
-Displacement[19] =  -Displacement[19]
+# Displacement[n_nodes*n_cross_nodes*DOF-11] =  -Displacement[n_nodes*n_cross_nodes*DOF-11] 
+# Displacement[n_nodes*n_cross_nodes*DOF-5]  =  -Displacement[n_nodes*n_cross_nodes*DOF-5]
+# Displacement[13] =  -Displacement[13] 
+# Displacement[19] =  -Displacement[19]
 
 
 X_disp = np.array([])
@@ -276,6 +277,9 @@ Req_X_disp_fix = X_disp[4:8]
 Y_disp = np.array([])
 for k in range(n_nodes*n_cross_nodes):
     Y_disp = np.append(Y_disp,Displacement[3*(k+1)-2])
+for i in range(len(Y_disp)):
+    if i%2==0:
+        Y_disp[i] = -Y_disp[i]
 Req_Y_disp_tip = Y_disp[-4::]
 Req_Y_disp_fix = Y_disp[4:8]
 
@@ -383,7 +387,7 @@ Z_beta  = beta_der[0] *Z1 + beta_der[1] *Z2 + beta_der[2] *Z3 + beta_der[3] *Z4
 #_____________Strains in X and Z axis (Epsilon_xx and Epsilon_zz)_____________#
 Epsilon_xx = (1/J_Cs)*((Z_beta*alpha_der[0])-(Z_alpha*beta_der[0]))*Req_X_disp_fix[0] + (1/J_Cs)*((Z_beta*alpha_der[1])-(Z_alpha*beta_der[1]))*Req_X_disp_fix[1] + (1/J_Cs)*((Z_beta*alpha_der[2])-(Z_alpha*beta_der[2]))*Req_X_disp_fix[2] + (1/J_Cs)*((Z_beta*alpha_der[3])-(Z_alpha*beta_der[3]))*Req_X_disp_fix[3] 
 Epsilon_zz = (1/J_Cs*((-X_alpha*alpha_der[0])+(X_beta*beta_der[0]))*Req_Z_disp_fix[0] + 1/J_Cs*((-X_alpha*alpha_der[1])+(X_beta*beta_der[1]))*Req_Z_disp_fix[1] + 1/J_Cs*((-X_alpha*alpha_der[2])+(X_beta*beta_der[2]))*Req_Z_disp_fix[2] + 1/J_Cs*((-X_alpha*alpha_der[3])+(X_beta*beta_der[3]))*Req_Z_disp_fix[3])*2 
-print(Epsilon_zz)
+# print(Epsilon_zz)
 
 
 #_________________________________________________________________________________________________________________________#
