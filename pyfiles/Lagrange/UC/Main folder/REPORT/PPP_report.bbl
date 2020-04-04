@@ -1,0 +1,31 @@
+\begin{thebibliography}{1}
+
+\bibitem{carrera2010refined}
+E~Carrera, G~Giunta, P~Nali, and M~Petrolo.
+\newblock Refined beam elements with arbitrary cross-section geometries.
+\newblock {\em Computers \& structures}, 88(5-6):283--293, 2010.
+
+\bibitem{carrera2014finite}
+Erasmo Carrera, Maria Cinefra, Marco Petrolo, and Enrico Zappino.
+\newblock {\em Finite element analysis of structures through unified
+  formulation}.
+\newblock John Wiley \& Sons, 2014.
+
+\bibitem{carrera2011beam}
+Erasmo Carrera, Gaetano Giunta, and Marco Petrolo.
+\newblock {\em Beam structures: classical and advanced theories}.
+\newblock John Wiley \& Sons, 2011.
+
+\bibitem{carrera2013use}
+Erasmo Carrera, Alfonso Pagani, and Marco Petrolo.
+\newblock Use of lagrange multipliers to combine 1d variable kinematic finite
+  elements.
+\newblock {\em Computers \& Structures}, 129:194--206, 2013.
+
+\bibitem{zappino2014variable}
+Enrico Zappino.
+\newblock {\em Variable kinematic 1D, 2D and 3D models for the Analysis of
+  Aerospace Structures}.
+\newblock PhD thesis, PhD thesis. Politecnico di Torino, 2014.
+
+\end{thebibliography}
